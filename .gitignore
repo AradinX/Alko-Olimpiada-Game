@@ -1,0 +1,32 @@
+# Unreal Engine — generowane, nie commitować
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+
+# Pliki IDE / solucji (regenerowane z .uproject)
+.vs/
+.vscode/
+.idea/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+*.xcodeproj
+*.xcworkspace
+
+# Wtyczki — ich Binaries/Intermediate też
+Plugins/**/Binaries/
+Plugins/**/Intermediate/
+
+# System
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Crashe i logi
+*.log
+*.dmp
