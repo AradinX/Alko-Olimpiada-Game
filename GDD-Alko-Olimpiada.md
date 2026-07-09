@@ -1,7 +1,7 @@
 # Alko Olimpiada — Dokument Projektowy Gry (GDD)
 
-> Wersja robocza 0.2 — pomysł + rozstrzygnięte pierwsze decyzje projektowe.
-> Silnik: **Unreal Engine 5**. Platforma: **PC / Steam**. Perspektywa: **first-person**. Tryb: **multiplayer** (2–10 graczy), **wbudowany voice chat od startu**.
+> Wersja robocza 0.3 — pomysł + rozstrzygnięte pierwsze decyzje projektowe. Zmiana silnika na Unity (mniejsze obciążenie sprzętu przy grze tego typu).
+> Silnik: **Unity 6**. Platforma: **PC / Steam**. Perspektywa: **first-person**. Tryb: **multiplayer** (2–10 graczy), **wbudowany voice chat od startu**.
 
 ---
 
@@ -168,26 +168,27 @@ Docelowo **6 głównych** + 1 dodatkowa (poker). Z tego **2 drużynowe** (wymaga
 - **2–10 graczy** (docelowo skalowanie; niektóre konkurencje drużynowe wymagają min. 4).
 - Model: jeden gracz **tworzy grę/lobby**, znajomi **dołączają**.
 - First-person, wszyscy widzą się na wspólnej mapie.
-- **Voice chat wbudowany od startu** (UE VOIP; docelowo Steam Voice) — gra imprezowa bez głosu traci połowę humoru.
+- **Voice chat wbudowany od startu** (Unity Vivox; docelowo ew. Steam Voice) — gra imprezowa bez głosu traci połowę humoru.
 - Gracze wyeliminowani w trakcie konkurencji (Lucky Shot, Poker) **oglądają jako widzowie** do końca konkurencji.
 - **Do zaprojektowania (kluczowe technicznie):** architektura sieci (host/klient vs. dedykowany serwer), autorytet nad stanem gry, synchronizacja upojenia i wyników.
 
 ---
 
-## 10. Uwagi techniczne (Unreal Engine)
+## 10. Uwagi techniczne (Unity)
 
-- **Netcode:** UE ma wbudowaną replikację (Actor Replication, RPC). Najprościej na start: **listen server** (host jest jednym z graczy). Dedykowany serwer później, jeśli będzie potrzeba.
-- **Struktura:** mapa-hub jako osobny Level; każda konkurencja jako **osobny Level/sublevel** ładowany po głosowaniu (ekran ładowania = Level streaming / open level).
-- **Mechaniki input-timing** (kółko + SPACJA, klikanie, trzymanie) są proste — nadają się na Blueprints na prototyp, C++ jeśli będzie potrzeba wydajności.
-- **Efekt upojenia:** post-process (rozmycie, chromatic aberration, falowanie kamery) sterowany jedną zmienną „drunkLevel" — łatwo skalowalny na wszystkie efekty.
+- **Netcode:** **Netcode for GameObjects (NGO)** — oficjalny pakiet Unity. Najprościej na start: **host** (jeden gracz jest serwerem i klientem naraz), dołączanie po IP przez Unity Transport. Dedykowany serwer / Relay później, jeśli będzie potrzeba.
+- **Struktura:** mapa-hub jako osobna Scena; każda konkurencja jako **osobna Scena** ładowana po głosowaniu (`NetworkSceneManager` synchronizuje zmianę sceny u wszystkich graczy).
+- **Mechaniki input-timing** (kółko + SPACJA, klikanie, trzymanie) są proste — zwykłe skrypty C# + nowy Input System.
+- **Efekt upojenia:** URP + Volume post-processing (Lens Distortion, Chromatic Aberration, Depth of Field/blur, falowanie kamery przez Cinemachine noise) sterowane jedną zmienną „drunkLevel" — łatwo skalowalne na wszystkie efekty.
+- **Voice chat:** **Unity Vivox** (darmowy tier w Unity Gaming Services) — gotowy voice chat bez własnej infrastruktury.
 - **Dostępność:** suwak intensywności efektów bujania/falowania w opcjach (choroba lokomocyjna w first-person to realne ryzyko) — od pierwszego prototypu.
-- **Losowe „specjalne" butelki:** prosty spawner z tabelą przedmiotów/rzadkości.
+- **Losowe „specjalne" butelki:** prosty spawner z tabelą przedmiotów/rzadkości (ScriptableObject).
 
 ---
 
 ## 11. Braki, ryzyka i pytania do rozstrzygnięcia
 
-**Rozstrzygnięte (v0.2):** długość sesji (wszystkie konkurencje), wybór konkurencji (głosowanie + losowanie ważone), wyeliminowani = widzowie, voice chat wbudowany od startu, pasek upojenia + Zgon, UE5 + PC/Steam, poker: brak szotów = odpadasz.
+**Rozstrzygnięte (v0.2):** długość sesji (wszystkie konkurencje), wybór konkurencji (głosowanie + losowanie ważone), wyeliminowani = widzowie, voice chat wbudowany od startu, pasek upojenia + Zgon, poker: brak szotów = odpadasz. **(v0.3):** silnik **Unity 6** + PC/Steam (zmiana z UE5 — mniejsze obciążenie sprzętu).
 
 Rzeczy, których pomysł jeszcze nie precyzuje — do decyzji przed produkcją:
 
@@ -201,7 +202,7 @@ Rzeczy, których pomysł jeszcze nie precyzuje — do decyzji przed produkcją:
 8. **Sterowanie oparte głównie o SPACJĘ** — kilka gier korzysta z tego samego schematu (klikanie/trzymanie SPACJI). Warto zróżnicować, żeby konkurencje nie zlewały się w odczuciu.
 9. **Głos w Lucky Shot** — komunikaty głosowe = nagrania audio (lektor). Do budżetu/produkcji dźwięku.
 10. **Mechanika cucenia przy Zgonie** — jak koledzy cucą pijanego (przytrzymanie klawisza? woda? klepanie?) i ile upojenia spada po ocuceniu i po wymiotach (te dwie wartości ustawiają balans ryzyka).
-11. **Rozłączenia** — co gdy gracz (a zwłaszcza **host** na listen serverze) straci połączenie w trakcie konkurencji. Do rozstrzygnięcia przed budową netcode'u.
+11. **Rozłączenia** — co gdy gracz (a zwłaszcza **host**) straci połączenie w trakcie konkurencji. Do rozstrzygnięcia przed budową netcode'u.
 12. **Poker: dodatkowa czy zwykła konkurencja** — skłaniamy się ku zwykłej (medale jak reszta); do potwierdzenia po playteście.
 
 ---
@@ -210,7 +211,7 @@ Rzeczy, których pomysł jeszcze nie precyzuje — do decyzji przed produkcją:
 
 > Nie budujemy 7 gier naraz. Najpierw fundament, który udowodni, że pomysł jest fun.
 
-1. **Prototyp 1:** hub-mapa + poruszanie się + multiplayer (2 graczy, listen server).
+1. **Prototyp 1:** hub-mapa + poruszanie się + multiplayer (2 graczy, host + klient przez NGO).
 2. **Prototyp 2:** system upojenia (post-process + jedna zmienna) + zbieranie piw.
 3. **Prototyp 3:** jedna konkurencja (Sprint na 500) z pełną pętlą: głosowanie → ładowanie → gra → medale → powrót.
 4. **Test ze znajomymi** — czy jest śmiesznie? Dopiero potem dokładamy kolejne konkurencje.
