@@ -202,28 +202,103 @@ public static class ProjectBootstrap
         Debug.Log("[Bootstrap] Prototype2 OK");
     }
 
-    // Prototyp 3: stanowisko Sprintu na 500 na hubie (in-scene NetworkObject)
-    public static void SetupPrototype3()
+    // Prototyp 4: trzy stanowiska konkurencji na hubie + sceny aren + build settings
+    public static void SetupPrototype4()
     {
         var scene = EditorSceneManager.OpenScene("Assets/Scenes/Hub.unity");
-        foreach (var old in Object.FindObjectsByType<Sprint500>(FindObjectsSortMode.None))
-            Object.DestroyImmediate(old.gameObject); // idempotentny rerun
+        foreach (var o in Object.FindObjectsByType<CompetitionStation>(FindObjectsSortMode.None))
+            Object.DestroyImmediate(o.gameObject); // idempotentny rerun
+        var legacy = GameObject.Find("Station_Sprint500"); // stanowisko z P3
+        if (legacy != null) Object.DestroyImmediate(legacy);
 
-        var station = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        station.name = "Station_Sprint500";
-        station.transform.position = new Vector3(0f, 0.25f, 18f);
-        station.transform.localScale = new Vector3(4f, 0.5f, 4f); // podest przed świątynią
-        var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"))
-        { color = new Color(0.2f, 0.5f, 0.9f) };
-        AssetDatabase.CreateAsset(mat, "Assets/Prefabs/StationMat.mat");
-        station.GetComponent<Renderer>().sharedMaterial = mat;
-        station.AddComponent<NetworkObject>();
-        station.AddComponent<Sprint500>();
-
+        BuildStation("SPRINT NA 500", "Arena_Sprint500", "-autosprint",
+            new Vector3(0f, 0.25f, 18f), new Color(0.2f, 0.5f, 0.9f), 0, true);
+        BuildStation("RZUTKI", "Arena_Rzutki", "-autorzutki",
+            new Vector3(18f, 0.25f, 0f), new Color(0.9f, 0.3f, 0.2f), 1, false);
+        BuildStation("NA PÓŁ", "Arena_NaPol", "-autonapol",
+            new Vector3(-18f, 0.25f, 0f), new Color(0.2f, 0.8f, 0.3f), 2, false);
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
+
+        BuildArenas();
+
+        EditorBuildSettings.scenes =
+            new[] { "Hub", "Arena_Sprint500", "Arena_Rzutki", "Arena_NaPol" }
+            .Select(n => new EditorBuildSettingsScene($"Assets/Scenes/{n}.unity", true))
+            .ToArray();
         AssetDatabase.SaveAssets();
-        Debug.Log("[Bootstrap] Prototype3 OK");
+        Debug.Log("[Bootstrap] Prototype4 OK");
+    }
+
+    static void BuildStation(string title, string sceneName, string autoFlag,
+        Vector3 pos, Color color, int slot, bool scoreboard)
+    {
+        var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        go.name = "Station_" + sceneName;
+        go.transform.position = pos;
+        go.transform.localScale = new Vector3(4f, 0.5f, 4f);
+        var mat = new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = color };
+        AssetDatabase.CreateAsset(mat, $"Assets/Prefabs/StationMat_{sceneName}.mat");
+        go.GetComponent<Renderer>().sharedMaterial = mat;
+        go.AddComponent<NetworkObject>();
+        var st = go.AddComponent<CompetitionStation>();
+        st.title = title;
+        st.sceneName = sceneName;
+        st.autoFlag = autoFlag;
+        st.uiSlot = slot;
+        st.showScoreboard = scoreboard;
+    }
+
+    static void BuildArenas()
+    {
+        // Sprint: beczka pośrodku, gracze w kręgu naprzeciwko siebie
+        var s = NewArena();
+        var keg = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        keg.name = "Keg";
+        keg.transform.position = new Vector3(0f, 0.5f, 0f);
+        keg.transform.localScale = new Vector3(1f, 0.5f, 1f);
+        var c = new GameObject("Sprint500");
+        c.AddComponent<NetworkObject>();
+        c.AddComponent<Sprint500>();
+        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_Sprint500.unity");
+
+        // Rzutki: linia graczy, po tarczy 6 m przed każdym
+        s = NewArena();
+        c = new GameObject("Rzutki");
+        c.AddComponent<NetworkObject>();
+        var rz = c.AddComponent<Rzutki>();
+        rz.timeoutSeconds = 30f;
+        rz.naturalDrunkGain = 12f;
+        for (int i = 0; i < 8; i++)
+        {
+            var b = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            b.name = "Board_" + i;
+            Object.DestroyImmediate(b.GetComponent<Collider>());
+            b.AddComponent<BoxCollider>(); // płaska ściana do raycastu
+            b.transform.position = new Vector3(i * 4f - 14f, 1.6f, 6f);
+            b.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            b.transform.localScale = new Vector3(1.2f, 0.05f, 1.2f);
+        }
+        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_Rzutki.unity");
+
+        // Na pół: sama arena, gra jest w UI
+        s = NewArena();
+        c = new GameObject("NaPol");
+        c.AddComponent<NetworkObject>();
+        var np = c.AddComponent<NaPol>();
+        np.timeoutSeconds = 20f;
+        np.naturalDrunkGain = 12f;
+        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_NaPol.unity");
+    }
+
+    static UnityEngine.SceneManagement.Scene NewArena()
+    {
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+        Object.DestroyImmediate(GameObject.Find("Main Camera")); // gracze przynoszą kamery
+        var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        ground.name = "Ground";
+        ground.transform.localScale = new Vector3(4f, 1f, 4f);
+        return scene;
     }
 
     static GameObject BuildBeerPrefab()
@@ -256,7 +331,7 @@ public static class ProjectBootstrap
     public static void Build()
     {
         var report = BuildPipeline.BuildPlayer(
-            new[] { "Assets/Scenes/Hub.unity" },
+            EditorBuildSettings.scenes.Select(s => s.path).ToArray(),
             "Builds/Win/AlkoOlimpiada.exe",
             BuildTarget.StandaloneWindows64,
             BuildOptions.None);

@@ -4,23 +4,35 @@
 >
 > Done so far:
 > - **Prototype 1** — hub, FP movement, NGO multiplayer (host/join by IP), nametags, Vivox stub.
-> - **Prototype 2** — drunk system (`DrunkSystem`, NetworkVariable 0–100), camera sway, Zgon + revive [E], beer pickups drunk with [F], HUD bar.
-> - **Prototype 3** — Sprint na 500: station on hub, ready-up [R], countdown, SPACE-mash chug race (drunk handicap, chugging raises drunk, vomit instead of Zgon mid-race), medals 5/3/1, replicated scoreboard, back to hub. All in the Hub scene, no scene loading.
-> - Smoke test flags: `-autohost` / `-autojoin` / `-autodrink` / `-autosprint`.
+> - **Prototype 2** — drunk system (`DrunkSystem` 0–100), camera sway, Zgon + revive [E], HUD bar.
+> - **Prototype 3/4** — beer inventory ([E] pick up, [F] drink), three competitions with full loop
+>   and **scene switching** (Hub → arena → medals → Hub): Sprint na 500 (SPACE-mash chug,
+>   drink-tilt camera, opponents visibly lean back), Rzutki (wandering crosshair, 3 darts,
+>   server-side raycast), Na pół (hold SPACE, release at half). Shared base `Competition`,
+>   persistent scores in static `Olympics`, stations on hub (`CompetitionStation`, [R] to ready).
+> - Smoke flags: `-autohost` / `-autojoin` / `-autodrink` / `-autosprint` / `-autorzutki` / `-autonapol`.
 
 ---
 
 ## Goal
 
-**Playtest with friends** (roadmap step 4): 2+ players over LAN, run several Sprint na 500 rounds, collect feedback — is it funny? Then decide: tune balance vs. build the second competition (likely Rzutki or Lucky Shot per GDD section 8).
+**Playtest with friends**: 3+ players over LAN, run all three competitions, collect feedback.
+Then decide: balance tuning vs. voting system (weighted draw, GDD section 4) vs. next competition.
 
 ## Known knobs (balance)
 
-- `DrunkSystem`: `decayPerSecond` 0.4, beer +15, revive to 50, sway from 15.
-- `Sprint500`: `sipBase` 4, `sipDrunkPenalty` 0.6, `drunkPerSip` 0.6, vomit → 60, timeout 60 s.
+- `DrunkSystem`: `decayPerSecond` 0.4, `beerStrength` 15, revive to 50, sway from 15.
+- `Sprint500`: `sipBase` 4, `sipDrunkPenalty` 0.6, `drunkPerSip` 0.6, vomit → 60.
+- `Rzutki`: `aimWander` 0.12, 3 darts, timeout 30 s, `naturalDrunkGain` 12.
+- `NaPol`: `baseSpeed` 0.25, `drunkSpeedBonus` 1.5, timeout 20 s, `naturalDrunkGain` 12.
+
+## Known limitations (accepted for prototype)
+
+- Disconnect while on an arena → restart the app to rejoin (menu camera is gone).
+- Rzutki/NaPol trust client-sent aim/level (fine among friends).
+- Scores keyed by clientId — reconnect starts a player at 0.
 
 ## Notes for next session
 
 - Vivox still needs the Unity Cloud project linked in Project Settings → Services.
-- Voting UI becomes relevant once a second competition exists (weighted draw, GDD section 4).
-- Aggression/pushing mechanic (GDD section 6) still unbuilt — candidate for a fun-injection later.
+- Aggression/pushing mechanic (GDD section 6) unbuilt — candidate for fun-injection.
