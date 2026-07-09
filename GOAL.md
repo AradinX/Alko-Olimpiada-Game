@@ -2,58 +2,48 @@
 
 > One prototype = one goal. When done, replace with the next one.
 >
-> Done so far:
-> - **Prototype 1** — hub, FP movement, NGO multiplayer (host/join by IP), nametags, Vivox stub.
-> - **Prototype 2** — drunk system (`DrunkSystem` 0–100), camera sway, Zgon + revive [E], HUD bar.
-> - **Prototype 3/4** — beer inventory ([E] pick up, [F] drink), three competitions with full loop
->   and **scene switching** (Hub → arena → medals → Hub): Sprint na 500 (SPACE-mash chug,
->   drink-tilt camera, opponents visibly lean back), Rzutki (wandering crosshair, 3 darts,
->   server-side raycast), Na pół (hold SPACE, release at half). Shared base `Competition`,
->   persistent scores in static `Olympics`, stations on hub (`CompetitionStation`, [R] to ready).
-> - Smoke flags: `-autohost` / `-autojoin` / `-autodrink` / `-autosprint` / `-autorzutki` / `-autonapol`.
+> **All 7 GDD competitions are in.** Done so far:
+> - Hub-island (sand disc + water, fall = beach respawn), FP movement, NGO multiplayer.
+> - Online via Unity Relay (room codes) + Vivox voice — both verified E2E. LAN fallback by IP.
+> - Drunk system: 0–100 + permanent Floor from competition drinking, stages
+>   (Szumi 20 / Lekko chycony 45 / Jest ligancko 70), sway + SoT-style veering, Zgon + revive [E],
+>   voluntary vomit [V] (caught on camera within 25 m/40° = −2 pts, never below 0).
+> - Beer in hand (visible bottle, max 1): [E] pick up, [F] drink, [G] discard. Special beers
+>   (~25%, look normal, labelled): ×2 pts next competition + curse. Pills [Q]: stealth spike,
+>   random effect, no message. Curses are a bitmask and stack: flip/lowres/zoom/tiny-view,
+>   small/giant player, inverted controls, octodad (WSAD rerolls every 3 s).
+> - Aggression: LMB push from stage 2, crosshair + hint.
+> - Competitions (each own arena scene, medals 5/3/1, weighted-draw voting, champion at end):
+>   Sprint na 500, Rzutki, Na pół, Lucky Shot (ladder), Spacer do monopolowego (free movement),
+>   **Flanki** (timing wheel throw at the can → team chugs until opponent taps A-D-A-D),
+>   **Beer Pong** (timing wheel, 6 cups, hit = opponents drink permanently).
+> - Smoke flags: `-autohost/-autojoin/-autohostonline/-autojoincode X/-profile X/-autodrink`
+>   + 7 per-competition auto flags; all 7 at once = full olympiad E2E.
 
 ---
 
 ## Goal
 
-**Playtest with friends**: 3+ players over LAN, full olympiad (voting → 3 competitions → champion),
-collect feedback. Then decide: balance tuning vs. next competition vs. aggression mechanic.
-
-## Voting (done, GDD section 4)
-
-`VoteManager` (in-scene, Hub) + stations as vote spots: [R] near a station = vote for it
-(toggle). All players voted → 3 s "LOSOWANIE..." → weighted draw (each vote = one ticket)
-→ arena loads. Played competitions leave the pool (station shows ROZEGRANA). All played →
-final summary + champion, [R] starts a new olympiad (resets scores and pool). `played` set
-and `Olympics` scores are static — they survive scene switches, reset only via NewOlympicsRpc.
+**Playtest with friends over the internet** (room code + voice). Collect feedback per competition
+(is it funny? too long? too easy?), then tune the knobs below or add art/animations.
 
 ## Known knobs (balance)
 
-- `DrunkSystem`: `decayPerSecond` 0.2 (slow sober-up), `beerStrength` 15, revive to max(50, Floor),
-  `vomitDrainPerSecond` 6 ([V] voluntary vomit, hub only; caught within `catchRadius` 6 m →
-  −`catchPenalty` 2 pts, once per vomit), `spikedExtra` 35 (pill in beer). `Floor` = permanent
-  drunk from competitions (AddPermanent; capped 90) — decay/vomit can't go below it.
-  Stages: Szumi 20 (sway), Lekko chycony 45 (A/D swap, pushing unlocked), Jest ligancko 70
-  (WSAD → random hidden keys).
-- Special beers (~25%, golden): drunk instantly on [E], ×2 points next competition + random
-  curse during it (1 flipped screen / 2 renderScale 0.15 / 3 zoom FOV 20 / 4 tiny viewport).
-- Pills: [E] pick up (4 on hub), [Q] near a bottle spikes it (server-only flag, invisible);
-  victim discovers on drink (+35 drunk).
-- Aggression: LMB push (stage ≥ 2, hub only, `pushForce` 8, cooldown 1 s).
-- `Sprint500`: `sipBase` 4, `sipDrunkPenalty` 0.6, `drunkPerSip` 0.6 (permanent), vomit → max(60, Floor).
-- `Rzutki`: `aimWander` 0.12, 3 darts, timeout 30 s; `NaPol`: `baseSpeed` 0.25, timeout 20 s;
-  `LuckyShot`: 6 arrows, 3 s show, timeout 25 s; `Spacer`: free movement, fall → restart, timeout 60 s.
-  All non-drinking competitions: `naturalDrunkGain` 12 (permanent).
+- `DrunkSystem`: decay 0.2, beer +15, revive max(50, Floor), vomit drain 6/s, spiked +35,
+  pill curse 40 s, stage thresholds in `Stages`, veer 30° max.
+- `TeamCompetition` (Flanki/Pong): wheel 140°/s +120% at max drunk, green arc ±22°, turn 8 s.
+- `Flanki`: sip 4 (−60% drunk), mug 100, reset 14 alternations. `BeerPong`: 6 cups, +6/cup.
+- Others as before (Sprint sip 4, Rzutki wander 0.12, NaPol speed 0.25, Lucky 3+round arrows).
 
 ## Known limitations (accepted for prototype)
 
-- Disconnect while on an arena → restart the app to rejoin (menu camera is gone).
-- Rzutki/NaPol trust client-sent aim/level (fine among friends).
-- Scores keyed by clientId — reconnect starts a player at 0.
+- Team split is even/odd index — no team picker. Odd player counts give uneven teams.
+- Character scale curses don't scale the CharacterController collider (visual gag only).
+- Timing-wheel hits are judged at server receive time — generous arc compensates lag.
+- NaPol/level and LuckyShot input are client-trusted beyond basic clamps.
 
 ## Notes for next session
 
-- Vivox still needs the Unity Cloud project linked in Project Settings → Services.
-- Remaining competitions: Flanki and Beer Pong (both team-based, min 4 players, physics) —
-  build after a 4+ player playtest confirms the core is fun.
-- LuckyShot is a single memory round; GDD 8.7 wants a ladder/bracket — after playtest.
+- Art pass: player models, bottle/can/cup props, island decor (GDD: agora, columns exist).
+- Aggression during Flanki drinking phase? (pushing the drinker — GDD-adjacent fun).
+- Poker (GDD 8.8) is the only unbuilt activity; needs card UI + betting — big.
