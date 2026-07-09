@@ -28,7 +28,7 @@ public class NaPol : Competition
         if (State.Value != Phase.Running) return;
         ulong id = p.Receive.SenderClientId;
         if (!racers.Contains(id) || results.ContainsKey(id)) return;
-        results[id] = lvl;
+        results[id] = Mathf.Clamp01(lvl); // sanity na dane od klienta
         Debug.Log($"[NaPol] {Olympics.Nick(id)}: {lvl:P0} (cel {target:P0})");
         if (racers.All(r => results.ContainsKey(r))) Finish(Ranking());
     }
