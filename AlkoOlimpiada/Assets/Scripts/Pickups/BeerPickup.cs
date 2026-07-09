@@ -48,8 +48,16 @@ public class BeerPickup : NetworkBehaviour
             Vector3.Distance(player.transform.position, transform.position) > 3f) return;
 
         var ds = player.GetComponent<DrunkSystem>();
-        if (Special.Value) ds.ApplySpecial(spiked);
-        else ds.PickUpBeer(spiked);
+        if (Special.Value) ds.ApplySpecial(spiked); // specjalne pijesz od razu, limit nie dotyczy
+        else
+        {
+            if (ds.Beers.Value >= ds.maxBeers)
+            {
+                ds.MsgOwner("Masz już piwo w ręce — najpierw je wypij [F]");
+                return; // butelka zostaje
+            }
+            ds.PickUpBeer(spiked);
+        }
         Debug.Log($"[Beer] {Olympics.Nick(id)} " +
             (Special.Value ? "wypił piwo specjalne" : "podniósł piwo"));
 
