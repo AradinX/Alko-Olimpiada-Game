@@ -42,10 +42,16 @@ public class ConnectionUI : MonoBehaviour
         NetworkManager.Singleton.OnClientDisconnectCallback += id =>
             Debug.Log($"[Net] Rozlaczony klient {id}");
 
-        // ponytail: flagi CLI do headless smoke-testu host+klient (LAN)
+        // ponytail: flagi CLI do headless smoke-testów (LAN i Relay)
         var args = Environment.GetCommandLineArgs();
         if (args.Contains("-autohost")) HostLan();
         else if (args.Contains("-autojoin")) JoinLan();
+        else if (args.Contains("-autohostonline")) HostOnline();
+        else if (args.Contains("-autojoincode"))
+        {
+            joinCode = args[Array.IndexOf(args, "-autojoincode") + 1];
+            JoinOnline();
+        }
     }
 
     void Update()
@@ -103,21 +109,13 @@ public class ConnectionUI : MonoBehaviour
             a.ConnectionData, a.HostConnectionData, a.Key, ep.Secure);
     }
 
-    static async Task EnsureUgs()
-    {
-        if (UnityServices.State != ServicesInitializationState.Initialized)
-            await UnityServices.InitializeAsync();
-        if (!AuthenticationService.Instance.IsSignedIn)
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-    }
-
     async void HostOnline()
     {
         busy = true;
         status = "Tworzenie pokoju...";
         try
         {
-            await EnsureUgs();
+            await Ugs.EnsureSignedIn();
             var alloc = await RelayService.Instance.CreateAllocationAsync(9);
             hostCode = await RelayService.Instance.GetJoinCodeAsync(alloc.AllocationId);
             var utp = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
@@ -141,7 +139,7 @@ public class ConnectionUI : MonoBehaviour
         status = "Łączenie kodem...";
         try
         {
-            await EnsureUgs();
+            await Ugs.EnsureSignedIn();
             var alloc = await RelayService.Instance.JoinAllocationAsync(joinCode.Trim().ToUpper());
             var utp = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
             utp.SetRelayServerData(ToServerData(alloc));

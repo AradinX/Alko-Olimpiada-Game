@@ -15,8 +15,7 @@ public class VivoxVoice : MonoBehaviour
     {
         try
         {
-            await UnityServices.InitializeAsync();
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            await Ugs.EnsureSignedIn();
             await VivoxService.Instance.InitializeAsync();
             ready = true;
         }
