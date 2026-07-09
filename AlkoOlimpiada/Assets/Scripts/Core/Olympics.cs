@@ -28,6 +28,11 @@ public static class Olympics
             scores.OrderByDescending(kv => kv.Value)
                   .Select(kv => $"{Nick(kv.Key)}: {kv.Value}"));
 
+    public static void Reset() => scores.Clear();
+
+    public static string Champion() => scores.Count == 0 ? "?"
+        : Nick(scores.OrderByDescending(kv => kv.Value).First().Key);
+
     public static string Nick(ulong id)
     {
         var nm = NetworkManager.Singleton;

@@ -1,64 +1,34 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Stanowisko konkurencji na hubie: [R] w pobliżu zgłasza gotowość,
-// gdy wszyscy połączeni są gotowi — serwer ładuje scenę areny.
+// Stanowisko konkurencji na hubie: [R] w pobliżu = głos na tę konkurencję (VoteManager).
 public class CompetitionStation : NetworkBehaviour
 {
     public string title;
     public string sceneName;
-    public string autoFlag;      // flaga CLI smoke-testu (np. -autosprint)
-    public int uiSlot;           // wiersz na liście gotowości
-    public bool showScoreboard;  // rysuje tabelę punktów (tylko jedno stanowisko)
+    public string autoFlag; // flaga CLI smoke-testu (np. -autosprint)
     public float radius = 5f;
 
-    public NetworkVariable<int> ReadyCount = new();
-    public NetworkVariable<int> TotalCount = new();
-    public NetworkVariable<bool> Launching = new();
-    public NetworkVariable<FixedString512Bytes> ScoreboardText = new();
-
-    readonly HashSet<ulong> ready = new(); // serwer
     bool autoSent;
     double autoAt;
 
-    public override void OnNetworkSpawn()
-    {
-        autoAt = Time.timeAsDouble + 10; // czas na dołączenie drugiej instancji
-        if (IsServer) ScoreboardText.Value = Olympics.Text();
-    }
-
-    [Rpc(SendTo.Server)]
-    void ReadyRpc(RpcParams p = default)
-    {
-        if (Launching.Value) return;
-        ulong id = p.Receive.SenderClientId;
-        if (!ready.Remove(id)) ready.Add(id); // toggle
-        ready.RemoveWhere(x => !NetworkManager.ConnectedClientsIds.Contains(x));
-        ReadyCount.Value = ready.Count;
-        TotalCount.Value = NetworkManager.ConnectedClientsIds.Count;
-        if (ready.Count > 0 && ready.Count == TotalCount.Value)
-        {
-            Launching.Value = true;
-            Debug.Log($"[Station] start {sceneName}");
-            NetworkManager.SceneManager.LoadScene(sceneName,
-                UnityEngine.SceneManagement.LoadSceneMode.Single);
-        }
-    }
+    public override void OnNetworkSpawn() => autoAt = Time.timeAsDouble + 10;
 
     void Update()
     {
-        if (!IsSpawned || !NetworkManager.IsClient) return;
+        var vm = VoteManager.Instance;
+        if (!IsSpawned || !NetworkManager.IsClient || vm == null) return;
+        if (!vm.VotingOpen || vm.IsPlayed(sceneName)) return;
+
         var kb = Keyboard.current;
-        if (Near() && kb != null && kb.rKey.wasPressedThisFrame) ReadyRpc();
-        if (!autoSent && autoFlag != null && autoFlag.Length > 0
+        if (Near() && kb != null && kb.rKey.wasPressedThisFrame)
+            vm.VoteRpc(sceneName);
+        if (!autoSent && !string.IsNullOrEmpty(autoFlag)
             && Time.timeAsDouble >= autoAt
             && Array.IndexOf(Environment.GetCommandLineArgs(), autoFlag) >= 0)
-        { autoSent = true; ReadyRpc(); }
+        { autoSent = true; vm.VoteRpc(sceneName); }
     }
 
     bool Near()
@@ -70,14 +40,13 @@ public class CompetitionStation : NetworkBehaviour
 
     void OnGUI()
     {
-        if (!IsSpawned || !NetworkManager.IsClient) return;
-        if (showScoreboard && ScoreboardText.Value.Length > 0)
-            GUI.Label(new Rect(0, 8, Screen.width, 24), ScoreboardText.Value.ToString(), Ui.S(16));
-        if (ReadyCount.Value > 0)
-            GUI.Label(new Rect(0, 34 + uiSlot * 20, Screen.width, 20),
-                $"{title} — gotowi {ReadyCount.Value}/{TotalCount.Value}", Ui.S(14));
-        if (Near())
+        var vm = VoteManager.Instance;
+        if (!IsSpawned || !NetworkManager.IsClient || vm == null || !Near()) return;
+        if (vm.IsPlayed(sceneName))
             GUI.Label(new Rect(0, Screen.height * 0.3f, Screen.width, 40),
-                $"[R] {title} — zgłoś gotowość", Ui.S(28));
+                $"{title} — ROZEGRANA", Ui.S(28));
+        else if (vm.VotingOpen)
+            GUI.Label(new Rect(0, Screen.height * 0.3f, Screen.width, 40),
+                $"[R] Głosuj: {title}", Ui.S(28));
     }
 }
