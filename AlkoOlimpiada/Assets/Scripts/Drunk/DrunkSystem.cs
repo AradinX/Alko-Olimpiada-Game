@@ -39,8 +39,10 @@ public class DrunkSystem : NetworkBehaviour
     public NetworkVariable<int> Beers = new();       // piwo w ręce (max 1)
     public NetworkVariable<bool> HeldSpecial = new(); // trzymane piwo jest złote
     public NetworkVariable<int> Pills = new();       // ekwipunek pigułek
-    public NetworkVariable<byte> Curse = new();      // 1=do góry nogami 2=lowres 3=zoom 4=mały obraz
-    public NetworkVariable<double> CurseUntil = new(); // >0: klątwa natychmiastowa (z pigułki)
+    // klątwy jako maska bitowa — efekty się kumulują: 1=do góry nogami 2=lowres 4=zoom 8=mały obraz
+    public NetworkVariable<byte> Curse = new();        // z piwa specjalnego, na następną konkurencję
+    public NetworkVariable<byte> InstantCurse = new(); // z pigułek, działa od razu
+    public NetworkVariable<double> CurseUntil = new(); // do kiedy działa InstantCurse
 
     public int Stage
     {
@@ -120,8 +122,11 @@ public class DrunkSystem : NetworkBehaviour
         HeldSpecial.Value = special;
         if (spiked) spikedBeers++;
         if (special)
-            MsgOwner("PIWO SPECJALNE w ręce: [F] wypij (x2 pkt + niespodzianka) albo [G] wyrzuć");
+            MsgOwner("PIWO SPECJALNE w ręce: [F] = x2 punkty w następnej konkurencji"
+                     + " + losowa klątwa ekranu, [G] wyrzuć");
     }
+
+    static byte RandomCurseBit() => (byte)(1 << Random.Range(0, 4));
 
     public void MsgOwner(string m) => MsgRpc(m);
 
@@ -147,24 +152,22 @@ public class DrunkSystem : NetworkBehaviour
         bool spiked = spikedBeers > 0;
         if (spiked) spikedBeers--;
 
-        if (special) // x2 punkty + klątwa na następną konkurencję
+        if (special) // x2 punkty + klątwa na następną konkurencję (kumuluje się)
         {
             Olympics.SetMultiplier(OwnerClientId, 2);
-            Curse.Value = (byte)Random.Range(1, 5);
-            CurseUntil.Value = 0;
-            MsgOwner("PIWO SPECJALNE: punkty x2 w następnej konkurencji... i mała niespodzianka");
+            Curse.Value |= RandomCurseBit();
+            MsgOwner("PIWO SPECJALNE wypite: punkty x2 w następnej konkurencji + klątwa ekranu");
         }
         float amount = beerStrength;
-        if (spiked) // pigułka ujawnia się dopiero teraz — losowy paskudny efekt, od razu
+        if (spiked) // pigułka: efekt od razu, BEZ komunikatu — ofiara ma się domyślić
         {
             int effect = Random.Range(0, 5);
             if (effect == 0) amount += spikedExtra; // mocny kop
             else
             {
-                Curse.Value = (byte)effect;
+                InstantCurse.Value |= (byte)(1 << (effect - 1)); // kumulacja klątw
                 CurseUntil.Value = NetworkManager.ServerTime.Time + spikedCurseSeconds;
             }
-            MsgOwner("COŚ BYŁO W TYM PIWIE...");
             Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wypił piwo z pigułką (efekt {effect})");
         }
         AddDrink(amount);
@@ -232,10 +235,10 @@ public class DrunkSystem : NetworkBehaviour
     {
         if (IsServer)
         {
-            // klątwa z pigułki wygasa po czasie
-            if (Curse.Value != 0 && CurseUntil.Value > 0
+            // klątwy z pigułek wygasają po czasie (wszystkie naraz)
+            if (InstantCurse.Value != 0 && CurseUntil.Value > 0
                 && NetworkManager.ServerTime.Time >= CurseUntil.Value)
-            { Curse.Value = 0; CurseUntil.Value = 0; }
+            { InstantCurse.Value = 0; CurseUntil.Value = 0; }
 
             if (Vomiting.Value)
             {
@@ -309,17 +312,18 @@ public class DrunkSystem : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        // klątwa: z piwa specjalnego działa podczas gry w konkurencji,
-        // z pigułki (CurseUntil > 0) natychmiast po wypiciu
+        // aktywne klątwy = z piwa specjalnego (w trakcie konkurencji) + z pigułek (na czas);
+        // maska bitowa, więc efekty się kumulują
         var comp = Competition.Current;
-        bool cursed = Curse.Value != 0 &&
-            ((comp != null && comp.State.Value == Competition.Phase.Running)
-             || (CurseUntil.Value > 0 && NetworkManager.ServerTime.Time < CurseUntil.Value));
-        cam.fieldOfView = cursed && Curse.Value == 3 ? 20f : 60f;               // zoom
-        cam.rect = cursed && Curse.Value == 4
-            ? new Rect(0.3f, 0.3f, 0.4f, 0.4f) : new Rect(0f, 0f, 1f, 1f);      // mały obraz
-        SetRenderScale(cursed && Curse.Value == 2 ? 0.15f : 1f);                 // lowres
-        if (cursed && Curse.Value == 1)
+        byte active = 0;
+        if (comp != null && comp.State.Value == Competition.Phase.Running) active |= Curse.Value;
+        if (CurseUntil.Value > 0 && NetworkManager.ServerTime.Time < CurseUntil.Value)
+            active |= InstantCurse.Value;
+        cam.fieldOfView = (active & 4) != 0 ? 20f : 60f;                         // zoom
+        cam.rect = (active & 8) != 0
+            ? new Rect(0.3f, 0.3f, 0.4f, 0.4f) : new Rect(0f, 0f, 1f, 1f);       // mały obraz
+        SetRenderScale((active & 2) != 0 ? 0.15f : 1f);                          // lowres
+        if ((active & 1) != 0)
             cam.transform.localRotation *= Quaternion.Euler(0f, 0f, 180f);       // do góry nogami
 
         if (PassedOut.Value)
@@ -387,7 +391,7 @@ public class DrunkSystem : NetworkBehaviour
 
         // ekwipunek pod paskiem
         string beerLine = Beers.Value <= 0 ? "Piwo: brak"
-            : (HeldSpecial.Value ? "Piwo: ZŁOTE" : "Piwo: zwykłe") + "  [F] pij  [G] wyrzuć";
+            : (HeldSpecial.Value ? "Piwo: SPECJALNE" : "Piwo: zwykłe") + "  [F] pij  [G] wyrzuć";
         GUI.Label(new Rect(Screen.width - 250f, back.yMax + 6f, 240f, 40f),
             beerLine + $"\nPigułki: {Pills.Value}" + (Pills.Value > 0 ? "  [Q] dosyp" : ""),
             new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperRight });
@@ -404,7 +408,9 @@ public class DrunkSystem : NetworkBehaviour
         {
             string hint = Beers.Value >= maxBeers
                 ? "Masz już piwo w ręce — wypij [F] albo wyrzuć [G]"
-                : "[E] Podnieś piwo";
+                : nearBeer.Special.Value
+                    ? "[E] PIWO SPECJALNE — x2 punkty + klątwa ekranu w następnej grze"
+                    : "[E] Podnieś piwo";
             if (Pills.Value > 0) hint += "   [Q] Dosyp pigułkę";
             GUI.Label(center, hint, style);
         }
