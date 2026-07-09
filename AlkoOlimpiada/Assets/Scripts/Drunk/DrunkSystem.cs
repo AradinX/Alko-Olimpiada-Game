@@ -11,8 +11,11 @@ public class DrunkSystem : NetworkBehaviour
     public float reviveRange = 3f;
     public float reviveTo = 50f;
 
+    public float beerStrength = 15f;
+
     public NetworkVariable<float> Drunk = new();       // 0-100, zapis: serwer
     public NetworkVariable<bool> PassedOut = new();
+    public NetworkVariable<int> Beers = new();          // ekwipunek piw
 
     Transform body;
     Camera cam;
@@ -83,12 +86,23 @@ public class DrunkSystem : NetworkBehaviour
         }
         var kb = Keyboard.current;
         if (kb == null) return;
-        if (reviveTarget != null && kb.eKey.wasPressedThisFrame)
-            reviveTarget.ReviveRpc();
-        // picie na [F], nie automatem; w trakcie konkurencji zablokowane
-        if (nearBeer != null && nearBeer.Available.Value && !Sprint500.InputLocked
-            && kb.fKey.wasPressedThisFrame)
-            nearBeer.RequestPickupRpc();
+        // [E]: cucenie ma priorytet nad podnoszeniem piwa
+        if (kb.eKey.wasPressedThisFrame)
+        {
+            if (reviveTarget != null) reviveTarget.ReviveRpc();
+            else if (nearBeer != null && nearBeer.Available.Value) nearBeer.RequestPickupRpc();
+        }
+        // [F]: pijesz piwo z ekwipunku; w trakcie konkurencji zablokowane
+        if (Beers.Value > 0 && !Competition.InputLocked && kb.fKey.wasPressedThisFrame)
+            DrinkBeerRpc();
+    }
+
+    [Rpc(SendTo.Server)]
+    public void DrinkBeerRpc()
+    {
+        if (PassedOut.Value || Beers.Value <= 0) return;
+        Beers.Value--;
+        AddDrink(beerStrength);
     }
 
     // trigger łapie właściciel (CC.Move działa tylko u niego), serwer waliduje przy piciu
@@ -138,12 +152,17 @@ public class DrunkSystem : NetworkBehaviour
         GUI.DrawTexture(new Rect(back.x, back.yMax - fill, back.width, fill), Texture2D.whiteTexture);
         GUI.color = Color.white;
 
+        // ekwipunek pod paskiem
+        GUI.Label(new Rect(Screen.width - 110f, back.yMax + 6f, 100f, 22f),
+            $"Piwa: {Beers.Value}" + (Beers.Value > 0 ? "  [F] pij" : ""),
+            new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleRight });
+
         var style = new GUIStyle(GUI.skin.label)
         { fontSize = 28, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
         var center = new Rect(0, Screen.height * 0.4f, Screen.width, 40);
         if (PassedOut.Value) GUI.Label(center, "ZGON — czekaj aż cię ocucą", style);
         else if (reviveTarget != null) GUI.Label(center, "[E] Ocuć kolegę", style);
-        else if (nearBeer != null && nearBeer.Available.Value && !Sprint500.InputLocked)
-            GUI.Label(center, "[F] Wypij piwo", style);
+        else if (nearBeer != null && nearBeer.Available.Value)
+            GUI.Label(center, "[E] Podnieś piwo", style);
     }
 }

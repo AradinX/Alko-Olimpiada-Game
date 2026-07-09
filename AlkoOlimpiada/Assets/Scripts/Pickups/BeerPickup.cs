@@ -2,11 +2,10 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-// Butelka piwa na hubie: właściciel gracza zgłasza podniesienie (trigger),
+// Butelka piwa na hubie: [E] w pobliżu podnosi do ekwipunku (DrunkSystem.Beers),
 // serwer waliduje dystans i dostępność, po chwili butelka wraca.
 public class BeerPickup : NetworkBehaviour
 {
-    public float drinkAmount = 15f;
     public float respawnSeconds = 20f;
 
     public NetworkVariable<bool> Available = new(true);
@@ -33,7 +32,8 @@ public class BeerPickup : NetworkBehaviour
         if (player == null ||
             Vector3.Distance(player.transform.position, transform.position) > 3f) return;
 
-        player.GetComponent<DrunkSystem>().AddDrink(drinkAmount);
+        player.GetComponent<DrunkSystem>().Beers.Value++;
+        Debug.Log($"[Beer] {Olympics.Nick(rpcParams.Receive.SenderClientId)} podniósł piwo");
         Available.Value = false;
         StartCoroutine(Respawn());
     }

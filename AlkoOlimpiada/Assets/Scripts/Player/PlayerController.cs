@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -23,11 +24,8 @@ public class PlayerController : NetworkBehaviour
         drunk = GetComponent<DrunkSystem>();
         if (!IsOwner) return;
 
-        // rozstaw spawnów, żeby gracze nie stali w sobie
-        cc.enabled = false;
-        transform.position = new Vector3((OwnerClientId % 8) * 2f - 4f, 0.1f, -5f);
-        cc.enabled = true;
-
+        Place();
+        SceneManager.sceneLoaded += OnSceneLoaded;
         if (ConnectionUI.SceneCamera != null) ConnectionUI.SceneCamera.SetActive(false);
         playerCamera.gameObject.SetActive(true);
         Cursor.lockState = CursorLockMode.Locked;
@@ -36,8 +34,39 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         if (!IsOwner) return;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         if (ConnectionUI.SceneCamera != null) ConnectionUI.SceneCamera.SetActive(true);
         Cursor.lockState = CursorLockMode.None;
+    }
+
+    // rozstaw spawnów na hubie, żeby gracze nie stali w sobie
+    void Place()
+    {
+        cc.enabled = false;
+        transform.position = new Vector3((OwnerClientId % 8) * 2f - 4f, 0.1f, -5f);
+        cc.enabled = true;
+    }
+
+    // konkurencje ustawiają graczy tym RPC (właściciel ma autorytet nad transformem)
+    [Rpc(SendTo.Owner)]
+    public void TeleportRpc(Vector3 pos, float yaw)
+    {
+        cc.enabled = false;
+        transform.SetPositionAndRotation(pos, Quaternion.Euler(0f, yaw, 0f));
+        pitch = 0f;
+        cc.enabled = true;
+    }
+
+    void OnSceneLoaded(Scene s, LoadSceneMode mode)
+    {
+        // wyłącz kamery sceny (menu huba, areny) — po połączeniu liczy się kamera gracza
+        foreach (var c in Camera.allCameras)
+            if (c != playerCamera && c.GetComponentInParent<PlayerController>() == null)
+            {
+                if (s.name == "Hub") ConnectionUI.SceneCamera = c.gameObject; // wraca po rozłączeniu
+                c.gameObject.SetActive(false);
+            }
+        if (s.name == "Hub") Place();
     }
 
     void Update()
@@ -54,7 +83,6 @@ public class PlayerController : NetworkBehaviour
                 ? CursorLockMode.None : CursorLockMode.Locked;
 
         if (drunk != null && drunk.PassedOut.Value) return; // Zgon = brak kontroli
-        if (Sprint500.InputLocked) return; // konkurencja w toku — SPACJA to picie, nie skok
 
         if (Cursor.lockState == CursorLockMode.Locked && mouse != null)
         {
@@ -62,8 +90,10 @@ public class PlayerController : NetworkBehaviour
             transform.Rotate(0f, look.x, 0f);
             pitch = Mathf.Clamp(pitch - look.y, -85f, 85f);
         }
-        // reset co klatkę — DrunkSystem dokłada sway w LateUpdate bez kumulacji
+        // reset co klatkę — DrunkSystem/konkurencje dokładają efekty w LateUpdate
         playerCamera.transform.localEulerAngles = new Vector3(pitch, 0f, 0f);
+
+        if (Competition.InputLocked) return; // konkurencja: patrzysz, ale nie chodzisz
 
         float x = (kb.dKey.isPressed ? 1f : 0f) - (kb.aKey.isPressed ? 1f : 0f);
         float z = (kb.wKey.isPressed ? 1f : 0f) - (kb.sKey.isPressed ? 1f : 0f);
