@@ -18,23 +18,15 @@ public class BeerPickup : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         Available.OnValueChanged += (_, v) => SetActive(v);
-        Special.OnValueChanged += (_, v) => Tint(v);
         if (IsServer) Special.Value = Random.value < specialChance;
         SetActive(Available.Value);
-        Tint(Special.Value);
     }
 
+    // specjalne i zatrute wyglądają jak zwykłe — specjalne zdradza dopiero hint przy butelce
     void SetActive(bool v)
     {
         foreach (var r in GetComponentsInChildren<Renderer>(true)) r.enabled = v;
         GetComponent<Collider>().enabled = v;
-    }
-
-    void Tint(bool special)
-    {
-        var r = GetComponentInChildren<Renderer>(true);
-        if (r != null) r.material.color =
-            special ? new Color(1f, 0.85f, 0.15f) : new Color(0.95f, 0.65f, 0.1f);
     }
 
     [Rpc(SendTo.Server)]
