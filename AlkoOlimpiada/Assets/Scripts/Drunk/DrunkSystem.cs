@@ -19,6 +19,7 @@ public class DrunkSystem : NetworkBehaviour
     public int catchPenalty = 2;
     public int maxBeers = 1;                 // jedno piwo w ręce
     public float spikedExtra = 35f;          // pigułka w piwie
+    public float spikedCurseSeconds = 40f;   // klątwa z pigułki działa od razu, przez tyle sekund
 
     // etapy pijaństwa (progi na pasku); bujanie zaczyna się od pierwszego i pogłębia
     public static readonly (float min, string name)[] Stages =
@@ -37,7 +38,8 @@ public class DrunkSystem : NetworkBehaviour
     public NetworkVariable<bool> Vomiting = new();
     public NetworkVariable<int> Beers = new();       // ekwipunek piw
     public NetworkVariable<int> Pills = new();       // ekwipunek pigułek
-    public NetworkVariable<byte> Curse = new();      // pkt 4: 1=do góry nogami 2=lowres 3=zoom 4=mały obraz
+    public NetworkVariable<byte> Curse = new();      // 1=do góry nogami 2=lowres 3=zoom 4=mały obraz
+    public NetworkVariable<double> CurseUntil = new(); // >0: klątwa natychmiastowa (z pigułki)
 
     public int Stage
     {
@@ -150,7 +152,12 @@ public class DrunkSystem : NetworkBehaviour
             spikedBeers--;
             int effect = Random.Range(0, 5);
             if (effect == 0) AddDrink(beerStrength + spikedExtra); // mocny kop
-            else { AddDrink(beerStrength); Curse.Value = (byte)effect; } // klątwa bez bonusu x2
+            else // klątwa bez bonusu x2, wchodzi natychmiast
+            {
+                AddDrink(beerStrength);
+                Curse.Value = (byte)effect;
+                CurseUntil.Value = NetworkManager.ServerTime.Time + spikedCurseSeconds;
+            }
             MsgOwner("COŚ BYŁO W TYM PIWIE...");
             Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wypił piwo z pigułką (efekt {effect})");
         }
@@ -208,6 +215,11 @@ public class DrunkSystem : NetworkBehaviour
     {
         if (IsServer)
         {
+            // klątwa z pigułki wygasa po czasie
+            if (Curse.Value != 0 && CurseUntil.Value > 0
+                && NetworkManager.ServerTime.Time >= CurseUntil.Value)
+            { Curse.Value = 0; CurseUntil.Value = 0; }
+
             if (Vomiting.Value)
             {
                 Drunk.Value = Mathf.Max(Floor.Value, Drunk.Value - vomitDrainPerSecond * Time.deltaTime);
@@ -278,10 +290,12 @@ public class DrunkSystem : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        // pkt 4: klątwa z piwa specjalnego działa podczas gry w konkurencji
+        // klątwa: z piwa specjalnego działa podczas gry w konkurencji,
+        // z pigułki (CurseUntil > 0) natychmiast po wypiciu
         var comp = Competition.Current;
-        bool cursed = Curse.Value != 0 && comp != null
-                      && comp.State.Value == Competition.Phase.Running;
+        bool cursed = Curse.Value != 0 &&
+            ((comp != null && comp.State.Value == Competition.Phase.Running)
+             || (CurseUntil.Value > 0 && NetworkManager.ServerTime.Time < CurseUntil.Value));
         cam.fieldOfView = cursed && Curse.Value == 3 ? 20f : 60f;               // zoom
         cam.rect = cursed && Curse.Value == 4
             ? new Rect(0.3f, 0.3f, 0.4f, 0.4f) : new Rect(0f, 0f, 1f, 1f);      // mały obraz

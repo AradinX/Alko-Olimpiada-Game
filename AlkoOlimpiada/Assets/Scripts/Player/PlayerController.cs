@@ -21,7 +21,8 @@ public class PlayerController : NetworkBehaviour
     float pitch;
     float yVelocity;
     float nextPush;
-    Vector3 knock; // odrzut po popchnięciu
+    Vector3 knock;               // odrzut po popchnięciu
+    PlayerController aimTarget;  // gracz na celowniku (hub)
 
     public override void OnNetworkSpawn()
     {
@@ -105,16 +106,19 @@ public class PlayerController : NetworkBehaviour
         if (Competition.InputLocked) return; // konkurencja: patrzysz, ale nie chodzisz
 
         // agresja (GDD sekcja 6): od etapu "Lekko chycony" można popychać, tylko na hubie
-        if (Competition.Current == null && mouse != null && mouse.leftButton.wasPressedThisFrame
-            && Time.time >= nextPush && drunk.Stage >= 2
-            && Cursor.lockState == CursorLockMode.Locked)
+        aimTarget = null;
+        if (Competition.Current == null && Cursor.lockState == CursorLockMode.Locked
+            && Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward,
+                out var hit, pushRange)
+            && hit.collider.GetComponentInParent<PlayerController>() is { } victim
+            && victim != this)
+            aimTarget = victim;
+
+        if (aimTarget != null && mouse != null && mouse.leftButton.wasPressedThisFrame
+            && Time.time >= nextPush && drunk.Stage >= 2)
         {
             nextPush = Time.time + pushCooldown;
-            if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward,
-                    out var hit, pushRange)
-                && hit.collider.GetComponentInParent<PlayerController>() is { } victim
-                && victim != this)
-                PushRpc(victim.OwnerClientId);
+            PushRpc(aimTarget.OwnerClientId);
         }
 
         // mapowanie klawiszy ruchu zależy od etapu upojenia (DrunkSystem.ApplyControls)
@@ -152,4 +156,24 @@ public class PlayerController : NetworkBehaviour
 
     [Rpc(SendTo.Owner)]
     public void KnockRpc(Vector3 impulse) => knock = impulse;
+
+    void OnGUI()
+    {
+        if (!IsOwner || !IsSpawned || Cursor.lockState != CursorLockMode.Locked) return;
+        if (Competition.Current != null) return; // areny mają własne UI/celowniki
+
+        // kropka-celownik na hubie
+        GUI.color = new Color(1f, 1f, 1f, 0.7f);
+        GUI.DrawTexture(new Rect(Screen.width / 2f - 2f, Screen.height / 2f - 2f, 4f, 4f),
+            Texture2D.whiteTexture);
+        GUI.color = Color.white;
+
+        if (aimTarget != null)
+            GUI.Label(new Rect(0, Screen.height / 2f + 20f, Screen.width, 24f),
+                drunk != null && drunk.Stage >= 2
+                    ? "[LPM] Popchnij"
+                    : "Za trzeźwy, żeby się bić (od etapu: Lekko chycony)",
+                new GUIStyle(GUI.skin.label)
+                { fontSize = 18, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold });
+    }
 }
