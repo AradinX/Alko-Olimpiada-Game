@@ -412,6 +412,51 @@ public static class ProjectBootstrap
         return prefab;
     }
 
+    // Pobiera poświadczenia Vivox z dashboardu — normalnie robi to strona GUI
+    // Project Settings > Services > Vivox; refleksja, bo VivoxApiClient jest internal.
+    // Uruchamiać BEZ -quit (czekamy na callback), wymaga zalogowanego edytora.
+    public static void FetchVivoxCredentials()
+    {
+        double deadline = EditorApplication.timeSinceStartup + 60;
+        EditorApplication.update += () =>
+        {
+            if (EditorApplication.timeSinceStartup > deadline)
+            {
+                Debug.LogError("[Bootstrap] Vivox creds TIMEOUT");
+                EditorApplication.Exit(1);
+            }
+        };
+
+        var asm = System.AppDomain.CurrentDomain.GetAssemblies()
+            .First(a => a.GetName().Name == "Unity.Services.Vivox.Editor");
+        var clientType = asm.GetType("Unity.Services.Vivox.Editor.VivoxApiClient");
+        const System.Reflection.BindingFlags any = System.Reflection.BindingFlags.Public
+            | System.Reflection.BindingFlags.NonPublic
+            | System.Reflection.BindingFlags.Instance
+            | System.Reflection.BindingFlags.Static;
+        var instance = clientType.GetProperty("Instance", any).GetValue(null);
+        var method = clientType.GetMethod("GetAndSetVivoxCredentials", any);
+        var okType = method.GetParameters()[0].ParameterType;
+        var ok = System.Delegate.CreateDelegate(okType,
+            typeof(ProjectBootstrap).GetMethod(nameof(VivoxFetched), any)
+                .MakeGenericMethod(okType.GetGenericArguments()[0]));
+        System.Action<System.Exception> err = e =>
+        {
+            Debug.LogError("[Bootstrap] Vivox creds FAIL: " + e.Message);
+            EditorApplication.Exit(1);
+        };
+        method.Invoke(instance, new object[] { ok, err });
+    }
+
+    static void VivoxFetched<T>(T _)
+    {
+        AssetDatabase.SaveAssets();
+        var json = File.ReadAllText("ProjectSettings/Packages/com.unity.services.vivox/Settings.json");
+        bool filled = json.Contains("vivox.com") || json.Contains("https://");
+        Debug.Log("[Bootstrap] Vivox creds: " + (filled ? "OK" : "PUSTE"));
+        EditorApplication.Exit(filled ? 0 : 1);
+    }
+
     public static void Build()
     {
         var report = BuildPipeline.BuildPlayer(
