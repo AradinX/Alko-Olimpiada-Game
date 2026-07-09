@@ -44,6 +44,10 @@ public class Rzutki : Competition
         ulong id = p.Receive.SenderClientId;
         int idx = racers.IndexOf(id);
         if (idx < 0 || thrown.GetValueOrDefault(id) >= dartsPerPlayer) return;
+        // sanity: promień musi wychodzić z okolic głowy gracza (replikowana pozycja)
+        if (!NM.ConnectedClients.TryGetValue(id, out var cl) || cl.PlayerObject == null
+            || Vector3.Distance(origin,
+                cl.PlayerObject.transform.position + Vector3.up * 1.7f) > 2.5f) return;
         thrown[id] = thrown.GetValueOrDefault(id) + 1;
 
         int pts = 0;
