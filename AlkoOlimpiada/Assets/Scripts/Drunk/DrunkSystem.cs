@@ -28,15 +28,16 @@ public class DrunkSystem : NetworkBehaviour
     // aktualne mapowanie ruchu (owner); etap 2 zamienia A/D, etap 3 losuje ukryte klawisze
     public Key keyW = Key.W, keyS = Key.S, keyA = Key.A, keyD = Key.D;
 
-    static readonly Key[] scramblePool = // klawisze nieużywane w grze (bez V/Q/E/F/R)
+    static readonly Key[] scramblePool = // klawisze nieużywane w grze (bez V/Q/E/F/R/G)
     { Key.P, Key.L, Key.M, Key.K, Key.O, Key.I, Key.J, Key.N, Key.B,
-      Key.H, Key.G, Key.T, Key.Y, Key.U, Key.C, Key.X, Key.Z };
+      Key.H, Key.T, Key.Y, Key.U, Key.C, Key.X, Key.Z };
 
     public NetworkVariable<float> Drunk = new();     // 0-100, zapis: serwer
     public NetworkVariable<float> Floor = new();     // pkt 1: alkohol z konkurencji na stałe
     public NetworkVariable<bool> PassedOut = new();
     public NetworkVariable<bool> Vomiting = new();
-    public NetworkVariable<int> Beers = new();       // ekwipunek piw
+    public NetworkVariable<int> Beers = new();       // piwo w ręce (max 1)
+    public NetworkVariable<bool> HeldSpecial = new(); // trzymane piwo jest złote
     public NetworkVariable<int> Pills = new();       // ekwipunek pigułek
     public NetworkVariable<byte> Curse = new();      // 1=do góry nogami 2=lowres 3=zoom 4=mały obraz
     public NetworkVariable<double> CurseUntil = new(); // >0: klątwa natychmiastowa (z pigułki)
@@ -113,19 +114,13 @@ public class DrunkSystem : NetworkBehaviour
         AddDrink(amount);
     }
 
-    public void PickUpBeer(bool spiked)
+    public void PickUpBeer(bool spiked, bool special)
     {
         Beers.Value++;
+        HeldSpecial.Value = special;
         if (spiked) spikedBeers++;
-    }
-
-    // pkt 4: piwo specjalne pite od razu — x2 punkty + losowa klątwa na następną konkurencję
-    public void ApplySpecial(bool spiked)
-    {
-        Olympics.SetMultiplier(OwnerClientId, 2);
-        Curse.Value = (byte)Random.Range(1, 5);
-        AddDrink(beerStrength + (spiked ? spikedExtra : 0f));
-        MsgOwner("PIWO SPECJALNE: punkty x2 w następnej konkurencji... i mała niespodzianka");
+        if (special)
+            MsgOwner("PIWO SPECJALNE w ręce: [F] wypij (x2 pkt + niespodzianka) albo [G] wyrzuć");
     }
 
     public void MsgOwner(string m) => MsgRpc(m);
@@ -147,21 +142,43 @@ public class DrunkSystem : NetworkBehaviour
     {
         if (PassedOut.Value || Beers.Value <= 0) return;
         Beers.Value--;
-        if (spikedBeers > 0) // pigułka ujawnia się dopiero teraz — losowy paskudny efekt
+        bool special = HeldSpecial.Value;
+        HeldSpecial.Value = false;
+        bool spiked = spikedBeers > 0;
+        if (spiked) spikedBeers--;
+
+        if (special) // x2 punkty + klątwa na następną konkurencję
         {
-            spikedBeers--;
+            Olympics.SetMultiplier(OwnerClientId, 2);
+            Curse.Value = (byte)Random.Range(1, 5);
+            CurseUntil.Value = 0;
+            MsgOwner("PIWO SPECJALNE: punkty x2 w następnej konkurencji... i mała niespodzianka");
+        }
+        float amount = beerStrength;
+        if (spiked) // pigułka ujawnia się dopiero teraz — losowy paskudny efekt, od razu
+        {
             int effect = Random.Range(0, 5);
-            if (effect == 0) AddDrink(beerStrength + spikedExtra); // mocny kop
-            else // klątwa bez bonusu x2, wchodzi natychmiast
+            if (effect == 0) amount += spikedExtra; // mocny kop
+            else
             {
-                AddDrink(beerStrength);
                 Curse.Value = (byte)effect;
                 CurseUntil.Value = NetworkManager.ServerTime.Time + spikedCurseSeconds;
             }
             MsgOwner("COŚ BYŁO W TYM PIWIE...");
             Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wypił piwo z pigułką (efekt {effect})");
         }
-        else AddDrink(beerStrength);
+        AddDrink(amount);
+    }
+
+    [Rpc(SendTo.Server)]
+    public void DiscardBeerRpc()
+    {
+        if (PassedOut.Value || Beers.Value <= 0) return;
+        Beers.Value--;
+        HeldSpecial.Value = false;
+        spikedBeers = 0; // wylatuje razem z butelką
+        MsgOwner("Wyrzuciłeś piwo");
+        Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wyrzucił piwo");
     }
 
     [Rpc(SendTo.Server)]
@@ -268,6 +285,8 @@ public class DrunkSystem : NetworkBehaviour
             nearBeer.SpikeRpc();
         if (kb.fKey.wasPressedThisFrame && Beers.Value > 0 && !Competition.InputLocked)
             DrinkBeerRpc();
+        if (kb.gKey.wasPressedThisFrame && Beers.Value > 0 && !Competition.InputLocked)
+            DiscardBeerRpc();
     }
 
     void OnTriggerEnter(Collider other)
@@ -367,9 +386,10 @@ public class DrunkSystem : NetworkBehaviour
         GUI.color = Color.white;
 
         // ekwipunek pod paskiem
-        GUI.Label(new Rect(Screen.width - 190f, back.yMax + 6f, 180f, 40f),
-            $"Piwa: {Beers.Value}" + (Beers.Value > 0 ? "  [F] pij" : "")
-            + $"\nPigułki: {Pills.Value}" + (Pills.Value > 0 ? "  [Q] dosyp" : ""),
+        string beerLine = Beers.Value <= 0 ? "Piwo: brak"
+            : (HeldSpecial.Value ? "Piwo: ZŁOTE" : "Piwo: zwykłe") + "  [F] pij  [G] wyrzuć";
+        GUI.Label(new Rect(Screen.width - 250f, back.yMax + 6f, 240f, 40f),
+            beerLine + $"\nPigułki: {Pills.Value}" + (Pills.Value > 0 ? "  [Q] dosyp" : ""),
             new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperRight });
 
         var style = new GUIStyle(GUI.skin.label)
@@ -382,8 +402,8 @@ public class DrunkSystem : NetworkBehaviour
             GUI.Label(center, "[E] Podnieś pigułkę", style);
         else if (nearBeer != null && nearBeer.Available.Value)
         {
-            string hint = Beers.Value >= maxBeers && !nearBeer.Special.Value
-                ? "Masz już piwo w ręce — najpierw wypij [F]"
+            string hint = Beers.Value >= maxBeers
+                ? "Masz już piwo w ręce — wypij [F] albo wyrzuć [G]"
                 : "[E] Podnieś piwo";
             if (Pills.Value > 0) hint += "   [Q] Dosyp pigułkę";
             GUI.Label(center, hint, style);
