@@ -23,5 +23,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Arena_Spacer.unity
     guid: f3d40d9c28c2dec49aee56abd23b6ab9
+  - enabled: 1
+    path: Assets/Scenes/Arena_Flanki.unity
+    guid: d0add84f66b54b246bc38bfe99f387b1
+  - enabled: 1
+    path: Assets/Scenes/Arena_BeerPong.unity
+    guid: a61c0159ea96b9f478d01ba771780706
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}

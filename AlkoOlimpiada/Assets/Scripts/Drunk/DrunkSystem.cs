@@ -39,7 +39,9 @@ public class DrunkSystem : NetworkBehaviour
     public NetworkVariable<int> Beers = new();       // piwo w ręce (max 1)
     public NetworkVariable<bool> HeldSpecial = new(); // trzymane piwo jest złote
     public NetworkVariable<int> Pills = new();       // ekwipunek pigułek
-    // klątwy jako maska bitowa — efekty się kumulują: 1=do góry nogami 2=lowres 4=zoom 8=mały obraz
+    // klątwy jako maska bitowa — efekty się kumulują:
+    // 1=do góry nogami 2=lowres 4=zoom 8=mały obraz (ekran)
+    // 16=mały 32=wielki (Badland) 64=odwrócone sterowanie 128=octodad (WSAD losuje się co 3 s)
     public NetworkVariable<byte> Curse = new();        // z piwa specjalnego, na następną konkurencję
     public NetworkVariable<byte> InstantCurse = new(); // z pigułek, działa od razu
     public NetworkVariable<double> CurseUntil = new(); // do kiedy działa InstantCurse
@@ -55,11 +57,13 @@ public class DrunkSystem : NetworkBehaviour
     }
 
     Transform body;
+    Transform handBottle; // butelka w ręce, widoczna gdy Beers > 0
     Camera cam;
     DrunkSystem reviveTarget; // pobliski leżący gracz (tylko u właściciela)
     BeerPickup nearBeer;
     PillPickup nearPill;
     int lastStage;
+    float nextOcto; bool wasOcto;
     string msg; float msgUntil; // komunikaty ("coś było w tym piwie" itp.)
 
     // serwer
@@ -69,6 +73,7 @@ public class DrunkSystem : NetworkBehaviour
     void Awake()
     {
         body = transform.Find("Body");
+        handBottle = transform.Find("HandBottle");
         cam = GetComponent<PlayerController>().playerCamera;
     }
 
@@ -77,6 +82,8 @@ public class DrunkSystem : NetworkBehaviour
         PassedOut.OnValueChanged += (_, _) => UpdateBodyPose();
         Vomiting.OnValueChanged += (_, _) => UpdateBodyPose();
         UpdateBodyPose();
+        Beers.OnValueChanged += (_, v) => { if (handBottle) handBottle.gameObject.SetActive(v > 0); };
+        if (handBottle) handBottle.gameObject.SetActive(Beers.Value > 0);
 
         // ponytail: headless smoke test pętli Zgon->cucenie (flaga -autodrink)
         if (IsServer && System.Array.IndexOf(
@@ -116,6 +123,13 @@ public class DrunkSystem : NetworkBehaviour
         AddDrink(amount);
     }
 
+    // picie przymusowe w konkurencji: pasek pełny = wymioty (spadek do 60/podłogi), nie Zgon
+    public void AddCompetitionDrink(float amount)
+    {
+        if (Drunk.Value + amount >= 100f) Drunk.Value = Mathf.Max(Floor.Value, 60f);
+        else AddPermanent(amount);
+    }
+
     public void PickUpBeer(bool spiked, bool special)
     {
         Beers.Value++;
@@ -126,7 +140,25 @@ public class DrunkSystem : NetworkBehaviour
                      + " + losowa klątwa ekranu, [G] wyrzuć");
     }
 
-    static byte RandomCurseBit() => (byte)(1 << Random.Range(0, 4));
+    static byte RandomCurseBit() => (byte)(1 << Random.Range(0, 8));
+
+    // maska aktywnych klątw: ze specjalnego (podczas konkurencji) + z pigułek (na czas)
+    public byte ActiveCurses()
+    {
+        var comp = Competition.Current;
+        byte a = 0;
+        if (comp != null && comp.State.Value == Competition.Phase.Running) a |= Curse.Value;
+        if (CurseUntil.Value > 0 && NetworkManager.ServerTime.Time < CurseUntil.Value)
+            a |= InstantCurse.Value;
+        return a;
+    }
+
+    public bool CurseActive(byte bit) => (ActiveCurses() & bit) != 0;
+
+    // pijacki zygzak (Sea of Thieves): ruch znosi na boki tym mocniej, im bardziej pijany
+    public float VeerAngle() =>
+        (Mathf.PerlinNoise(Time.time * 0.35f, 42f) - 0.5f) * 2f * 30f
+        * Mathf.InverseLerp(Stages[0].min, 100f, Drunk.Value);
 
     public void MsgOwner(string m) => MsgRpc(m);
 
@@ -249,10 +281,23 @@ public class DrunkSystem : NetworkBehaviour
                 Drunk.Value = Mathf.Max(Floor.Value, Drunk.Value - decayPerSecond * Time.deltaTime);
         }
 
+        // skala postaci z klątw — widzą wszyscy
+        // ponytail: CharacterController nie skaluje collidera, to wizualny żart
+        byte act = ActiveCurses();
+        float sc = (act & 16) != 0 ? 0.45f : (act & 32) != 0 ? 1.7f : 1f;
+        if (!Mathf.Approximately(transform.localScale.x, sc))
+            transform.localScale = Vector3.one * sc;
+
         if (!IsOwner || PassedOut.Value) { reviveTarget = null; return; }
 
         int st = Stage;
         if (st != lastStage) { lastStage = st; ApplyControls(st); }
+
+        // octodad: klawisze ruchu losują się co 3 s, po klątwie wraca mapowanie z etapu
+        bool octo = CurseActive(128);
+        if (octo && Time.time >= nextOcto) { nextOcto = Time.time + 3f; ApplyControls(3); }
+        else if (!octo && wasOcto) ApplyControls(st);
+        wasOcto = octo;
 
         var kb = Keyboard.current;
         if (kb == null) return;
@@ -312,13 +357,8 @@ public class DrunkSystem : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        // aktywne klątwy = z piwa specjalnego (w trakcie konkurencji) + z pigułek (na czas);
-        // maska bitowa, więc efekty się kumulują
-        var comp = Competition.Current;
-        byte active = 0;
-        if (comp != null && comp.State.Value == Competition.Phase.Running) active |= Curse.Value;
-        if (CurseUntil.Value > 0 && NetworkManager.ServerTime.Time < CurseUntil.Value)
-            active |= InstantCurse.Value;
+        // klątwy ekranowe — maska bitowa, efekty się kumulują
+        byte active = ActiveCurses();
         cam.fieldOfView = (active & 4) != 0 ? 20f : 60f;                         // zoom
         cam.rect = (active & 8) != 0
             ? new Rect(0.3f, 0.3f, 0.4f, 0.4f) : new Rect(0f, 0f, 1f, 1f);       // mały obraz
