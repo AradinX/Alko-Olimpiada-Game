@@ -17,6 +17,7 @@ public class DrunkSystem : NetworkBehaviour
     Transform body;
     Camera cam;
     DrunkSystem reviveTarget; // pobliski leżący gracz (tylko u właściciela)
+    BeerPickup nearBeer;      // butelka w zasięgu (tylko u właściciela)
 
     void Awake()
     {
@@ -80,17 +81,28 @@ public class DrunkSystem : NetworkBehaviour
             if (Vector3.Distance(d.transform.position, transform.position) <= reviveRange)
             { reviveTarget = d; break; }
         }
-        if (reviveTarget != null && Keyboard.current != null
-            && Keyboard.current.eKey.wasPressedThisFrame)
+        var kb = Keyboard.current;
+        if (kb == null) return;
+        if (reviveTarget != null && kb.eKey.wasPressedThisFrame)
             reviveTarget.ReviveRpc();
+        // picie na [F], nie automatem; w trakcie konkurencji zablokowane
+        if (nearBeer != null && nearBeer.Available.Value && !Sprint500.InputLocked
+            && kb.fKey.wasPressedThisFrame)
+            nearBeer.RequestPickupRpc();
     }
 
-    // zbieranie piw: trigger łapie właściciel (CC.Move działa tylko u niego), serwer waliduje
+    // trigger łapie właściciel (CC.Move działa tylko u niego), serwer waliduje przy piciu
     void OnTriggerEnter(Collider other)
     {
-        if (!IsOwner || PassedOut.Value) return;
+        if (!IsOwner) return;
         var beer = other.GetComponentInParent<BeerPickup>();
-        if (beer != null) beer.RequestPickupRpc();
+        if (beer != null) nearBeer = beer;
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        if (!IsOwner) return;
+        if (other.GetComponentInParent<BeerPickup>() == nearBeer) nearBeer = null;
     }
 
     void LateUpdate()
@@ -131,5 +143,7 @@ public class DrunkSystem : NetworkBehaviour
         var center = new Rect(0, Screen.height * 0.4f, Screen.width, 40);
         if (PassedOut.Value) GUI.Label(center, "ZGON — czekaj aż cię ocucą", style);
         else if (reviveTarget != null) GUI.Label(center, "[E] Ocuć kolegę", style);
+        else if (nearBeer != null && nearBeer.Available.Value && !Sprint500.InputLocked)
+            GUI.Label(center, "[F] Wypij piwo", style);
     }
 }

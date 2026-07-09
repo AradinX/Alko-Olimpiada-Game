@@ -202,6 +202,30 @@ public static class ProjectBootstrap
         Debug.Log("[Bootstrap] Prototype2 OK");
     }
 
+    // Prototyp 3: stanowisko Sprintu na 500 na hubie (in-scene NetworkObject)
+    public static void SetupPrototype3()
+    {
+        var scene = EditorSceneManager.OpenScene("Assets/Scenes/Hub.unity");
+        foreach (var old in Object.FindObjectsByType<Sprint500>(FindObjectsSortMode.None))
+            Object.DestroyImmediate(old.gameObject); // idempotentny rerun
+
+        var station = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        station.name = "Station_Sprint500";
+        station.transform.position = new Vector3(0f, 0.25f, 18f);
+        station.transform.localScale = new Vector3(4f, 0.5f, 4f); // podest przed świątynią
+        var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+        { color = new Color(0.2f, 0.5f, 0.9f) };
+        AssetDatabase.CreateAsset(mat, "Assets/Prefabs/StationMat.mat");
+        station.GetComponent<Renderer>().sharedMaterial = mat;
+        station.AddComponent<NetworkObject>();
+        station.AddComponent<Sprint500>();
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[Bootstrap] Prototype3 OK");
+    }
+
     static GameObject BuildBeerPrefab()
     {
         var root = new GameObject("Beer");
