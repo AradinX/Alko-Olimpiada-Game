@@ -6,29 +6,30 @@
 
 ## Goal
 
-Build **Prototype 1** of Alko Olimpiada in Unreal Engine 5: a hub map with first-person movement and working multiplayer on a listen server for 2 players.
+Build **Prototype 1** of Alko Olimpiada in Unity 6: a hub map with first-person movement and working multiplayer (host + client) using Netcode for GameObjects, for 2 players.
 
 ## Context
 
 - Full game description: `GDD-Alko-Olimpiada.md` (read sections 4, 5, 9, 10, 12 before starting; the document is in Polish — translate as needed).
-- Everything in Blueprints — C++ only when Blueprints are not enough.
+- Unity 6 with URP, new Input System, Netcode for GameObjects (NGO) with Unity Transport.
 - Do not build anything beyond the scope below (no minigames, no drunk system, no pickups — those are Prototypes 2–3).
 
 ## Scope (definition of done)
 
-1. UE5 project `AlkoOlimpiada` with the `Content/` folder structure described in `README.md`.
-2. `Hub` level — greybox only: flat area, a few placeholder shapes for columns/buildings. Zero art assets.
-3. First-person character: walk, sprint, jump (may be based on the First Person template).
-4. GameMode + lobby: host creates a game (listen server), a second player joins by IP; both see each other on the map (replicated position and character model).
-5. Player nickname visible above the other player's character.
-6. Voice chat: Unreal's built-in VOIP (`bEnableVOIP` in config) — players can hear each other. No proximity/attenuation — working audio is enough.
+1. Unity 6 project `AlkoOlimpiada` (URP template) with the `Assets/` folder structure described in `README.md`.
+2. `Hub` scene — greybox only: flat ground plane, a few primitive shapes as placeholder columns/buildings. Zero art assets.
+3. First-person character controller: walk, sprint, jump (CharacterController + new Input System).
+4. Multiplayer via NGO: host starts a game, a second player joins by IP (Unity Transport); both see each other's character on the map (NetworkTransform replication).
+5. Player nickname visible above the other player's character (world-space TextMeshPro billboard).
+6. Voice chat: Unity Vivox — players can hear each other. No proximity/attenuation — working audio is enough.
 
 ## Verification criteria
 
-- Two game instances on one machine (PIE: 2 players, Net Mode: Play As Listen Server) — players see each other and movement replicates smoothly.
-- Restarting a session requires no manual cleanup — host creates, client joins, works every time.
+- Two game instances on one machine (build + editor, or Multiplayer Play Mode) — players see each other and movement replicates smoothly.
+- Restarting a session requires no manual cleanup — host starts, client joins, works every time.
 
 ## Constraints
 
-- Do not add plugins or external dependencies (EOS, Steam) — join-by-IP and built-in VOIP are enough for a prototype.
+- No third-party networking assets (no Mirror, no Photon) — NGO + join-by-IP is enough for a prototype.
+- Vivox is the only Unity Gaming Services dependency; skip Relay/Lobby for now.
 - Do not design systems "for later" (medals, voting, drunk levels). YAGNI.

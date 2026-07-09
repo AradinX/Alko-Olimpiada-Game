@@ -1,32 +1,43 @@
-# Unreal Engine — generowane, nie commitować
-Binaries/
-DerivedDataCache/
-Intermediate/
-Saved/
-Build/
+# Unity — generowane, nie commitować
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
 
-# Pliki IDE / solucji (regenerowane z .uproject)
+# Pliki IDE (regenerowane przez Unity)
 .vs/
 .vscode/
 .idea/
+*.csproj
 *.sln
 *.suo
-*.opensdf
-*.sdf
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
 *.VC.db
-*.VC.opendb
-*.xcodeproj
-*.xcworkspace
 
-# Wtyczki — ich Binaries/Intermediate też
-Plugins/**/Binaries/
-Plugins/**/Intermediate/
+# Unity crash/debug
+sysinfo.txt
+*.stackdump
+crashlytics-build.properties
+
+# Buildy
+*.apk
+*.aab
+*.unitypackage
+*.app
 
 # System
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# Crashe i logi
-*.log
-*.dmp
