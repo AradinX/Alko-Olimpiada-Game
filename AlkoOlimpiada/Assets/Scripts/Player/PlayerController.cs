@@ -54,6 +54,7 @@ public class PlayerController : NetworkBehaviour
                 ? CursorLockMode.None : CursorLockMode.Locked;
 
         if (drunk != null && drunk.PassedOut.Value) return; // Zgon = brak kontroli
+        if (Sprint500.InputLocked) return; // konkurencja w toku — SPACJA to picie, nie skok
 
         if (Cursor.lockState == CursorLockMode.Locked && mouse != null)
         {
