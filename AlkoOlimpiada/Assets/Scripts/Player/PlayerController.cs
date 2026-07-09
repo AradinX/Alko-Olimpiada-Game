@@ -95,8 +95,9 @@ public class PlayerController : NetworkBehaviour
 
         if (Competition.InputLocked) return; // konkurencja: patrzysz, ale nie chodzisz
 
-        float x = (kb.dKey.isPressed ? 1f : 0f) - (kb.aKey.isPressed ? 1f : 0f);
-        float z = (kb.wKey.isPressed ? 1f : 0f) - (kb.sKey.isPressed ? 1f : 0f);
+        // mapowanie klawiszy ruchu zależy od etapu upojenia (DrunkSystem.ApplyControls)
+        float x = (kb[drunk.keyD].isPressed ? 1f : 0f) - (kb[drunk.keyA].isPressed ? 1f : 0f);
+        float z = (kb[drunk.keyW].isPressed ? 1f : 0f) - (kb[drunk.keyS].isPressed ? 1f : 0f);
         float speed = kb.leftShiftKey.isPressed ? sprintSpeed : walkSpeed;
         Vector3 move = (transform.right * x + transform.forward * z).normalized * speed;
 
