@@ -210,13 +210,21 @@ public static class ProjectBootstrap
             Object.DestroyImmediate(o.gameObject); // idempotentny rerun
         var legacy = GameObject.Find("Station_Sprint500"); // stanowisko z P3
         if (legacy != null) Object.DestroyImmediate(legacy);
+        foreach (var v in Object.FindObjectsByType<VoteManager>(FindObjectsSortMode.None))
+            Object.DestroyImmediate(v.gameObject);
 
         BuildStation("SPRINT NA 500", "Arena_Sprint500", "-autosprint",
-            new Vector3(0f, 0.25f, 18f), new Color(0.2f, 0.5f, 0.9f), 0, true);
+            new Vector3(0f, 0.25f, 18f), new Color(0.2f, 0.5f, 0.9f));
         BuildStation("RZUTKI", "Arena_Rzutki", "-autorzutki",
-            new Vector3(18f, 0.25f, 0f), new Color(0.9f, 0.3f, 0.2f), 1, false);
+            new Vector3(18f, 0.25f, 0f), new Color(0.9f, 0.3f, 0.2f));
         BuildStation("NA PÓŁ", "Arena_NaPol", "-autonapol",
-            new Vector3(-18f, 0.25f, 0f), new Color(0.2f, 0.8f, 0.3f), 2, false);
+            new Vector3(-18f, 0.25f, 0f), new Color(0.2f, 0.8f, 0.3f));
+
+        var vmGo = new GameObject("VoteManager");
+        vmGo.AddComponent<NetworkObject>();
+        var vm = vmGo.AddComponent<VoteManager>();
+        vm.scenes = new[] { "Arena_Sprint500", "Arena_Rzutki", "Arena_NaPol" };
+        vm.titles = new[] { "SPRINT NA 500", "RZUTKI", "NA PÓŁ" };
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
 
@@ -231,7 +239,7 @@ public static class ProjectBootstrap
     }
 
     static void BuildStation(string title, string sceneName, string autoFlag,
-        Vector3 pos, Color color, int slot, bool scoreboard)
+        Vector3 pos, Color color)
     {
         var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
         go.name = "Station_" + sceneName;
@@ -245,8 +253,6 @@ public static class ProjectBootstrap
         st.title = title;
         st.sceneName = sceneName;
         st.autoFlag = autoFlag;
-        st.uiSlot = slot;
-        st.showScoreboard = scoreboard;
     }
 
     static void BuildArenas()

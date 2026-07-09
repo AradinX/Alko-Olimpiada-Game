@@ -16,8 +16,16 @@
 
 ## Goal
 
-**Playtest with friends**: 3+ players over LAN, run all three competitions, collect feedback.
-Then decide: balance tuning vs. voting system (weighted draw, GDD section 4) vs. next competition.
+**Playtest with friends**: 3+ players over LAN, full olympiad (voting → 3 competitions → champion),
+collect feedback. Then decide: balance tuning vs. next competition vs. aggression mechanic.
+
+## Voting (done, GDD section 4)
+
+`VoteManager` (in-scene, Hub) + stations as vote spots: [R] near a station = vote for it
+(toggle). All players voted → 3 s "LOSOWANIE..." → weighted draw (each vote = one ticket)
+→ arena loads. Played competitions leave the pool (station shows ROZEGRANA). All played →
+final summary + champion, [R] starts a new olympiad (resets scores and pool). `played` set
+and `Olympics` scores are static — they survive scene switches, reset only via NewOlympicsRpc.
 
 ## Known knobs (balance)
 
