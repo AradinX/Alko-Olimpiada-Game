@@ -210,10 +210,50 @@ public static class ProjectBootstrap
         var pds = player.GetComponent<DrunkSystem>();
         pds.decayPerSecond = 0.2f;
         pds.catchRadius = 25f; // przyłapanie po widoku, nie po bliskości
+        if (player.transform.Find("HandBottle") == null) // butelka w ręce (Beers > 0)
+        {
+            var hb = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            Object.DestroyImmediate(hb.GetComponent<Collider>());
+            hb.name = "HandBottle";
+            hb.transform.SetParent(player.transform, false);
+            hb.transform.localPosition = new Vector3(0.38f, 1.15f, 0.3f);
+            hb.transform.localScale = new Vector3(0.12f, 0.18f, 0.12f);
+            var bm = AssetDatabase.LoadAssetAtPath<Material>("Assets/Prefabs/BeerMat.mat");
+            if (bm != null) hb.GetComponent<Renderer>().sharedMaterial = bm;
+            hb.SetActive(false);
+        }
         PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
         PrefabUtility.UnloadPrefabContents(player);
 
         var scene = EditorSceneManager.OpenScene("Assets/Scenes/Hub.unity");
+
+        // hub jako wyspa: dysk piasku + woda dookoła (bez collidera — wpadasz i respawn)
+        foreach (var n in new[] { "Ground", "Island", "Water" })
+        {
+            var g = GameObject.Find(n);
+            if (g != null) Object.DestroyImmediate(g);
+        }
+        var island = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        island.name = "Island";
+        Object.DestroyImmediate(island.GetComponent<Collider>());
+        island.AddComponent<MeshCollider>();
+        island.transform.position = new Vector3(0f, -0.5f, 0f);
+        island.transform.localScale = new Vector3(95f, 0.5f, 95f); // promień ~47 m, wierzch na y=0
+        var sand = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+        { color = new Color(0.87f, 0.78f, 0.55f) };
+        AssetDatabase.CreateAsset(sand, "Assets/Prefabs/IslandMat.mat");
+        island.GetComponent<Renderer>().sharedMaterial = sand;
+
+        var water = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        water.name = "Water";
+        Object.DestroyImmediate(water.GetComponent<Collider>());
+        water.transform.position = new Vector3(0f, -0.8f, 0f);
+        water.transform.localScale = new Vector3(60f, 1f, 60f); // 600x600 m
+        var sea = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+        { color = new Color(0.15f, 0.45f, 0.8f) };
+        AssetDatabase.CreateAsset(sea, "Assets/Prefabs/WaterMat.mat");
+        water.GetComponent<Renderer>().sharedMaterial = sea;
+
         foreach (var o in Object.FindObjectsByType<CompetitionStation>(FindObjectsSortMode.None))
             Object.DestroyImmediate(o.gameObject); // idempotentny rerun
         var legacy = GameObject.Find("Station_Sprint500"); // stanowisko z P3
@@ -231,14 +271,18 @@ public static class ProjectBootstrap
             new Vector3(13f, 0.25f, -13f), new Color(0.8f, 0.7f, 0.1f));
         BuildStation("SPACER DO MONOPOLOWEGO", "Arena_Spacer", "-autospacer",
             new Vector3(-13f, 0.25f, -13f), new Color(0.6f, 0.3f, 0.8f));
+        BuildStation("FLANKI", "Arena_Flanki", "-autoflanki",
+            new Vector3(26f, 0.25f, 13f), new Color(0.95f, 0.55f, 0.1f));
+        BuildStation("BEER PONG", "Arena_BeerPong", "-autopong",
+            new Vector3(-26f, 0.25f, 13f), new Color(0.7f, 0.2f, 0.6f));
 
         var vmGo = new GameObject("VoteManager");
         vmGo.AddComponent<NetworkObject>();
         var vm = vmGo.AddComponent<VoteManager>();
         vm.scenes = new[] { "Arena_Sprint500", "Arena_Rzutki", "Arena_NaPol",
-                            "Arena_LuckyShot", "Arena_Spacer" };
+                            "Arena_LuckyShot", "Arena_Spacer", "Arena_Flanki", "Arena_BeerPong" };
         vm.titles = new[] { "SPRINT NA 500", "RZUTKI", "NA PÓŁ",
-                            "LUCKY SHOT", "SPACER" };
+                            "LUCKY SHOT", "SPACER", "FLANKI", "BEER PONG" };
 
         // pigułki (pkt 5)
         foreach (var old in Object.FindObjectsByType<PillPickup>(FindObjectsSortMode.None))
@@ -257,7 +301,7 @@ public static class ProjectBootstrap
 
         EditorBuildSettings.scenes =
             new[] { "Hub", "Arena_Sprint500", "Arena_Rzutki", "Arena_NaPol",
-                    "Arena_LuckyShot", "Arena_Spacer" }
+                    "Arena_LuckyShot", "Arena_Spacer", "Arena_Flanki", "Arena_BeerPong" }
             .Select(n => new EditorBuildSettingsScene($"Assets/Scenes/{n}.unity", true))
             .ToArray();
         AssetDatabase.SaveAssets();
@@ -350,6 +394,37 @@ public static class ProjectBootstrap
         Cube("Beam3", new Vector3(0f, 2.75f, 22.6f), new Vector3(0.7f, 0.5f, 4.6f)); // przerwa 1.3 m
         Cube("MetaPlatform", new Vector3(0f, 2.75f, 27.5f), new Vector3(6f, 0.5f, 5f));
         EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_Spacer.unity");
+
+        // Flanki: puszka na środku, drużyny naprzeciw (z=-6 / z=6)
+        s = NewArena();
+        c = new GameObject("Flanki");
+        c.AddComponent<NetworkObject>();
+        var fl = c.AddComponent<Flanki>();
+        fl.timeoutSeconds = 150f;
+        var can = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        can.name = "Puszka";
+        can.transform.position = new Vector3(0f, 0.25f, 0f);
+        can.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_Flanki.unity");
+
+        // Beer Pong: stół z kubkami po obu stronach (dekoracja; stan liczy UI)
+        s = NewArena();
+        c = new GameObject("BeerPong");
+        c.AddComponent<NetworkObject>();
+        var bp = c.AddComponent<BeerPong>();
+        bp.timeoutSeconds = 120f;
+        Cube("Table", new Vector3(0f, 0.5f, 0f), new Vector3(2f, 1f, 8f));
+        for (int t = 0; t < 2; t++)
+            for (int i = 0; i < 6; i++)
+            {
+                var cup = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                Object.DestroyImmediate(cup.GetComponent<Collider>());
+                cup.name = $"Cup_{t}_{i}";
+                cup.transform.position = new Vector3(i % 3 * 0.4f - 0.4f, 1.12f,
+                    (t == 0 ? -1f : 1f) * (2.8f + i / 3 * 0.45f));
+                cup.transform.localScale = new Vector3(0.14f, 0.11f, 0.14f);
+            }
+        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_BeerPong.unity");
     }
 
     static GameObject BuildPillPrefab()

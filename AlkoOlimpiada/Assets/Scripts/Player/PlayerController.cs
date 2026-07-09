@@ -124,8 +124,10 @@ public class PlayerController : NetworkBehaviour
         // mapowanie klawiszy ruchu zależy od etapu upojenia (DrunkSystem.ApplyControls)
         float x = (kb[drunk.keyD].isPressed ? 1f : 0f) - (kb[drunk.keyA].isPressed ? 1f : 0f);
         float z = (kb[drunk.keyW].isPressed ? 1f : 0f) - (kb[drunk.keyS].isPressed ? 1f : 0f);
+        if (drunk.CurseActive(64)) { x = -x; z = -z; } // klątwa: odwrócone sterowanie
         float speed = kb.leftShiftKey.isPressed ? sprintSpeed : walkSpeed;
         Vector3 move = (transform.right * x + transform.forward * z).normalized * speed;
+        move = Quaternion.Euler(0f, drunk.VeerAngle(), 0f) * move; // pijacki zygzak (SoT)
 
         if (cc.isGrounded)
         {
@@ -138,6 +140,9 @@ public class PlayerController : NetworkBehaviour
         knock = Vector3.MoveTowards(knock, Vector3.zero, 12f * Time.deltaTime);
         move.y = yVelocity + knock.y;
         cc.Move(move * Time.deltaTime);
+
+        // hub to wyspa: wpadłeś do wody — wracasz na plażę
+        if (Competition.Current == null && transform.position.y < -1.5f) Place();
     }
 
     [Rpc(SendTo.Server)]
