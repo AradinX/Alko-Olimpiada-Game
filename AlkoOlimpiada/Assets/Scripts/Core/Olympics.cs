@@ -12,9 +12,11 @@ public static class Olympics
 
     public static void SetMultiplier(ulong id, int m) => multiplier[id] = m;
 
-    // np. kara za przyłapanie na rzyganiu
+    public static int PointsOf(ulong id) => scores.GetValueOrDefault(id);
+
+    // np. kara za przyłapanie na rzyganiu; nigdy poniżej zera
     public static void AddPoints(ulong id, int pts) =>
-        scores[id] = scores.GetValueOrDefault(id) + pts;
+        scores[id] = Mathf.Max(0, scores.GetValueOrDefault(id) + pts);
 
     // serwer: przyznaje medale wg rankingu (z mnożnikami), zwraca tekst tabeli
     public static string Award(List<ulong> ranking, out string resultsText)

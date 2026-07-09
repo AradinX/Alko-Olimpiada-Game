@@ -445,8 +445,10 @@ MonoBehaviour:
   reviveTo: 50
   beerStrength: 15
   vomitDrainPerSecond: 6
-  catchRadius: 6
+  catchRadius: 25
+  catchFov: 40
   catchPenalty: 2
+  maxBeers: 1
   spikedExtra: 35
   keyW: 37
   keyS: 33

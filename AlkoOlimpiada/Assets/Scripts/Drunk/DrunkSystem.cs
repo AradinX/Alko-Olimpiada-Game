@@ -13,10 +13,12 @@ public class DrunkSystem : NetworkBehaviour
     public float reviveRange = 3f;
     public float reviveTo = 50f;
     public float beerStrength = 15f;
-    public float vomitDrainPerSecond = 6f;   // pkt 3: im dłużej rzygasz, tym więcej schodzi
-    public float catchRadius = 6f;
+    public float vomitDrainPerSecond = 6f;   // im dłużej rzygasz, tym więcej schodzi
+    public float catchRadius = 25f;          // zasięg wzroku przy przyłapaniu
+    public float catchFov = 40f;             // musi mieć cię w kadrze (stopnie od osi patrzenia)
     public int catchPenalty = 2;
-    public float spikedExtra = 35f;          // pkt 5: pigułka w piwie
+    public int maxBeers = 1;                 // jedno piwo w ręce
+    public float spikedExtra = 35f;          // pigułka w piwie
 
     // etapy pijaństwa (progi na pasku); bujanie zaczyna się od pierwszego i pogłębia
     public static readonly (float min, string name)[] Stages =
@@ -143,12 +145,14 @@ public class DrunkSystem : NetworkBehaviour
     {
         if (PassedOut.Value || Beers.Value <= 0) return;
         Beers.Value--;
-        if (spikedBeers > 0) // pkt 5: pigułka ujawnia się dopiero teraz
+        if (spikedBeers > 0) // pigułka ujawnia się dopiero teraz — losowy paskudny efekt
         {
             spikedBeers--;
-            AddDrink(beerStrength + spikedExtra);
-            MsgOwner("COŚ BYŁO W TYM PIWIE!");
-            Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wypił piwo z pigułką");
+            int effect = Random.Range(0, 5);
+            if (effect == 0) AddDrink(beerStrength + spikedExtra); // mocny kop
+            else { AddDrink(beerStrength); Curse.Value = (byte)effect; } // klątwa bez bonusu x2
+            MsgOwner("COŚ BYŁO W TYM PIWIE...");
+            Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wypił piwo z pigułką (efekt {effect})");
         }
         else AddDrink(beerStrength);
     }
@@ -161,19 +165,29 @@ public class DrunkSystem : NetworkBehaviour
         Vomiting.Value = on;
     }
 
-    // pkt 3: kolega w pobliżu = przyłapany, raz na jedno rzyganie
+    // przyłapany, gdy inny gracz ma cię na widoku: w kadrze i bez przeszkód; raz na rzyganie
+    // ponytail: kierunek patrzenia = yaw korpusu (pitch kamery nie jest replikowany)
     void CheckCaught()
     {
         foreach (var c in NetworkManager.ConnectedClients.Values)
         {
             var po = c.PlayerObject;
             if (po == null || c.ClientId == OwnerClientId) continue;
-            if (Vector3.Distance(po.transform.position, transform.position) > catchRadius) continue;
+            Vector3 eye = po.transform.position + Vector3.up * 1.7f;
+            Vector3 to = transform.position + Vector3.up * 1f - eye;
+            if (to.magnitude > catchRadius) continue;
+            if (Vector3.Angle(po.transform.forward, to) > catchFov) continue;
+            if (Physics.Raycast(eye, to.normalized, out var hit, to.magnitude)
+                && hit.collider.GetComponentInParent<DrunkSystem>() != this) continue; // zasłonięty
+
             caughtThisVomit = true;
+            int before = Olympics.PointsOf(OwnerClientId);
             Olympics.AddPoints(OwnerClientId, -catchPenalty);
+            int lost = before - Olympics.PointsOf(OwnerClientId);
             if (VoteManager.Instance != null) VoteManager.Instance.Scoreboard.Value = Olympics.Text();
-            MsgOwner($"PRZYŁAPALI CIĘ NA RZYGANIU! -{catchPenalty} pkt");
-            Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} przyłapany na rzyganiu, -{catchPenalty} pkt");
+            MsgOwner(lost > 0 ? $"PRZYŁAPALI CIĘ NA RZYGANIU! -{lost} pkt"
+                              : "PRZYŁAPALI CIĘ NA RZYGANIU! (nie masz punktów do stracenia)");
+            Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} przyłapany na rzyganiu, -{lost} pkt");
             break;
         }
     }
@@ -215,6 +229,12 @@ public class DrunkSystem : NetworkBehaviour
         bool wantVomit = kb.vKey.isPressed && Competition.Current == null;
         if (wantVomit != Vomiting.Value) SetVomitRpc(wantVomit);
         if (Vomiting.Value) { reviveTarget = null; return; }
+
+        // OnTriggerExit bywa gubiony (teleporty, wyłączane collidery) — waliduj dystansem
+        if (nearBeer != null &&
+            Vector3.Distance(nearBeer.transform.position, transform.position) > 3f) nearBeer = null;
+        if (nearPill != null &&
+            Vector3.Distance(nearPill.transform.position, transform.position) > 3f) nearPill = null;
 
         // ponytail: FindObjectsByType co klatkę — graczy jest max 10, wystarczy
         reviveTarget = null;
@@ -347,8 +367,13 @@ public class DrunkSystem : NetworkBehaviour
         else if (nearPill != null && nearPill.Available.Value)
             GUI.Label(center, "[E] Podnieś pigułkę", style);
         else if (nearBeer != null && nearBeer.Available.Value)
-            GUI.Label(center, Pills.Value > 0 ? "[E] Podnieś piwo   [Q] Dosyp pigułkę"
-                                              : "[E] Podnieś piwo", style);
+        {
+            string hint = Beers.Value >= maxBeers && !nearBeer.Special.Value
+                ? "Masz już piwo w ręce — najpierw wypij [F]"
+                : "[E] Podnieś piwo";
+            if (Pills.Value > 0) hint += "   [Q] Dosyp pigułkę";
+            GUI.Label(center, hint, style);
+        }
 
         if (Time.time < msgUntil)
             GUI.Label(new Rect(0, Screen.height * 0.55f, Screen.width, 40), msg,

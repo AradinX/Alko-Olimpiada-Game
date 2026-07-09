@@ -205,9 +205,11 @@ public static class ProjectBootstrap
     // Prototyp 4/5: stanowiska konkurencji, areny, pigułki, VoteManager, build settings
     public static void SetupPrototype4()
     {
-        // prefab gracza: wolniejsze trzeźwienie (nadpisuje zserializowaną wartość z P2)
+        // prefab gracza: nadpisz zserializowane wartości ze starszych prototypów
         var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
-        player.GetComponent<DrunkSystem>().decayPerSecond = 0.2f;
+        var pds = player.GetComponent<DrunkSystem>();
+        pds.decayPerSecond = 0.2f;
+        pds.catchRadius = 25f; // przyłapanie po widoku, nie po bliskości
         PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
         PrefabUtility.UnloadPrefabContents(player);
 
