@@ -21,7 +21,9 @@ Then decide: balance tuning vs. voting system (weighted draw, GDD section 4) vs.
 
 ## Known knobs (balance)
 
-- `DrunkSystem`: `decayPerSecond` 0.4, `beerStrength` 15, revive to 50, sway from 15.
+- `DrunkSystem`: `decayPerSecond` 0.4, `beerStrength` 15, revive to 50. Stages (thresholds in
+  static `Stages`): Szumi 20 (sway starts, deepens with level), Lekko chycony 45 (A/D swapped),
+  Jest ligancko 70 (WSAD remapped to random hidden keys, rerolled on each stage entry).
 - `Sprint500`: `sipBase` 4, `sipDrunkPenalty` 0.6, `drunkPerSip` 0.6, vomit → 60.
 - `Rzutki`: `aimWander` 0.12, 3 darts, timeout 30 s, `naturalDrunkGain` 12.
 - `NaPol`: `baseSpeed` 0.25, `drunkSpeedBonus` 1.5, timeout 20 s, `naturalDrunkGain` 12.
