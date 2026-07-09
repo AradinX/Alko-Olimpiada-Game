@@ -1,14 +1,22 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 // System upojenia: poziom 0-100 replikowany z serwera, bujanie kamery u właściciela,
-// Zgon przy 100 (utrata kontroli), cucenie przez innego gracza klawiszem E.
+// Zgon przy 100 (cucenie [E]), etapy psujące sterowanie, ekwipunek piw [E]/[F],
+// pigułki [Q], dobrowolne rzyganie [V] (kara za przyłapanie), klątwy z piw specjalnych.
 public class DrunkSystem : NetworkBehaviour
 {
-    public float decayPerSecond = 0.4f;
+    public float decayPerSecond = 0.2f;      // pkt 2: trzeźwiejesz wolniej
     public float reviveRange = 3f;
     public float reviveTo = 50f;
+    public float beerStrength = 15f;
+    public float vomitDrainPerSecond = 6f;   // pkt 3: im dłużej rzygasz, tym więcej schodzi
+    public float catchRadius = 6f;
+    public int catchPenalty = 2;
+    public float spikedExtra = 35f;          // pkt 5: pigułka w piwie
 
     // etapy pijaństwa (progi na pasku); bujanie zaczyna się od pierwszego i pogłębia
     public static readonly (float min, string name)[] Stages =
@@ -17,9 +25,17 @@ public class DrunkSystem : NetworkBehaviour
     // aktualne mapowanie ruchu (owner); etap 2 zamienia A/D, etap 3 losuje ukryte klawisze
     public Key keyW = Key.W, keyS = Key.S, keyA = Key.A, keyD = Key.D;
 
-    static readonly Key[] scramblePool = // klawisze nieużywane w grze
+    static readonly Key[] scramblePool = // klawisze nieużywane w grze (bez V/Q/E/F/R)
     { Key.P, Key.L, Key.M, Key.K, Key.O, Key.I, Key.J, Key.N, Key.B,
-      Key.H, Key.G, Key.T, Key.Y, Key.U, Key.V, Key.C, Key.X, Key.Z, Key.Q };
+      Key.H, Key.G, Key.T, Key.Y, Key.U, Key.C, Key.X, Key.Z };
+
+    public NetworkVariable<float> Drunk = new();     // 0-100, zapis: serwer
+    public NetworkVariable<float> Floor = new();     // pkt 1: alkohol z konkurencji na stałe
+    public NetworkVariable<bool> PassedOut = new();
+    public NetworkVariable<bool> Vomiting = new();
+    public NetworkVariable<int> Beers = new();       // ekwipunek piw
+    public NetworkVariable<int> Pills = new();       // ekwipunek pigułek
+    public NetworkVariable<byte> Curse = new();      // pkt 4: 1=do góry nogami 2=lowres 3=zoom 4=mały obraz
 
     public int Stage
     {
@@ -31,17 +47,17 @@ public class DrunkSystem : NetworkBehaviour
         }
     }
 
-    public float beerStrength = 15f;
-
-    public NetworkVariable<float> Drunk = new();       // 0-100, zapis: serwer
-    public NetworkVariable<bool> PassedOut = new();
-    public NetworkVariable<int> Beers = new();          // ekwipunek piw
-
     Transform body;
     Camera cam;
     DrunkSystem reviveTarget; // pobliski leżący gracz (tylko u właściciela)
-    BeerPickup nearBeer;      // butelka w zasięgu (tylko u właściciela)
+    BeerPickup nearBeer;
+    PillPickup nearPill;
     int lastStage;
+    string msg; float msgUntil; // komunikaty ("coś było w tym piwie" itp.)
+
+    // serwer
+    int spikedBeers;      // piwa z pigułką w ekwipunku — celowo niereplikowane
+    bool caughtThisVomit;
 
     void Awake()
     {
@@ -51,8 +67,9 @@ public class DrunkSystem : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        PassedOut.OnValueChanged += (_, v) => SetBodyTipped(v);
-        SetBodyTipped(PassedOut.Value);
+        PassedOut.OnValueChanged += (_, _) => UpdateBodyPose();
+        Vomiting.OnValueChanged += (_, _) => UpdateBodyPose();
+        UpdateBodyPose();
 
         // ponytail: headless smoke test pętli Zgon->cucenie (flaga -autodrink)
         if (IsServer && System.Array.IndexOf(
@@ -65,60 +82,100 @@ public class DrunkSystem : NetworkBehaviour
 
     void AutoDrink() => AddDrink(120f);
 
-    // przewrócona kapsuła = leżący pijak, widoczne u wszystkich
-    void SetBodyTipped(bool tipped)
+    // leżący pijak (Zgon) albo pochylony rzygacz — widoczne u wszystkich
+    void UpdateBodyPose()
     {
-        body.localRotation = tipped ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
-        body.localPosition = new Vector3(0f, tipped ? 0.5f : 1f, 0f);
+        float pitch = PassedOut.Value ? 90f : Vomiting.Value ? 40f : 0f;
+        body.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        body.localPosition = new Vector3(0f, PassedOut.Value ? 0.5f : 1f, 0f);
     }
 
-    // wołane tylko na serwerze (pickupy, później konkurencje)
+    // ---------- serwerowe API ----------
+
     public void AddDrink(float amount)
     {
         Drunk.Value = Mathf.Min(100f, Drunk.Value + amount);
-        if (Drunk.Value >= 100f) PassedOut.Value = true;
-        Debug.Log($"[Drunk] gracz {OwnerClientId}: {Drunk.Value:0}"
-                  + (PassedOut.Value ? " ZGON" : ""));
+        if (Drunk.Value >= 100f && !PassedOut.Value)
+        {
+            PassedOut.Value = true;
+            Debug.Log($"[Drunk] gracz {OwnerClientId}: 100 ZGON");
+        }
     }
+
+    // pkt 1: picie w konkurencji podnosi też podłogę — tego już nie wytrzeźwiejesz
+    public void AddPermanent(float amount)
+    {
+        Floor.Value = Mathf.Min(90f, Floor.Value + amount);
+        AddDrink(amount);
+    }
+
+    public void PickUpBeer(bool spiked)
+    {
+        Beers.Value++;
+        if (spiked) spikedBeers++;
+    }
+
+    // pkt 4: piwo specjalne pite od razu — x2 punkty + losowa klątwa na następną konkurencję
+    public void ApplySpecial(bool spiked)
+    {
+        Olympics.SetMultiplier(OwnerClientId, 2);
+        Curse.Value = (byte)Random.Range(1, 5);
+        AddDrink(beerStrength + (spiked ? spikedExtra : 0f));
+        MsgOwner("PIWO SPECJALNE: punkty x2 w następnej konkurencji... i mała niespodzianka");
+    }
+
+    public void MsgOwner(string m) => MsgRpc(m);
+
+    [Rpc(SendTo.Owner)]
+    void MsgRpc(string m) { msg = m; msgUntil = Time.time + 4f; }
 
     [Rpc(SendTo.Server)]
     public void ReviveRpc()
     {
         if (!PassedOut.Value) return;
-        Drunk.Value = reviveTo;
+        Drunk.Value = Mathf.Max(reviveTo, Floor.Value);
         PassedOut.Value = false;
         Debug.Log($"[Drunk] gracz {OwnerClientId} ocucony, poziom {Drunk.Value:0}");
     }
 
-    void Update()
+    [Rpc(SendTo.Server)]
+    public void DrinkBeerRpc()
     {
-        if (IsServer && !PassedOut.Value)
-            Drunk.Value = Mathf.Max(0f, Drunk.Value - decayPerSecond * Time.deltaTime);
-
-        if (!IsOwner || PassedOut.Value) { reviveTarget = null; return; }
-
-        int st = Stage;
-        if (st != lastStage) { lastStage = st; ApplyControls(st); }
-
-        // ponytail: FindObjectsByType co klatkę — graczy jest max 10, wystarczy
-        reviveTarget = null;
-        foreach (var d in FindObjectsByType<DrunkSystem>(FindObjectsSortMode.None))
+        if (PassedOut.Value || Beers.Value <= 0) return;
+        Beers.Value--;
+        if (spikedBeers > 0) // pkt 5: pigułka ujawnia się dopiero teraz
         {
-            if (d == this || !d.PassedOut.Value) continue;
-            if (Vector3.Distance(d.transform.position, transform.position) <= reviveRange)
-            { reviveTarget = d; break; }
+            spikedBeers--;
+            AddDrink(beerStrength + spikedExtra);
+            MsgOwner("COŚ BYŁO W TYM PIWIE!");
+            Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wypił piwo z pigułką");
         }
-        var kb = Keyboard.current;
-        if (kb == null) return;
-        // [E]: cucenie ma priorytet nad podnoszeniem piwa
-        if (kb.eKey.wasPressedThisFrame)
+        else AddDrink(beerStrength);
+    }
+
+    [Rpc(SendTo.Server)]
+    void SetVomitRpc(bool on)
+    {
+        if (PassedOut.Value) return;
+        if (on && !Vomiting.Value) caughtThisVomit = false;
+        Vomiting.Value = on;
+    }
+
+    // pkt 3: kolega w pobliżu = przyłapany, raz na jedno rzyganie
+    void CheckCaught()
+    {
+        foreach (var c in NetworkManager.ConnectedClients.Values)
         {
-            if (reviveTarget != null) reviveTarget.ReviveRpc();
-            else if (nearBeer != null && nearBeer.Available.Value) nearBeer.RequestPickupRpc();
+            var po = c.PlayerObject;
+            if (po == null || c.ClientId == OwnerClientId) continue;
+            if (Vector3.Distance(po.transform.position, transform.position) > catchRadius) continue;
+            caughtThisVomit = true;
+            Olympics.AddPoints(OwnerClientId, -catchPenalty);
+            if (VoteManager.Instance != null) VoteManager.Instance.Scoreboard.Value = Olympics.Text();
+            MsgOwner($"PRZYŁAPALI CIĘ NA RZYGANIU! -{catchPenalty} pkt");
+            Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} przyłapany na rzyganiu, -{catchPenalty} pkt");
+            break;
         }
-        // [F]: pijesz piwo z ekwipunku; w trakcie konkurencji zablokowane
-        if (Beers.Value > 0 && !Competition.InputLocked && kb.fKey.wasPressedThisFrame)
-            DrinkBeerRpc();
     }
 
     void ApplyControls(int stage)
@@ -133,34 +190,93 @@ public class DrunkSystem : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.Server)]
-    public void DrinkBeerRpc()
+    void Update()
     {
-        if (PassedOut.Value || Beers.Value <= 0) return;
-        Beers.Value--;
-        AddDrink(beerStrength);
+        if (IsServer)
+        {
+            if (Vomiting.Value)
+            {
+                Drunk.Value = Mathf.Max(Floor.Value, Drunk.Value - vomitDrainPerSecond * Time.deltaTime);
+                if (!caughtThisVomit) CheckCaught();
+            }
+            else if (!PassedOut.Value)
+                Drunk.Value = Mathf.Max(Floor.Value, Drunk.Value - decayPerSecond * Time.deltaTime);
+        }
+
+        if (!IsOwner || PassedOut.Value) { reviveTarget = null; return; }
+
+        int st = Stage;
+        if (st != lastStage) { lastStage = st; ApplyControls(st); }
+
+        var kb = Keyboard.current;
+        if (kb == null) return;
+
+        // rzyganie na życzenie — tylko na hubie, trzymaj [V]
+        bool wantVomit = kb.vKey.isPressed && Competition.Current == null;
+        if (wantVomit != Vomiting.Value) SetVomitRpc(wantVomit);
+        if (Vomiting.Value) { reviveTarget = null; return; }
+
+        // ponytail: FindObjectsByType co klatkę — graczy jest max 10, wystarczy
+        reviveTarget = null;
+        foreach (var d in FindObjectsByType<DrunkSystem>(FindObjectsSortMode.None))
+        {
+            if (d == this || !d.PassedOut.Value) continue;
+            if (Vector3.Distance(d.transform.position, transform.position) <= reviveRange)
+            { reviveTarget = d; break; }
+        }
+
+        if (kb.eKey.wasPressedThisFrame)
+        {
+            if (reviveTarget != null) reviveTarget.ReviveRpc();
+            else if (nearPill != null && nearPill.Available.Value) nearPill.RequestPickupRpc();
+            else if (nearBeer != null && nearBeer.Available.Value) nearBeer.RequestPickupRpc();
+        }
+        if (kb.qKey.wasPressedThisFrame && Pills.Value > 0
+            && nearBeer != null && nearBeer.Available.Value)
+            nearBeer.SpikeRpc();
+        if (kb.fKey.wasPressedThisFrame && Beers.Value > 0 && !Competition.InputLocked)
+            DrinkBeerRpc();
     }
 
-    // trigger łapie właściciel (CC.Move działa tylko u niego), serwer waliduje przy piciu
     void OnTriggerEnter(Collider other)
     {
         if (!IsOwner) return;
         var beer = other.GetComponentInParent<BeerPickup>();
         if (beer != null) nearBeer = beer;
+        var pill = other.GetComponentInParent<PillPickup>();
+        if (pill != null) nearPill = pill;
     }
 
     void OnTriggerExit(Collider other)
     {
         if (!IsOwner) return;
         if (other.GetComponentInParent<BeerPickup>() == nearBeer) nearBeer = null;
+        if (other.GetComponentInParent<PillPickup>() == nearPill) nearPill = null;
     }
 
     void LateUpdate()
     {
         if (!IsOwner) return;
+
+        // pkt 4: klątwa z piwa specjalnego działa podczas gry w konkurencji
+        var comp = Competition.Current;
+        bool cursed = Curse.Value != 0 && comp != null
+                      && comp.State.Value == Competition.Phase.Running;
+        cam.fieldOfView = cursed && Curse.Value == 3 ? 20f : 60f;               // zoom
+        cam.rect = cursed && Curse.Value == 4
+            ? new Rect(0.3f, 0.3f, 0.4f, 0.4f) : new Rect(0f, 0f, 1f, 1f);      // mały obraz
+        SetRenderScale(cursed && Curse.Value == 2 ? 0.15f : 1f);                 // lowres
+        if (cursed && Curse.Value == 1)
+            cam.transform.localRotation *= Quaternion.Euler(0f, 0f, 180f);       // do góry nogami
+
         if (PassedOut.Value)
         {
             cam.transform.localRotation = Quaternion.Euler(0f, 0f, 75f); // leżysz
+            return;
+        }
+        if (Vomiting.Value)
+        {
+            cam.transform.localEulerAngles = new Vector3(65f, 0f, Mathf.Sin(Time.time * 6f) * 4f);
             return;
         }
         float t = Mathf.InverseLerp(Stages[0].min, 100f, Drunk.Value); // "Szumi" otwiera bujanie
@@ -174,11 +290,18 @@ public class DrunkSystem : NetworkBehaviour
         cam.transform.localRotation *= Quaternion.Euler(pitch, yaw, roll);
     }
 
+    static void SetRenderScale(float scale)
+    {
+        if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset rp
+            && !Mathf.Approximately(rp.renderScale, scale))
+            rp.renderScale = scale;
+    }
+
     void OnGUI()
     {
         if (!IsOwner || !IsSpawned) return;
 
-        // pionowy pasek upojenia po prawej (GDD sekcja 6)
+        // pionowy pasek upojenia po prawej (GDD sekcja 6); podłoga = ciemniejszy słupek
         float h = Screen.height * 0.5f;
         var back = new Rect(Screen.width - 44f, (Screen.height - h) / 2f, 24f, h);
         GUI.color = new Color(0f, 0f, 0f, 0.5f);
@@ -186,6 +309,9 @@ public class DrunkSystem : NetworkBehaviour
         float fill = h * Drunk.Value / 100f;
         GUI.color = Color.Lerp(Color.green, Color.red, Drunk.Value / 100f);
         GUI.DrawTexture(new Rect(back.x, back.yMax - fill, back.width, fill), Texture2D.whiteTexture);
+        float floorH = h * Floor.Value / 100f;
+        GUI.color = new Color(0.4f, 0f, 0f, 0.9f); // pkt 1: to już zostaje
+        GUI.DrawTexture(new Rect(back.x, back.yMax - floorH, back.width, floorH), Texture2D.whiteTexture);
 
         // znaczniki etapów na pasku + nazwa etapu (aktywny podświetlony)
         int stage = Stage;
@@ -207,16 +333,25 @@ public class DrunkSystem : NetworkBehaviour
         GUI.color = Color.white;
 
         // ekwipunek pod paskiem
-        GUI.Label(new Rect(Screen.width - 110f, back.yMax + 6f, 100f, 22f),
-            $"Piwa: {Beers.Value}" + (Beers.Value > 0 ? "  [F] pij" : ""),
-            new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleRight });
+        GUI.Label(new Rect(Screen.width - 190f, back.yMax + 6f, 180f, 40f),
+            $"Piwa: {Beers.Value}" + (Beers.Value > 0 ? "  [F] pij" : "")
+            + $"\nPigułki: {Pills.Value}" + (Pills.Value > 0 ? "  [Q] dosyp" : ""),
+            new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperRight });
 
         var style = new GUIStyle(GUI.skin.label)
         { fontSize = 28, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
         var center = new Rect(0, Screen.height * 0.4f, Screen.width, 40);
         if (PassedOut.Value) GUI.Label(center, "ZGON — czekaj aż cię ocucą", style);
+        else if (Vomiting.Value) GUI.Label(center, "RZYGASZ... (trzeźwiejesz, byle nikt nie widział)", style);
         else if (reviveTarget != null) GUI.Label(center, "[E] Ocuć kolegę", style);
+        else if (nearPill != null && nearPill.Available.Value)
+            GUI.Label(center, "[E] Podnieś pigułkę", style);
         else if (nearBeer != null && nearBeer.Available.Value)
-            GUI.Label(center, "[E] Podnieś piwo", style);
+            GUI.Label(center, Pills.Value > 0 ? "[E] Podnieś piwo   [Q] Dosyp pigułkę"
+                                              : "[E] Podnieś piwo", style);
+
+        if (Time.time < msgUntil)
+            GUI.Label(new Rect(0, Screen.height * 0.55f, Screen.width, 40), msg,
+                new GUIStyle(style) { normal = { textColor = new Color(1f, 0.9f, 0.3f) } });
     }
 }

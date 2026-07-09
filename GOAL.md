@@ -29,12 +29,21 @@ and `Olympics` scores are static — they survive scene switches, reset only via
 
 ## Known knobs (balance)
 
-- `DrunkSystem`: `decayPerSecond` 0.4, `beerStrength` 15, revive to 50. Stages (thresholds in
-  static `Stages`): Szumi 20 (sway starts, deepens with level), Lekko chycony 45 (A/D swapped),
-  Jest ligancko 70 (WSAD remapped to random hidden keys, rerolled on each stage entry).
-- `Sprint500`: `sipBase` 4, `sipDrunkPenalty` 0.6, `drunkPerSip` 0.6, vomit → 60.
-- `Rzutki`: `aimWander` 0.12, 3 darts, timeout 30 s, `naturalDrunkGain` 12.
-- `NaPol`: `baseSpeed` 0.25, `drunkSpeedBonus` 1.5, timeout 20 s, `naturalDrunkGain` 12.
+- `DrunkSystem`: `decayPerSecond` 0.2 (slow sober-up), `beerStrength` 15, revive to max(50, Floor),
+  `vomitDrainPerSecond` 6 ([V] voluntary vomit, hub only; caught within `catchRadius` 6 m →
+  −`catchPenalty` 2 pts, once per vomit), `spikedExtra` 35 (pill in beer). `Floor` = permanent
+  drunk from competitions (AddPermanent; capped 90) — decay/vomit can't go below it.
+  Stages: Szumi 20 (sway), Lekko chycony 45 (A/D swap, pushing unlocked), Jest ligancko 70
+  (WSAD → random hidden keys).
+- Special beers (~25%, golden): drunk instantly on [E], ×2 points next competition + random
+  curse during it (1 flipped screen / 2 renderScale 0.15 / 3 zoom FOV 20 / 4 tiny viewport).
+- Pills: [E] pick up (4 on hub), [Q] near a bottle spikes it (server-only flag, invisible);
+  victim discovers on drink (+35 drunk).
+- Aggression: LMB push (stage ≥ 2, hub only, `pushForce` 8, cooldown 1 s).
+- `Sprint500`: `sipBase` 4, `sipDrunkPenalty` 0.6, `drunkPerSip` 0.6 (permanent), vomit → max(60, Floor).
+- `Rzutki`: `aimWander` 0.12, 3 darts, timeout 30 s; `NaPol`: `baseSpeed` 0.25, timeout 20 s;
+  `LuckyShot`: 6 arrows, 3 s show, timeout 25 s; `Spacer`: free movement, fall → restart, timeout 60 s.
+  All non-drinking competitions: `naturalDrunkGain` 12 (permanent).
 
 ## Known limitations (accepted for prototype)
 
@@ -45,4 +54,6 @@ and `Olympics` scores are static — they survive scene switches, reset only via
 ## Notes for next session
 
 - Vivox still needs the Unity Cloud project linked in Project Settings → Services.
-- Aggression/pushing mechanic (GDD section 6) unbuilt — candidate for fun-injection.
+- Remaining competitions: Flanki and Beer Pong (both team-based, min 4 players, physics) —
+  build after a 4+ player playtest confirms the core is fun.
+- LuckyShot is a single memory round; GDD 8.7 wants a ladder/bracket — after playtest.
