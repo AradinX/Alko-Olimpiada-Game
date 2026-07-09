@@ -52,13 +52,13 @@ public class Sprint500 : Competition
         // pasek pełny w konkurencji = wymioty zamiast Zgonu (GDD sekcja 6)
         if (drunk + drunkPerSip >= 100f)
         {
-            ds.Drunk.Value = 60f;
+            ds.Drunk.Value = Mathf.Max(ds.Floor.Value, 60f);
             vomitUntil[id] = Now + vomitSeconds;
             VomitRpc(RpcTarget.Single(id, RpcTargetUse.Temp));
             Debug.Log($"[Sprint] {Olympics.Nick(id)} rzyga");
             return;
         }
-        ds.Drunk.Value = drunk + drunkPerSip;
+        ds.AddPermanent(drunkPerSip); // chlanie w konkurencji zostaje na stałe
 
         float sip = sipBase * (1f - sipDrunkPenalty * drunk / 100f);
         progress[id] = progress.GetValueOrDefault(id) + sip;

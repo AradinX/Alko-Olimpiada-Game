@@ -17,7 +17,10 @@ public abstract class Competition : NetworkBehaviour
     public float spawnRadius = 3f;
     public float naturalDrunkGain = 0f; // GDD: każda konkurencja upija (0 gdy gra sama poi)
 
-    public static bool InputLocked; // blokada WASD/skoku podczas konkurencji (patrzenie działa)
+    public static bool InputLocked;       // blokada WASD/skoku (patrzenie działa)
+    public static Competition Current;    // aktywna konkurencja (null na hubie)
+
+    protected virtual bool LockMovement => true; // Spacer nadpisuje na false
 
     public NetworkVariable<Phase> State = new();
     public NetworkVariable<double> PhaseEndsAt = new();
@@ -35,6 +38,7 @@ public abstract class Competition : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        Current = this;
         InputLocked = true;
         autoMode = Array.IndexOf(Environment.GetCommandLineArgs(), AutoFlag) >= 0;
         if (IsServer)
@@ -46,6 +50,7 @@ public abstract class Competition : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        if (Current == this) Current = null;
         InputLocked = false;
         if (IsServer && NM != null && NM.SceneManager != null)
             NM.SceneManager.OnLoadEventCompleted -= OnAllLoaded;
@@ -80,7 +85,12 @@ public abstract class Competition : NetworkBehaviour
     {
         if (!IsSpawned) return;
         if (IsServer) ServerTick();
-        if (NM.IsClient) ClientTick();
+        if (NM.IsClient)
+        {
+            // Spacer pozwala chodzić w Running; reszta faz zawsze blokuje
+            InputLocked = State.Value != Phase.Running || LockMovement;
+            ClientTick();
+        }
     }
 
     void ServerTick()
@@ -108,14 +118,14 @@ public abstract class Competition : NetworkBehaviour
     protected void Finish(List<ulong> ranking)
     {
         if (State.Value != Phase.Running) return;
-        if (naturalDrunkGain > 0)
-            foreach (var r in ranking)
-                if (NM.ConnectedClients.TryGetValue(r, out var c) && c.PlayerObject != null)
-                {
-                    var d = c.PlayerObject.GetComponent<DrunkSystem>();
-                    // cap 90: naturalny przyrost nie robi Zgonu (Zgon tylko z dobrowolnego picia)
-                    d.Drunk.Value = Mathf.Min(90f, d.Drunk.Value + naturalDrunkGain);
-                }
+        foreach (var r in ranking)
+            if (NM.ConnectedClients.TryGetValue(r, out var c) && c.PlayerObject != null)
+            {
+                var d = c.PlayerObject.GetComponent<DrunkSystem>();
+                // alkohol z konkurencji zostaje na stałe (podłoga paska)
+                if (naturalDrunkGain > 0) d.AddPermanent(naturalDrunkGain);
+                d.Curse.Value = 0; // klątwa z piwa specjalnego zużyta
+            }
         ScoreboardText.Value = Olympics.Award(ranking, out var results);
         ResultsText.Value = results;
         State.Value = Phase.Results;

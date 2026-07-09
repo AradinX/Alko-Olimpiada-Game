@@ -202,9 +202,15 @@ public static class ProjectBootstrap
         Debug.Log("[Bootstrap] Prototype2 OK");
     }
 
-    // Prototyp 4: trzy stanowiska konkurencji na hubie + sceny aren + build settings
+    // Prototyp 4/5: stanowiska konkurencji, areny, pigułki, VoteManager, build settings
     public static void SetupPrototype4()
     {
+        // prefab gracza: wolniejsze trzeźwienie (nadpisuje zserializowaną wartość z P2)
+        var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
+        player.GetComponent<DrunkSystem>().decayPerSecond = 0.2f;
+        PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
+        PrefabUtility.UnloadPrefabContents(player);
+
         var scene = EditorSceneManager.OpenScene("Assets/Scenes/Hub.unity");
         foreach (var o in Object.FindObjectsByType<CompetitionStation>(FindObjectsSortMode.None))
             Object.DestroyImmediate(o.gameObject); // idempotentny rerun
@@ -219,19 +225,37 @@ public static class ProjectBootstrap
             new Vector3(18f, 0.25f, 0f), new Color(0.9f, 0.3f, 0.2f));
         BuildStation("NA PÓŁ", "Arena_NaPol", "-autonapol",
             new Vector3(-18f, 0.25f, 0f), new Color(0.2f, 0.8f, 0.3f));
+        BuildStation("LUCKY SHOT", "Arena_LuckyShot", "-autolucky",
+            new Vector3(13f, 0.25f, -13f), new Color(0.8f, 0.7f, 0.1f));
+        BuildStation("SPACER DO MONOPOLOWEGO", "Arena_Spacer", "-autospacer",
+            new Vector3(-13f, 0.25f, -13f), new Color(0.6f, 0.3f, 0.8f));
 
         var vmGo = new GameObject("VoteManager");
         vmGo.AddComponent<NetworkObject>();
         var vm = vmGo.AddComponent<VoteManager>();
-        vm.scenes = new[] { "Arena_Sprint500", "Arena_Rzutki", "Arena_NaPol" };
-        vm.titles = new[] { "SPRINT NA 500", "RZUTKI", "NA PÓŁ" };
+        vm.scenes = new[] { "Arena_Sprint500", "Arena_Rzutki", "Arena_NaPol",
+                            "Arena_LuckyShot", "Arena_Spacer" };
+        vm.titles = new[] { "SPRINT NA 500", "RZUTKI", "NA PÓŁ",
+                            "LUCKY SHOT", "SPACER" };
+
+        // pigułki (pkt 5)
+        foreach (var old in Object.FindObjectsByType<PillPickup>(FindObjectsSortMode.None))
+            Object.DestroyImmediate(old.gameObject);
+        var pill = BuildPillPrefab();
+        for (int i = 0; i < 4; i++)
+        {
+            var g = (GameObject)PrefabUtility.InstantiatePrefab(pill);
+            float a = (i + 0.5f) * Mathf.PI / 2f;
+            g.transform.position = new Vector3(Mathf.Cos(a) * 12f, 0f, Mathf.Sin(a) * 12f);
+        }
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
 
         BuildArenas();
 
         EditorBuildSettings.scenes =
-            new[] { "Hub", "Arena_Sprint500", "Arena_Rzutki", "Arena_NaPol" }
+            new[] { "Hub", "Arena_Sprint500", "Arena_Rzutki", "Arena_NaPol",
+                    "Arena_LuckyShot", "Arena_Spacer" }
             .Select(n => new EditorBuildSettingsScene($"Assets/Scenes/{n}.unity", true))
             .ToArray();
         AssetDatabase.SaveAssets();
@@ -295,6 +319,58 @@ public static class ProjectBootstrap
         np.timeoutSeconds = 20f;
         np.naturalDrunkGain = 12f;
         EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_NaPol.unity");
+
+        // Lucky Shot: gra w UI
+        s = NewArena();
+        c = new GameObject("LuckyShot");
+        c.AddComponent<NetworkObject>();
+        var lk = c.AddComponent<LuckyShot>();
+        lk.timeoutSeconds = 25f;
+        lk.naturalDrunkGain = 12f;
+        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_LuckyShot.unity");
+
+        // Spacer: belki nad ziemią, meta na końcu
+        s = NewArena();
+        c = new GameObject("Spacer");
+        c.AddComponent<NetworkObject>();
+        var sp = c.AddComponent<Spacer>();
+        sp.timeoutSeconds = 60f;
+        sp.naturalDrunkGain = 12f;
+        GameObject Cube(string n, Vector3 p, Vector3 sc)
+        {
+            var g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            g.name = n; g.transform.position = p; g.transform.localScale = sc;
+            return g;
+        }
+        Cube("StartPlatform", new Vector3(0f, 2.75f, -3f), new Vector3(6f, 0.5f, 4f));
+        Cube("Beam1", new Vector3(0f, 2.75f, 4f), new Vector3(0.7f, 0.5f, 10f));
+        Cube("Beam2", new Vector3(0f, 2.75f, 14.8f), new Vector3(0.7f, 0.5f, 9f));   // przerwa 1.3 m
+        Cube("Beam3", new Vector3(0f, 2.75f, 22.6f), new Vector3(0.7f, 0.5f, 4.6f)); // przerwa 1.3 m
+        Cube("MetaPlatform", new Vector3(0f, 2.75f, 27.5f), new Vector3(6f, 0.5f, 5f));
+        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_Spacer.unity");
+    }
+
+    static GameObject BuildPillPrefab()
+    {
+        var root = new GameObject("Pill");
+        root.AddComponent<NetworkObject>();
+        root.AddComponent<PillPickup>();
+        var trig = root.AddComponent<SphereCollider>();
+        trig.isTrigger = true;
+        trig.radius = 0.7f;
+        trig.center = new Vector3(0, 0.25f, 0);
+        var vis = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+        Object.DestroyImmediate(vis.GetComponent<Collider>());
+        vis.name = "PillVis";
+        vis.transform.SetParent(root.transform, false);
+        vis.transform.localPosition = new Vector3(0, 0.25f, 0);
+        vis.transform.localScale = new Vector3(0.14f, 0.14f, 0.14f);
+        var mat = new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = Color.white };
+        AssetDatabase.CreateAsset(mat, "Assets/Prefabs/PillMat.mat");
+        vis.GetComponent<Renderer>().sharedMaterial = mat;
+        var p = PrefabUtility.SaveAsPrefabAsset(root, "Assets/Prefabs/Pill.prefab");
+        Object.DestroyImmediate(root);
+        return p;
     }
 
     static UnityEngine.SceneManagement.Scene NewArena()

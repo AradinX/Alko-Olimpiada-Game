@@ -337,6 +337,9 @@ MonoBehaviour:
   jumpHeight: 1.2
   gravity: -20
   lookSensitivity: 0.08
+  pushForce: 8
+  pushRange: 2.2
+  pushCooldown: 1
   playerCamera: {fileID: 1695976835728722650}
 --- !u!114 &1826406489890482585
 MonoBehaviour:
@@ -437,16 +440,49 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DrunkSystem
   ShowTopMostFoldoutHeaderGroup: 1
-  decayPerSecond: 0.4
-  swayStart: 15
+  decayPerSecond: 0.2
   reviveRange: 3
   reviveTo: 50
+  beerStrength: 15
+  vomitDrainPerSecond: 6
+  catchRadius: 6
+  catchPenalty: 2
+  spikedExtra: 35
+  keyW: 37
+  keyS: 33
+  keyA: 15
+  keyD: 18
   Drunk:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+  Floor:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
   PassedOut:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  Vomiting:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  Beers:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  Pills:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  Curse:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
