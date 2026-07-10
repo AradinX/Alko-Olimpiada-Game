@@ -23,6 +23,44 @@ public class Rzutki : Competition
     int myThrown;
     float nextAutoThrow;
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        if (NM.IsClient) BuildBoardRings();
+    }
+
+    // pkt 4: kolorowe pierścienie na tarczach — od razu widać gdzie celować (środek = 10 pkt).
+    // Czysto wizualne, każdy klient buduje u siebie; brak collidera → nie psuje raycastu punktacji.
+    void BuildBoardRings()
+    {
+        // od zewnątrz do środka; czerwony środek = bullseye
+        var rings = new (float r, Color c)[]
+        {
+            (0.60f, new Color(0.12f, 0.12f, 0.15f)),
+            (0.45f, new Color(0.20f, 0.45f, 0.90f)),
+            (0.30f, new Color(0.95f, 0.85f, 0.20f)),
+            (0.16f, new Color(0.95f, 0.50f, 0.15f)),
+            (0.06f, new Color(0.90f, 0.15f, 0.15f)),
+        };
+        for (int i = 0; i < 8; i++)
+        {
+            var board = GameObject.Find("Board_" + i);
+            if (board == null) continue;
+            Vector3 bp = board.transform.position; // (x, 1.6, 6); przód tarczy od strony gracza (mniejsze z)
+            for (int k = 0; k < rings.Length; k++)
+            {
+                var disk = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                Destroy(disk.GetComponent<Collider>());
+                disk.transform.SetParent(transform, false); // kontroler Rzutki w origin → local == world
+                disk.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); // płaska ścianka ku graczowi
+                disk.transform.localScale = new Vector3(rings[k].r * 2f, 0.02f, rings[k].r * 2f);
+                // mniejszy pierścień = odrobinę bliżej gracza, żeby był na wierzchu
+                disk.transform.localPosition = new Vector3(bp.x, bp.y, bp.z - 0.06f - k * 0.01f);
+                disk.GetComponent<Renderer>().material.color = rings[k].c;
+            }
+        }
+    }
+
     // linia graczy, tarcze 6 m przed nimi (Board_i w scenie)
     protected override void GetPose(int index, int count, out Vector3 pos, out float yaw)
     {
@@ -100,7 +138,7 @@ public class Rzutki : Competition
     {
         GUI.Label(new Rect(0, 34, Screen.width, 22), LiveText.Value.ToString(), Ui.S(16));
         GUI.Label(new Rect(0, Screen.height * 0.2f, Screen.width, 30),
-            myThrown < dartsPerPlayer ? $"Rzut {myThrown + 1}/{dartsPerPlayer} — celuj i klik LPM"
+            myThrown < dartsPerPlayer ? $"Rzut {myThrown + 1}/{dartsPerPlayer} — celuj w czerwony środek, klik LPM"
                                       : "Czekasz na resztę...", Ui.S(22));
         // pływający celownik
         var o = AimOffset();

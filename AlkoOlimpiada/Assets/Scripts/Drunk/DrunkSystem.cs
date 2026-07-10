@@ -12,7 +12,7 @@ public class DrunkSystem : NetworkBehaviour
     public float decayPerSecond = 0.2f;      // pkt 2: trzeźwiejesz wolniej
     public float reviveRange = 3f;
     public float reviveTo = 50f;
-    public float beerStrength = 12f;         // 2 piwa Szumi / 4 Lekko chycony / 8 Ligancko / 9 Zgon
+    public float beerStrength = 12f;         // progi 20/45/64 pkt; Zgon=100 → 3 piwa (36 pkt) od "ligancko" do Zgonu
     public float vomitDrainPerSecond = 6f;   // im dłużej rzygasz, tym więcej schodzi
     public float catchRadius = 25f;          // zasięg wzroku przy przyłapaniu
     public float catchFov = 40f;             // musi mieć cię w kadrze (stopnie od osi patrzenia)
@@ -24,7 +24,7 @@ public class DrunkSystem : NetworkBehaviour
 
     // etapy pijaństwa (progi na pasku); bujanie zaczyna się od pierwszego i pogłębia
     public static readonly (float min, string name)[] Stages =
-    { (20f, "Szumi"), (45f, "Lekko chycony"), (90f, "Jest ligancko") };
+    { (20f, "Szumi"), (45f, "Lekko chycony"), (64f, "Jest ligancko") };
 
     // aktualne mapowanie ruchu (owner); etap 2 zamienia A/D, etap 3 losuje ukryte klawisze
     public Key keyW = Key.W, keyS = Key.S, keyA = Key.A, keyD = Key.D;
@@ -46,6 +46,7 @@ public class DrunkSystem : NetworkBehaviour
     public NetworkVariable<byte> Curse = new();        // z piwa specjalnego, na następną konkurencję
     public NetworkVariable<byte> InstantCurse = new(); // z pigułek, działa od razu
     public NetworkVariable<double> CurseUntil = new(); // do kiedy działa InstantCurse
+    public NetworkVariable<byte> StageCurse = new();   // pkt 2: losowy gag przy etapie "Jest ligancko"
 
     public int Stage
     {
@@ -148,11 +149,15 @@ public class DrunkSystem : NetworkBehaviour
 
     static byte RandomCurseBit() => (byte)(1 << Random.Range(0, 8));
 
+    // pkt 2: gagi etapu "ligancko" — tylko ekranowe/skala (bez 64/128, klawisze i tak się już mieszają)
+    static readonly byte[] stageCurseBits = { 1, 2, 4, 8, 16, 32 };
+    static byte RandomStageCurse() => stageCurseBits[Random.Range(0, stageCurseBits.Length)];
+
     // maska aktywnych klątw: ze specjalnego (podczas konkurencji) + z pigułek (na czas)
     public byte ActiveCurses()
     {
         var comp = Competition.Current;
-        byte a = 0;
+        byte a = StageCurse.Value; // pkt 2: gag etapu "ligancko" działa zawsze (też na hubie)
         if (comp != null && comp.State.Value == Competition.Phase.Running) a |= Curse.Value;
         if (CurseUntil.Value > 0 && NetworkManager.ServerTime.Time < CurseUntil.Value)
             a |= InstantCurse.Value;
@@ -296,6 +301,11 @@ public class DrunkSystem : NetworkBehaviour
             }
             else if (!PassedOut.Value)
                 Drunk.Value = Mathf.Max(Floor.Value, Drunk.Value - decayPerSecond * Time.deltaTime);
+
+            // pkt 2: etap "Jest ligancko" losuje gag ekranowy (stały póki jesteś w etapie), nie tylko klawisze
+            bool ligancko = !PassedOut.Value && Drunk.Value >= Stages[Stages.Length - 1].min;
+            if (ligancko && StageCurse.Value == 0) StageCurse.Value = RandomStageCurse();
+            else if (!ligancko && StageCurse.Value != 0) StageCurse.Value = 0;
         }
 
         // skala postaci z klątw — widzą wszyscy
@@ -319,8 +329,8 @@ public class DrunkSystem : NetworkBehaviour
         var kb = Keyboard.current;
         if (kb == null) return;
 
-        // rzyganie na życzenie — tylko na hubie, trzymaj [V]
-        bool wantVomit = kb.vKey.isPressed && Competition.Current == null;
+        // rzyganie na życzenie — trzymaj [V] (pkt 1: działa też w konkurencjach, by zbić pasek przed Zgonem)
+        bool wantVomit = kb.vKey.isPressed;
         if (wantVomit != Vomiting.Value) SetVomitRpc(wantVomit);
         if (Vomiting.Value) { reviveTarget = null; return; }
 
