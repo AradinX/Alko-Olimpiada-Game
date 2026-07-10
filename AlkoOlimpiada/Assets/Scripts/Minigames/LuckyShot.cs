@@ -40,6 +40,7 @@ public class LuckyShot : Competition
     int myProg;
     bool myOut, myRoundDone;
     float nextAutoKey;
+    int lastShotBeep = -1; // beepy 3-2-1 + "SHOT" (0)
     float drinkAnimT = 99f;   // czas od startu animacji picia (99 = brak)
     Transform myGlass;
     Vector3 glassHome;
@@ -80,6 +81,7 @@ public class LuckyShot : Competition
     {
         myProg = 0;
         myRoundDone = false;
+        lastShotBeep = -1;
         if (r == 1) myOut = false;
     }
 
@@ -150,6 +152,7 @@ public class LuckyShot : Competition
     void StartDrinkAnim()
     {
         drinkAnimT = 0f;
+        Sfx.Play("gulp");
         if (myGlass == null)
         {
             // własny kieliszek = najbliższy Shot_i (bootstrap stawia 8 na stole)
@@ -190,7 +193,17 @@ public class LuckyShot : Competition
 
     protected override void ClientTick()
     {
-        if (State.Value != Phase.Running || myOut || myRoundDone) return;
+        if (State.Value != Phase.Running) return;
+        // beepy odliczania 3-2-1 i "SHOT!" — słyszą też widzowie
+        if (Now >= HideAt.Value && Now < AnswerAt.Value)
+        {
+            int s = Mathf.CeilToInt((float)(AnswerAt.Value - Now));
+            if (s != lastShotBeep) { lastShotBeep = s; Sfx.Play("beep"); }
+        }
+        else if (Now >= AnswerAt.Value && lastShotBeep > 0)
+        { lastShotBeep = 0; Sfx.Play("go"); }
+
+        if (myOut || myRoundDone) return;
         if (Now < AnswerAt.Value || Now > RoundEndsAt.Value) return;
         var kb = Keyboard.current;
         if (kb != null)

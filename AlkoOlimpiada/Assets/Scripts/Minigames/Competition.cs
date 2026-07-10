@@ -50,10 +50,18 @@ public abstract class Competition : NetworkBehaviour
     protected NetworkManager NM => NetworkManager;
     protected double Now => NM.ServerTime.Time;
 
+    int lastBeep; // odliczanie: beep na każdą pełną sekundę
+
     public override void OnNetworkSpawn()
     {
         Current = this;
         autoMode = Array.IndexOf(Environment.GetCommandLineArgs(), AutoFlag) >= 0;
+        if (NM.IsClient)
+            State.OnValueChanged += (_, s) =>
+            {
+                if (s == Phase.Running) Sfx.Play("go");
+                else if (s == Phase.Results) Sfx.Play("fanfare");
+            };
         if (IsServer)
         {
             ScoreboardText.Value = Olympics.Text();
@@ -97,7 +105,15 @@ public abstract class Competition : NetworkBehaviour
     {
         if (!IsSpawned) return;
         if (IsServer) ServerTick();
-        if (NM.IsClient) ClientTick();
+        if (NM.IsClient)
+        {
+            if (State.Value == Phase.Countdown)
+            {
+                int s = Mathf.CeilToInt((float)(PhaseEndsAt.Value - Now));
+                if (s != lastBeep) { lastBeep = s; Sfx.Play("beep"); }
+            }
+            ClientTick();
+        }
     }
 
     void ServerTick()

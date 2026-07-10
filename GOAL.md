@@ -37,9 +37,7 @@ drunk comedy better than greybox visuals ever will — do this BEFORE the art pa
    One `Sfx` static helper (PlayClipAtPoint) — no audio manager class. (ponytail: YAGNI)
 2. **Hit/miss feedback**: short screen flash on own hit (green) / miss (grey) in the three
    throw games; results screen already exists — add medal colors (gold/silver/bronze text).
-3. **Flanki aggression (GDD-adjacent gag)**: during Drinking phase the throwing team's
-   non-drinkers may walk (unlock movement for them) and push the drinker; a push
-   interrupts/voids that player's next sip. Reuse the existing LMB push path.
+3. ~~Flanki aggression~~ — CUT by user decision (2026-07-10): no pushing during drinking.
 4. **Online playtest with friends** (room code + Vivox), 2–4 players. Collect per-competition
    notes: funny? too long? too easy? Then tune the knobs below.
 5. Stretch only if trivial: hub ambience loop (waves), floating station labels.
@@ -47,7 +45,7 @@ drunk comedy better than greybox visuals ever will — do this BEFORE the art pa
 ## Verification
 
 - All 7 auto-flag smoke tests still pass E2E (full olympiad run).
-- Manual: sounds audible in hub + the three throw games; flanki push works and is funny;
+- Manual: sounds audible in hub + the three throw games;
   playtest happened and knob changes are committed with a note which feedback drove them.
 
 ## Constraints
