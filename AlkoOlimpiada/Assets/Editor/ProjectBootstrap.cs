@@ -467,10 +467,10 @@ public static class ProjectBootstrap
         c = new GameObject("BeerPong");
         c.AddComponent<NetworkObject>();
         var bp = c.AddComponent<BeerPong>();
-        bp.timeoutSeconds = 300f; // 15 kubków na drużynę
         bp.turnSeconds = 12f; // celowanie + ładowanie siły trwa dłużej niż timing kółka
+        // timeoutSeconds i kubki ustawia BeerPong w runtime (drabinka 1v1, 10 kubków 4-3-2-1)
         Cube("Table", new Vector3(0f, 0.5f, 0f), new Vector3(2f, 1f, 8f));
-        // piramida 5-4-3-2-1 od strony gracza do środka, ranty się stykają (śr. 0.2)
+        // dekoracyjne kubki sceny — BeerPong.BuildCups i tak je podmienia na 10 w runtime
         for (int t = 0; t < 2; t++)
         {
             int i = 0;
