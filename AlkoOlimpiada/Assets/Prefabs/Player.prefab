@@ -452,6 +452,7 @@ MonoBehaviour:
   maxBeers: 1
   spikedExtra: 35
   spikedCurseSeconds: 40
+  beerPrefab: {fileID: 8961601022173213179, guid: 1bbdbaad81f29ce429912a707aed4765, type: 3}
   keyW: 37
   keyS: 33
   keyA: 15

@@ -20,6 +20,7 @@ public class DrunkSystem : NetworkBehaviour
     public int maxBeers = 1;                 // jedno piwo w ręce
     public float spikedExtra = 35f;          // pigułka w piwie
     public float spikedCurseSeconds = 40f;   // klątwa z pigułki działa od razu, przez tyle sekund
+    public GameObject beerPrefab;            // wyrzucone piwo ląduje na ziemi (bootstrap)
 
     // etapy pijaństwa (progi na pasku); bujanie zaczyna się od pierwszego i pogłębia
     public static readonly (float min, string name)[] Stages =
@@ -85,16 +86,18 @@ public class DrunkSystem : NetworkBehaviour
         Beers.OnValueChanged += (_, v) => { if (handBottle) handBottle.gameObject.SetActive(v > 0); };
         if (handBottle) handBottle.gameObject.SetActive(Beers.Value > 0);
 
-        // ponytail: headless smoke test pętli Zgon->cucenie (flaga -autodrink)
+        // ponytail: headless smoke test pętli Zgon->cucenie->wyrzucenie piwa (-autodrink)
         if (IsServer && System.Array.IndexOf(
                 System.Environment.GetCommandLineArgs(), "-autodrink") >= 0)
         {
             Invoke(nameof(AutoDrink), 3f);
             Invoke(nameof(ReviveRpc), 6f);
+            Invoke(nameof(AutoDrop), 8f);
         }
     }
 
     void AutoDrink() => AddDrink(120f);
+    void AutoDrop() { Beers.Value = 1; DiscardBeerRpc(); } // test spawnu butelki na ziemi
 
     // leżący pijak (Zgon) albo pochylony rzygacz — widoczne u wszystkich
     void UpdateBodyPose()
@@ -210,8 +213,19 @@ public class DrunkSystem : NetworkBehaviour
     {
         if (PassedOut.Value || Beers.Value <= 0) return;
         Beers.Value--;
+        // butelka ląduje na ziemi przed graczem — zachowuje specjalność i pigułkę
+        if (beerPrefab != null)
+        {
+            Vector3 at = transform.position + transform.forward * 0.9f;
+            var go = Instantiate(beerPrefab, new Vector3(at.x, 0f, at.z), Quaternion.identity);
+            var bp = go.GetComponent<BeerPickup>();
+            bp.respawns = false; // to nie spawner — podniesiona znika na dobre
+            go.GetComponent<NetworkObject>().Spawn();
+            bp.Special.Value = HeldSpecial.Value; // nadpisz losowanie z OnNetworkSpawn
+            bp.SetSpiked(spikedBeers > 0);
+        }
         HeldSpecial.Value = false;
-        spikedBeers = 0; // wylatuje razem z butelką
+        spikedBeers = 0;
         MsgOwner("Wyrzuciłeś piwo");
         Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wyrzucił piwo");
     }

@@ -9,11 +9,14 @@ public class BeerPickup : NetworkBehaviour
 {
     public float respawnSeconds = 20f;
     public float specialChance = 0.25f;
+    public bool respawns = true; // false = wyrzucona butelka, po podniesieniu znika na dobre
 
     public NetworkVariable<bool> Available = new(true);
     public NetworkVariable<bool> Special = new();
 
     bool spiked; // tylko serwer — celowo bez replikacji
+
+    public void SetSpiked(bool v) => spiked = v; // wyrzucone piwo zachowuje pigułkę
 
     public override void OnNetworkSpawn()
     {
@@ -51,7 +54,8 @@ public class BeerPickup : NetworkBehaviour
 
         spiked = false;
         Available.Value = false;
-        StartCoroutine(Respawn());
+        if (respawns) StartCoroutine(Respawn());
+        else NetworkObject.Despawn(); // niszczy też u klientów
     }
 
     [Rpc(SendTo.Server)]

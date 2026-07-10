@@ -36,6 +36,15 @@ public abstract class Competition : NetworkBehaviour
     protected double raceStart;
     protected bool autoMode;
 
+    // błysk ekranu przy własnym trafieniu/pudle (statyczny — gry rzutowe wołają skąd chcą)
+    static float flashUntil;
+    static Color flashColor;
+    public static void Flash(bool hit)
+    {
+        flashColor = hit ? new Color(0.2f, 1f, 0.3f) : new Color(0.6f, 0.6f, 0.6f);
+        flashUntil = Time.time + 0.25f;
+    }
+
     protected abstract string AutoFlag { get; } // flaga CLI smoke-testu, np. -autosprint
 
     protected NetworkManager NM => NetworkManager;
@@ -149,9 +158,26 @@ public abstract class Competition : NetworkBehaviour
         return po != null ? po.GetComponent<PlayerController>().playerCamera : null;
     }
 
+    // pierwsze trzy linie wyników w kolorach medali
+    static string MedalColors(string t)
+    {
+        var lines = t.Split('\n');
+        string[] cols = { "#FFD700", "#C0C0C0", "#CD7F32" };
+        for (int i = 0; i < lines.Length && i < 3; i++)
+            lines[i] = $"<color={cols[i]}>{lines[i]}</color>";
+        return string.Join("\n", lines);
+    }
+
     void OnGUI()
     {
         if (!IsSpawned || !NM.IsClient) return;
+        if (Time.time < flashUntil)
+        {
+            GUI.color = new Color(flashColor.r, flashColor.g, flashColor.b,
+                0.35f * (flashUntil - Time.time) / 0.25f);
+            GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+            GUI.color = Color.white;
+        }
         if (ScoreboardText.Value.Length > 0)
             GUI.Label(new Rect(0, 8, Screen.width, 24), ScoreboardText.Value.ToString(), Ui.S(16));
 
@@ -169,8 +195,10 @@ public abstract class Competition : NetworkBehaviour
                 DrawGame();
                 break;
             case Phase.Results:
+                var st = Ui.S(28);
+                st.richText = true;
                 GUI.Label(new Rect(0, Screen.height * 0.25f, Screen.width, 300),
-                    ResultsText.Value.ToString(), Ui.S(28));
+                    MedalColors(ResultsText.Value.ToString()), st);
                 break;
         }
     }
