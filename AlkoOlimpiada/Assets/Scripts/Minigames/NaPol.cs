@@ -18,6 +18,7 @@ public class NaPol : Competition
 
     float level = 1f;
     bool drinking, sent;
+    float sentLevel; // poziom w chwili puszczenia — do pokazania wyniku %
     double autoAt = -1;
 
     protected override void OnRaceStart() => results.Clear();
@@ -55,8 +56,8 @@ public class NaPol : Competition
             float jitter = 1f + (Mathf.PerlinNoise(Time.time * 3f, 1f) - 0.5f) * d; // chlupanie
             level -= baseSpeed * (1f + drunkSpeedBonus * d) * jitter * Time.deltaTime;
         }
-        else if (drinking) { sent = true; ResultRpc(level); }
-        if (level <= 0f) { level = 0f; sent = true; ResultRpc(0f); }
+        else if (drinking) { sentLevel = level; sent = true; ResultRpc(level); }
+        if (level <= 0f) { level = 0f; sentLevel = 0f; sent = true; ResultRpc(0f); }
     }
 
     // przechył głowy proporcjonalny do wypitego
@@ -70,10 +71,13 @@ public class NaPol : Competition
 
     protected override void DrawGame()
     {
+        // celność: 100% = puszczone idealnie na pół, 0% = na samym skraju
+        float acc = Mathf.Clamp01(1f - Mathf.Abs(sentLevel - target) * 2f);
         GUI.Label(new Rect(0, Screen.height * 0.2f, Screen.width, 30),
-            sent ? "Czekasz na resztę..." : "Trzymaj SPACJĘ — puść dokładnie NA PÓŁ!", Ui.S(22));
+            sent ? $"Puściłeś na {sentLevel:P0}  —  celność {acc:P0}"
+                 : "Trzymaj SPACJĘ — puść NA PÓŁ (na oko, bez znacznika)!", Ui.S(22));
 
-        // szklanka: pionowy pasek z linią celu
+        // szklanka: pionowy pasek BEZ linii celu — trzeba trafić na oko
         float h = Screen.height * 0.45f;
         var glass = new Rect(Screen.width * 0.5f - 30f, (Screen.height - h) / 2f, 60f, h);
         GUI.color = new Color(0f, 0f, 0f, 0.5f);
@@ -82,9 +86,5 @@ public class NaPol : Competition
         float fill = h * Mathf.Clamp01(level);
         GUI.DrawTexture(new Rect(glass.x, glass.yMax - fill, glass.width, fill), Texture2D.whiteTexture);
         GUI.color = Color.white;
-        float ty = glass.yMax - h * target;
-        GUI.DrawTexture(new Rect(glass.x - 10f, ty - 1.5f, glass.width + 20f, 3f), Texture2D.whiteTexture);
-        GUI.Label(new Rect(glass.xMax + 14f, ty - 12f, 60f, 24f), "G",
-            new GUIStyle(GUI.skin.label) { fontSize = 22, fontStyle = FontStyle.Bold });
     }
 }

@@ -54,9 +54,11 @@ public class Rzutki : Competition
                 disk.transform.SetParent(transform, false); // kontroler Rzutki w origin → local == world
                 disk.transform.localRotation = Quaternion.Euler(90f, 0f, 0f); // płaska ścianka ku graczowi
                 disk.transform.localScale = new Vector3(rings[k].r * 2f, 0.02f, rings[k].r * 2f);
-                // mniejszy pierścień = odrobinę bliżej gracza, żeby był na wierzchu
-                disk.transform.localPosition = new Vector3(bp.x, bp.y, bp.z - 0.06f - k * 0.01f);
-                disk.GetComponent<Renderer>().material.color = rings[k].c;
+                // mniejszy pierścień = bliżej gracza, żeby był na wierzchu; odstęp 3 cm ≠ z-fighting
+                disk.transform.localPosition = new Vector3(bp.x, bp.y, bp.z - 0.1f - k * 0.03f);
+                // jawny materiał URP/Lit — runtime .material.color na prymitywie bywa zawodny (stąd 1 kolor)
+                disk.GetComponent<Renderer>().sharedMaterial =
+                    new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = rings[k].c };
             }
         }
     }

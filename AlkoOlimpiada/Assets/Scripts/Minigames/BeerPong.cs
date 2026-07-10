@@ -162,6 +162,14 @@ public class BeerPong : TeamCompetition
         var ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         Destroy(ball.GetComponent<Collider>());
         ball.transform.localScale = Vector3.one * 0.09f;
+
+        // cień piłki na blacie/podłodze — jedyny czytelny wskaźnik głębi (za stół czy przed?)
+        var shadow = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        Destroy(shadow.GetComponent<Collider>());
+        shadow.transform.localScale = new Vector3(0.13f, 0.004f, 0.13f);
+        shadow.GetComponent<Renderer>().sharedMaterial =
+            new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = new Color(0.05f, 0.05f, 0.05f) };
+
         if (path.Count > 0) Sfx.Play("throw", path[0]);
         float prevY = float.MaxValue;
         bool falling = false, bounceHeard = false;
@@ -173,8 +181,12 @@ public class BeerPong : TeamCompetition
             falling = p.y < prevY;
             prevY = p.y;
             ball.transform.position = p;
+            // cień pada na blat (stół 2x8 m, y=1) gdy piłka nad nim, inaczej na podłogę
+            bool overTable = Mathf.Abs(p.x) < 1f && Mathf.Abs(p.z) < 4f;
+            shadow.transform.position = new Vector3(p.x, overTable ? 1.001f : 0.02f, p.z);
             yield return null;
         }
+        Destroy(shadow);
         if (hit) Sfx.Play("plop", ball.transform.position);
         if (mine) Flash(hit); // błysk w momencie lądowania
         // piłka znika w kubku (krótki zanik zamiast twardego Destroy)
