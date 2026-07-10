@@ -24,7 +24,7 @@ Start-Process -Wait -FilePath $unity -ArgumentList @(
 )
 if (-not (Test-Path "$win\AlkoOlimpiada.exe")) {
   Get-Content "$env:TEMP\alko_build.log" -Tail 20
-  throw "Build nie wyprodukowal exe — log wyzej."
+  throw "Build nie wyprodukowal exe - log wyzej."
 }
 
 Write-Host "==> Pakowanie..." -ForegroundColor Cyan
@@ -33,11 +33,14 @@ Compress-Archive -Path "$win\*" -DestinationPath $zip
 "{0:N1} MB" -f ((Get-Item $zip).Length/1MB)
 
 Write-Host "==> Release $Tag..." -ForegroundColor Cyan
+# gh pisze do stderr (np. "release not found") -> przy Stop PS 5.1 by przerwal; steruj przez exit code
+$ErrorActionPreference = "Continue"
 # tag istnieje -> podmien plik; nie istnieje -> stworz release
-$exists = (& gh release view $Tag 2>$null; $LASTEXITCODE -eq 0)
-if ($exists) {
+& gh release view $Tag *> $null
+if ($LASTEXITCODE -eq 0) {
   & gh release upload $Tag $zip --clobber
 } else {
   & gh release create $Tag $zip --title "Alko Olimpiada $Tag" --notes $Notes
 }
+if ($LASTEXITCODE -ne 0) { throw "gh release nie powiodlo sie." }
 Write-Host "Gotowe: https://github.com/AradinX/Alko-Olimpiada-Game/releases/tag/$Tag" -ForegroundColor Green
