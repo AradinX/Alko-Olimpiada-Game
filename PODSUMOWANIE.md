@@ -46,9 +46,24 @@ Aktualizowane na bieżąco w trakcie pracy.
   pełne Oczko z medalami w jednym przebiegu; sceny z przekąskami/papierosami/PauseMenu
   wczytują się czysto.
 
-## W trakcie
+- **Commity**: fix ConnectionUI (osobno) + paczka feature'ów (papierosy, przekąski,
+  OCZKO, menu ESC, post-process, bootstrap, sceny/prefaby, docs).
+- **Stretch z GOAL.md** — `HubAmbience`: zapętlony szum fal generowany w kodzie (głośność
+  faluje jak przybój, respektuje suwak głośności); pływające etykiety TMP nad stanowiskami
+  konkurencji (`Billboard` obraca do kamery).
 
-- Ostatni cykl weryfikacyjny buildu z post-processem, potem commity.
+- **Pełna olimpiada E2E PASSED** — 2 instancje headless rozegrały wszystkie 8 konkurencji
+  (Beer Pong → Sprint → Lucky Shot → Rzutki → Na pół → Flanki → Spacer → **Oczko**),
+  `KONIEC OLIMPIADY — mistrz` wyłoniony, zero wyjątków w logach.
+
+- **Finalny build PASSED** — exe z ambientem fal i etykietami startuje czysto (host smoke,
+  zero wyjątków).
+
+## Weryfikacja wizualna na playtest (headless nie renderuje)
+
+- Post-process upojenia (falująca soczewka, aberracja, winieta) i jego suwak.
+- Etykiety nad stanowiskami (rozmiar/wysokość), słyszalność fal, panel ESC.
+- Migotanie kart w Oczku po pijaku i czytelność symboli ♠♥♦♣ w foncie IMGUI.
 
 ## Do zrobienia po sesji (patrz PLAN-10-KROKOW.md)
 

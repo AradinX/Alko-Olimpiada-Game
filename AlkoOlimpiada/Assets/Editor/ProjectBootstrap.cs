@@ -380,6 +380,28 @@ public static class ProjectBootstrap
         if (net != null && net.GetComponent<PauseMenu>() == null)
             net.AddComponent<PauseMenu>(); // ustawienia po ESC (przeżywa zmiany scen — DDOL)
 
+        // stretch z GOAL: szum fal + pływające etykiety stanowisk
+        var water = GameObject.Find("Water");
+        if (water != null && water.GetComponent<HubAmbience>() == null)
+            water.AddComponent<HubAmbience>();
+        var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
+            "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset");
+        foreach (var st in Object.FindObjectsByType<CompetitionStation>(FindObjectsSortMode.None))
+        {
+            // luzem, nie pod stanowiskiem — jego niejednorodna skala (4,0.5,4) skośiłaby billboard
+            string lblName = "Label_" + st.sceneName;
+            if (GameObject.Find(lblName) != null) continue;
+            var lbl = new GameObject(lblName);
+            lbl.transform.position = st.transform.position + Vector3.up * 3.2f;
+            var tmp = lbl.AddComponent<TextMeshPro>();
+            if (font != null) tmp.font = font;
+            tmp.text = st.title;
+            tmp.fontSize = 10;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.rectTransform.sizeDelta = new Vector2(12f, 1.6f);
+            lbl.AddComponent<Billboard>();
+        }
+
         if (GameObject.Find("Station_Arena_Oczko") == null)
             BuildStation("OCZKO", "Arena_Oczko", "-autooczko",
                 new Vector3(0f, 0.25f, -18f), new Color(0.05f, 0.4f, 0.2f)); // kasynowa zieleń

@@ -26,6 +26,9 @@
 > - (2026-07-11) OCZKO (hazard lite, 8. konkurencja): 21 vs bank, 3 rozdania, stawka
 >   1-3 szoty W CIEMNO (pijesz od razu), żetony = ranking, pijackie migotanie kart.
 >   Flaga `-autooczko`.
+> - (2026-07-11) Przekąski (kurczak −10 do podłogi), menu ESC (czułość/głośność/suwak
+>   bujania), post-process upojenia (lens+chroma+vignette w runtime), stretch: szum fal
+>   na hubie + pływające etykiety stanowisk. Pełna olimpiada 8 konkurencji E2E PASSED.
 
 ---
 
