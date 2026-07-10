@@ -132,7 +132,7 @@ public class BeerPong : TeamCompetition
         // smoke test nie celuje — losuje trafienie, żeby gra się skończyła
         int cup = autoMode ? (Random.value < 0.6f ? FirstLive(opp) : -1)
                            : Simulate(origin, v0, opp, Mask(opp), null);
-        ThrowFxRpc(origin, v0, opp, cup);
+        ThrowFxRpc(origin, v0, opp, cup, id);
 
         if (cup >= 0)
         {
@@ -148,21 +148,22 @@ public class BeerPong : TeamCompetition
 
     // wszyscy widzą lot piłki; maska = tylko trafiony kubek, więc tor wyjdzie ten sam
     [Rpc(SendTo.ClientsAndHost)]
-    void ThrowFxRpc(Vector3 origin, Vector3 v0, int oppTeam, int cup)
+    void ThrowFxRpc(Vector3 origin, Vector3 v0, int oppTeam, int cup, ulong thrower)
     {
         var path = new List<Vector3>();
         Simulate(origin, v0, oppTeam, cup >= 0 ? 1 << cup : 0, path);
         // kubek zniknie dopiero po wpadnięciu piłki (kroki toru ~50/s + zanik)
         if (cup >= 0) holdUntil[oppTeam, cup] = Time.time + path.Count / 50f + 0.3f;
-        StartCoroutine(BallFx(path));
+        StartCoroutine(BallFx(path, thrower == NM.LocalClientId, cup >= 0));
     }
 
-    IEnumerator BallFx(List<Vector3> path)
+    IEnumerator BallFx(List<Vector3> path, bool mine, bool hit)
     {
         var ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         Destroy(ball.GetComponent<Collider>());
         ball.transform.localScale = Vector3.one * 0.09f;
         foreach (var p in path) { ball.transform.position = p; yield return null; }
+        if (mine) Flash(hit); // błysk w momencie lądowania
         // piłka znika w kubku (krótki zanik zamiast twardego Destroy)
         for (float t = 0f; t < 0.25f; t += Time.deltaTime)
         {

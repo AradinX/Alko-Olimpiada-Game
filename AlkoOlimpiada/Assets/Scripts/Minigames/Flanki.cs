@@ -77,7 +77,7 @@ public class Flanki : TeamCompetition
                 cl.PlayerObject.transform.position + Vector3.up * 1.7f) > 2.5f) return;
 
         bool hit = WheelHit() && (autoMode || AimOk(origin, dir));
-        ThrowFxRpc(origin, hit);
+        ThrowFxRpc(origin, hit, id);
         if (hit)
         {
             DrinkingTeam.Value = TeamOf(id);
@@ -140,9 +140,10 @@ public class Flanki : TeamCompetition
 
     // wszyscy widzą lot butelki w stronę puszki
     [Rpc(SendTo.ClientsAndHost)]
-    void ThrowFxRpc(Vector3 origin, bool hit) => StartCoroutine(BottleFx(origin, hit));
+    void ThrowFxRpc(Vector3 origin, bool hit, ulong thrower) =>
+        StartCoroutine(BottleFx(origin, hit, thrower == NM.LocalClientId));
 
-    IEnumerator BottleFx(Vector3 origin, bool hit)
+    IEnumerator BottleFx(Vector3 origin, bool hit, bool mine)
     {
         var c = Can();
         Vector3 target = c != null ? c.position : Vector3.zero;
@@ -157,6 +158,7 @@ public class Flanki : TeamCompetition
             bottle.transform.Rotate(400f * Time.deltaTime, 0f, 0f);
             yield return null;
         }
+        if (mine) Flash(hit); // błysk gdy butelka doleci
         Destroy(bottle);
     }
 

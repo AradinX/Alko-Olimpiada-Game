@@ -211,6 +211,7 @@ public static class ProjectBootstrap
         pds.decayPerSecond = 0.2f;
         pds.catchRadius = 25f; // przyłapanie po widoku, nie po bliskości
         pds.beerStrength = 12f; // 2 piwa Szumi / 4 Lekko chycony / 8 Ligancko / 9 Zgon
+        pds.beerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Beer.prefab");
         if (player.transform.Find("HandBottle") == null) // butelka w ręce (Beers > 0)
         {
             var hb = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -227,6 +228,11 @@ public static class ProjectBootstrap
         PrefabUtility.UnloadPrefabContents(player);
 
         var scene = EditorSceneManager.OpenScene("Assets/Scenes/Hub.unity");
+
+        // wyrzucane piwo: ConnectionUI rejestruje prefab w NGO przed startem sieci
+        var connUi = Object.FindFirstObjectByType<ConnectionUI>();
+        if (connUi != null)
+            connUi.beerPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Beer.prefab");
 
         // hub jako wyspa: dysk piasku + woda dookoła (bez collidera — wpadasz i respawn)
         foreach (var n in new[] { "Ground", "Island", "Water" })

@@ -58,10 +58,14 @@ public class Rzutki : Competition
             pts = Mathf.Clamp(10 - (int)(d / (boardRadius / 10f)), 0, 10);
         }
         score[id] = score.GetValueOrDefault(id) + pts;
+        FlashRpc(pts > 0, RpcTarget.Single(id, RpcTargetUse.Temp));
         Debug.Log($"[Rzutki] {Olympics.Nick(id)} rzut {thrown[id]}: {pts} pkt (suma {score[id]})");
         UpdateLive();
         if (racers.All(r => thrown.GetValueOrDefault(r) >= dartsPerPlayer)) Finish(Ranking());
     }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    void FlashRpc(bool hit, RpcParams p = default) => Flash(hit);
 
     void UpdateLive() => LiveText.Value = string.Join("   ", racers.Select(r =>
         $"{Olympics.Nick(r)}: {score.GetValueOrDefault(r)} ({thrown.GetValueOrDefault(r)}/{dartsPerPlayer})"));

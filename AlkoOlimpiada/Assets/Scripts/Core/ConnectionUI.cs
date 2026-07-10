@@ -20,6 +20,8 @@ public class ConnectionUI : MonoBehaviour
     public static string LocalNickname = "Gracz";
     public static GameObject SceneCamera;
 
+    public GameObject beerPrefab; // rejestrowany w NGO — wyrzucane piwo spawnuje się w runtime
+
     string nickname;
     string ip = "127.0.0.1";
     string joinCode = "";
@@ -36,6 +38,9 @@ public class ConnectionUI : MonoBehaviour
 
     void Start()
     {
+        // przed startem sieci, na hoście i klientach — inaczej spawn nie zmapuje prefabu
+        if (beerPrefab != null) NetworkManager.Singleton.AddNetworkPrefab(beerPrefab);
+
         NetworkManager.Singleton.OnClientConnectedCallback += id =>
             Debug.Log($"[Net] Polaczony klient {id}" + (NetworkManager.Singleton.IsServer
                 ? $", graczy: {NetworkManager.Singleton.ConnectedClients.Count}" : ""));
