@@ -224,6 +224,42 @@ public static class ProjectBootstrap
             if (bm != null) hb.GetComponent<Renderer>().sharedMaterial = bm;
             hb.SetActive(false);
         }
+        // klockowa postać: głowa/tułów/ręce/nogi zamiast samej kapsuły (idempotentnie)
+        var body = player.transform.Find("Body");
+        if (body != null && body.Find("Torso") == null)
+        {
+            Object.DestroyImmediate(body.GetComponent<MeshRenderer>());
+            Object.DestroyImmediate(body.GetComponent<MeshFilter>());
+            GameObject Part(string n, Vector3 pos, Vector3 sc, Transform parent)
+            {
+                var g = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                Object.DestroyImmediate(g.GetComponent<Collider>());
+                g.name = n;
+                g.transform.SetParent(parent, false);
+                g.transform.localPosition = pos;
+                g.transform.localScale = sc;
+                return g;
+            }
+            Transform Pivot(string n, Vector3 pos)
+            {
+                var p = new GameObject(n).transform;
+                p.SetParent(body, false);
+                p.localPosition = pos;
+                return p;
+            }
+            Part("Torso", new Vector3(0f, 0.15f, 0f), new Vector3(0.5f, 0.62f, 0.28f), body);
+            Part("Head", new Vector3(0f, 0.62f, 0f), new Vector3(0.3f, 0.3f, 0.3f), body);
+            // pivoty w barkach/biodrach — PlayerLimbs kręci nimi przy chodzie
+            Part("ArmCube", new Vector3(0f, -0.28f, 0f), new Vector3(0.13f, 0.55f, 0.13f),
+                Pivot("ArmL", new Vector3(-0.33f, 0.42f, 0f)));
+            Part("ArmCube", new Vector3(0f, -0.28f, 0f), new Vector3(0.13f, 0.55f, 0.13f),
+                Pivot("ArmR", new Vector3(0.33f, 0.42f, 0f)));
+            Part("LegCube", new Vector3(0f, -0.35f, 0f), new Vector3(0.16f, 0.68f, 0.16f),
+                Pivot("LegL", new Vector3(-0.13f, -0.16f, 0f)));
+            Part("LegCube", new Vector3(0f, -0.35f, 0f), new Vector3(0.16f, 0.68f, 0.16f),
+                Pivot("LegR", new Vector3(0.13f, -0.16f, 0f)));
+        }
+        if (player.GetComponent<PlayerLimbs>() == null) player.AddComponent<PlayerLimbs>();
         PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
         PrefabUtility.UnloadPrefabContents(player);
 
