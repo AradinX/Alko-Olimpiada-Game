@@ -147,7 +147,8 @@ public abstract class Competition : NetworkBehaviour
                 var d = c.PlayerObject.GetComponent<DrunkSystem>();
                 // alkohol z konkurencji zostaje na stałe (podłoga paska)
                 if (naturalDrunkGain > 0) d.AddPermanent(naturalDrunkGain);
-                d.Curse.Value = 0; // klątwa z piwa specjalnego zużyta
+                d.Curse.Value = 0;    // klątwa z piwa specjalnego zużyta
+                d.Steady.Value = false; // pewna ręka z papierosa zużyta
             }
         ScoreboardText.Value = Olympics.Award(ranking, out var results);
         ResultsText.Value = results;
@@ -162,10 +163,11 @@ public abstract class Competition : NetworkBehaviour
     protected virtual void DrawGame() { }             // klient, OnGUI w Running
     protected abstract List<ulong> TimeoutRanking();  // ranking przy timeoucie
 
+    // utrudnienie z alkoholu (0-1); papieros ("pewna ręka") je połowi
     protected float LocalDrunk01()
     {
         var po = NM.LocalClient?.PlayerObject;
-        return po != null ? po.GetComponent<DrunkSystem>().Drunk.Value / 100f : 0f;
+        return po != null ? po.GetComponent<DrunkSystem>().Handicap01() : 0f;
     }
 
     protected Camera OwnCamera()

@@ -8,7 +8,7 @@ Imprezowa gra multiplayer (2–10 graczy) w klimacie grecko-rzymskiej olimpiady.
 
 - **Hub-mapa** w greckim klimacie — wolne poruszanie się między konkurencjami, zbieranie piw/papierosów/przekąsek.
 - **System upojenia** — picie daje bonusy, ale pogarsza sterowanie i percepcję (bujanie obrazu, szybsze kółka timingowe, rozmyte karty w pokerze). Pełny pasek = Zgon (hub) lub wymioty (konkurencja).
-- **7 konkurencji** + poker: Sprint na 500, Flanki, Beer Pong, Rzutki, Na pół (Split the G), Spacer do monopolowego, Lucky Shot (Simon Says).
+- **8 konkurencji** + poker (w planach): Sprint na 500, Flanki, Beer Pong, Rzutki, Na pół (Split the G), Spacer do monopolowego, Lucky Shot (Simon Says), Oczko (21 ze stawkami w szotach).
 - **Punktacja:** 🥇 5 pkt · 🥈 3 pkt · 🥉 1 pkt. Najwięcej punktów = mistrz olimpiady.
 
 Pełny opis: [GDD-Alko-Olimpiada.md](GDD-Alko-Olimpiada.md)

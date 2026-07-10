@@ -104,7 +104,7 @@ public class PlayerController : NetworkBehaviour
 
         if (Cursor.lockState == CursorLockMode.Locked && mouse != null)
         {
-            Vector2 look = mouse.delta.ReadValue() * lookSensitivity;
+            Vector2 look = mouse.delta.ReadValue() * (lookSensitivity * GameSettings.MouseSens);
             transform.Rotate(0f, look.x, 0f);
             pitch = Mathf.Clamp(pitch - look.y, -85f, 85f);
         }

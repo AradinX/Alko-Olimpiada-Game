@@ -29,5 +29,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Arena_BeerPong.unity
     guid: a61c0159ea96b9f478d01ba771780706
+  - enabled: 1
+    path: Assets/Scenes/Arena_Oczko.unity
+    guid: aef5e3bf49b434e4293872d6711040b3
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}

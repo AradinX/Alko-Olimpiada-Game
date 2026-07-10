@@ -19,7 +19,13 @@
 > - Hardening: WASD-dead-after-alt-tab fixed (keyboard reset on focus), host-frozen-after-
 >   competition fixed (InputLocked computed from Current, not a flag).
 > - Smoke flags: `-autohost/-autojoin/-autohostonline/-autojoincode X/-profile X/-autodrink`
->   + 7 per-competition auto flags; all 7 at once = full olympiad E2E.
+>   + 8 per-competition auto flags; all 8 at once = full olympiad E2E.
+> - (2026-07-11) Papierosy: [E] na hubie = +8 upojenia NA STAŁE, w zamian "pewna ręka" —
+>   utrudnienia z alkoholu w następnej konkurencji ×0.5 (DrunkSystem.Handicap01, zużywa
+>   się w Competition.Finish jak klątwa).
+> - (2026-07-11) OCZKO (hazard lite, 8. konkurencja): 21 vs bank, 3 rozdania, stawka
+>   1-3 szoty W CIEMNO (pijesz od razu), żetony = ranking, pijackie migotanie kart.
+>   Flaga `-autooczko`.
 
 ---
 
@@ -64,6 +70,9 @@ drunk comedy better than greybox visuals ever will — do this BEFORE the art pa
   charge 1.1 s, bounce damping 0.6, catch radius 0.11, timeout 300 s.
 - `LuckyShot`: 6 arrows, show 2.5 s, countdown 3 s, answer 8 s, wobble 70 px at max drunk.
 - Others: Sprint sip 4, Rzutki wander 0.12, NaPol speed 0.25.
+- `Oczko`: 3 rozdania, stawka 8 s / gra 20 s / rozliczenie 6 s, szot = 5 upojenia,
+  bank dobiera do 17, migotanie kart = drunk01 × 0.9.
+- `CigarettePickup`: koszt 8 upojenia (permanentne), respawn 45 s, pewna ręka = ×0.5.
 
 ## Known limitations (accepted for prototype)
 

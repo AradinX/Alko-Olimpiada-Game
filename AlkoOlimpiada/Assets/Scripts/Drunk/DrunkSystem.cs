@@ -47,6 +47,10 @@ public class DrunkSystem : NetworkBehaviour
     public NetworkVariable<byte> InstantCurse = new(); // z pigułek, działa od razu
     public NetworkVariable<double> CurseUntil = new(); // do kiedy działa InstantCurse
     public NetworkVariable<byte> StageCurse = new();   // pkt 2: losowy gag przy etapie "Jest ligancko"
+    public NetworkVariable<bool> Steady = new();       // papieros: pewna ręka na następną konkurencję
+
+    // utrudnienia w konkurencjach liczą z tego zamiast surowego Drunk — papieros je połowi
+    public float Handicap01() => Drunk.Value / 100f * (Steady.Value ? 0.5f : 1f);
 
     public int Stage
     {
@@ -61,9 +65,12 @@ public class DrunkSystem : NetworkBehaviour
     Transform body;
     Transform handBottle; // butelka w ręce, widoczna gdy Beers > 0
     Camera cam;
+    LensDistortion lens; ChromaticAberration chroma; Vignette vig; // post-process upojenia
     DrunkSystem reviveTarget; // pobliski leżący gracz (tylko u właściciela)
     BeerPickup nearBeer;
     PillPickup nearPill;
+    CigarettePickup nearCig;
+    SnackPickup nearSnack;
     int lastStage;
     float nextOcto; bool wasOcto;
     string msg; float msgUntil; // komunikaty ("coś było w tym piwie" itp.)
@@ -89,6 +96,7 @@ public class DrunkSystem : NetworkBehaviour
         UpdateBodyPose();
         Beers.OnValueChanged += (_, v) => { if (handBottle) handBottle.gameObject.SetActive(v > 0); };
         if (handBottle) handBottle.gameObject.SetActive(Beers.Value > 0);
+        if (IsOwner) SetupPost();
 
         // ponytail: headless smoke test pętli Zgon->cucenie->wyrzucenie piwa (-autodrink)
         if (IsServer && System.Array.IndexOf(
@@ -98,6 +106,22 @@ public class DrunkSystem : NetworkBehaviour
             Invoke(nameof(ReviveRpc), 6f);
             Invoke(nameof(AutoDrop), 8f);
         }
+    }
+
+    // pijacki post-process (GDD 10): profil budowany w kodzie — zero assetów w scenach
+    void SetupPost()
+    {
+        var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+        lens = profile.Add<LensDistortion>();
+        lens.intensity.overrideState = true;
+        chroma = profile.Add<ChromaticAberration>();
+        chroma.intensity.overrideState = true;
+        vig = profile.Add<Vignette>();
+        vig.intensity.overrideState = true;
+        var vol = cam.gameObject.AddComponent<Volume>();
+        vol.isGlobal = true;
+        vol.profile = profile;
+        cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
     }
 
     void AutoDrink() => AddDrink(120f);
@@ -339,6 +363,10 @@ public class DrunkSystem : NetworkBehaviour
             Vector3.Distance(nearBeer.transform.position, transform.position) > 3f) nearBeer = null;
         if (nearPill != null &&
             Vector3.Distance(nearPill.transform.position, transform.position) > 3f) nearPill = null;
+        if (nearCig != null &&
+            Vector3.Distance(nearCig.transform.position, transform.position) > 3f) nearCig = null;
+        if (nearSnack != null &&
+            Vector3.Distance(nearSnack.transform.position, transform.position) > 3f) nearSnack = null;
 
         // ponytail: FindObjectsByType co klatkę — graczy jest max 10, wystarczy
         reviveTarget = null;
@@ -353,6 +381,8 @@ public class DrunkSystem : NetworkBehaviour
         {
             if (reviveTarget != null) reviveTarget.ReviveRpc();
             else if (nearPill != null && nearPill.Available.Value) nearPill.RequestPickupRpc();
+            else if (nearCig != null && nearCig.Available.Value) nearCig.RequestSmokeRpc();
+            else if (nearSnack != null && nearSnack.Available.Value) nearSnack.RequestEatRpc();
             else if (nearBeer != null && nearBeer.Available.Value) nearBeer.RequestPickupRpc();
         }
         if (kb.qKey.wasPressedThisFrame && Pills.Value > 0
@@ -371,6 +401,10 @@ public class DrunkSystem : NetworkBehaviour
         if (beer != null) nearBeer = beer;
         var pill = other.GetComponentInParent<PillPickup>();
         if (pill != null) nearPill = pill;
+        var cig = other.GetComponentInParent<CigarettePickup>();
+        if (cig != null) nearCig = cig;
+        var snack = other.GetComponentInParent<SnackPickup>();
+        if (snack != null) nearSnack = snack;
     }
 
     void OnTriggerExit(Collider other)
@@ -378,6 +412,8 @@ public class DrunkSystem : NetworkBehaviour
         if (!IsOwner) return;
         if (other.GetComponentInParent<BeerPickup>() == nearBeer) nearBeer = null;
         if (other.GetComponentInParent<PillPickup>() == nearPill) nearPill = null;
+        if (other.GetComponentInParent<CigarettePickup>() == nearCig) nearCig = null;
+        if (other.GetComponentInParent<SnackPickup>() == nearSnack) nearSnack = null;
     }
 
     void LateUpdate()
@@ -404,9 +440,20 @@ public class DrunkSystem : NetworkBehaviour
             return;
         }
         float t = Mathf.InverseLerp(Stages[0].min, 100f, Drunk.Value); // "Szumi" otwiera bujanie
+
+        // post-process rośnie z upojeniem; soczewka powoli faluje (GDD: obraz faluje)
+        if (lens != null)
+        {
+            float p = t * GameSettings.Sway;
+            lens.intensity.value = (-0.32f - 0.15f * Mathf.Sin(Time.time * 0.7f)) * p;
+            chroma.intensity.value = p;
+            vig.intensity.value = 0.32f * p;
+        }
+
         if (t <= 0f) return;
         // ponytail: bujanie = szum Perlina na rotacji kamery; post-process URP dojdzie,
         // gdy sam sway przestanie wystarczać
+        t *= GameSettings.Sway; // suwak dostępności (choroba lokomocyjna, GDD 10)
         float s = Time.time;
         float roll  = (Mathf.PerlinNoise(s * 0.5f, 0f) - 0.5f) * 24f * t;
         float yaw   = (Mathf.PerlinNoise(0f, s * 0.4f) - 0.5f) * 16f * t;
@@ -459,8 +506,9 @@ public class DrunkSystem : NetworkBehaviour
         // ekwipunek pod paskiem
         string beerLine = Beers.Value <= 0 ? "Piwo: brak"
             : (HeldSpecial.Value ? "Piwo: SPECJALNE" : "Piwo: zwykłe") + "  [F] pij  [G] wyrzuć";
-        GUI.Label(new Rect(Screen.width - 250f, back.yMax + 6f, 240f, 40f),
-            beerLine + $"\nPigułki: {Pills.Value}" + (Pills.Value > 0 ? "  [Q] dosyp" : ""),
+        GUI.Label(new Rect(Screen.width - 250f, back.yMax + 6f, 240f, 56f),
+            beerLine + $"\nPigułki: {Pills.Value}" + (Pills.Value > 0 ? "  [Q] dosyp" : "")
+            + (Steady.Value ? "\nSzlug: pewna ręka w nast. konkurencji" : ""),
             new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperRight });
 
         var style = new GUIStyle(GUI.skin.label)
@@ -471,6 +519,12 @@ public class DrunkSystem : NetworkBehaviour
         else if (reviveTarget != null) GUI.Label(center, "[E] Ocuć kolegę", style);
         else if (nearPill != null && nearPill.Available.Value)
             GUI.Label(center, "[E] Podnieś pigułkę", style);
+        else if (nearCig != null && nearCig.Available.Value)
+            GUI.Label(center, Steady.Value
+                ? "Już kopcisz — pewna ręka gotowa na następną konkurencję"
+                : "[E] Zapal szluga — pewna ręka w następnej grze, ale dokopie na stałe", style);
+        else if (nearSnack != null && nearSnack.Available.Value)
+            GUI.Label(center, "[E] Zjedz kurczaka — trzeźwiejesz (do podłogi)", style);
         else if (nearBeer != null && nearBeer.Available.Value)
         {
             string hint = Beers.Value >= maxBeers
