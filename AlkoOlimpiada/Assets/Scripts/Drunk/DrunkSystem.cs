@@ -82,6 +82,9 @@ public class DrunkSystem : NetworkBehaviour
     {
         PassedOut.OnValueChanged += (_, _) => UpdateBodyPose();
         Vomiting.OnValueChanged += (_, _) => UpdateBodyPose();
+        // dźwięki 3D — słyszą wszyscy w pobliżu
+        PassedOut.OnValueChanged += (_, v) => Sfx.Play(v ? "zgon" : "slap", transform.position);
+        Vomiting.OnValueChanged += (_, v) => { if (v) Sfx.Play("vomit", transform.position); };
         UpdateBodyPose();
         Beers.OnValueChanged += (_, v) => { if (handBottle) handBottle.gameObject.SetActive(v > 0); };
         if (handBottle) handBottle.gameObject.SetActive(Beers.Value > 0);
@@ -346,7 +349,7 @@ public class DrunkSystem : NetworkBehaviour
             && nearBeer != null && nearBeer.Available.Value)
             nearBeer.SpikeRpc();
         if (kb.fKey.wasPressedThisFrame && Beers.Value > 0 && !Competition.InputLocked)
-            DrinkBeerRpc();
+        { Sfx.Play("gulp"); DrinkBeerRpc(); }
         if (kb.gKey.wasPressedThisFrame && Beers.Value > 0 && !Competition.InputLocked)
             DiscardBeerRpc();
     }

@@ -99,7 +99,7 @@ public class Sprint500 : Competition
     {
         if (State.Value != Phase.Running || Time.time < vomitEndLocal) return;
         var kb = Keyboard.current;
-        if (kb != null && kb.spaceKey.wasPressedThisFrame) SipRpc();
+        if (kb != null && kb.spaceKey.wasPressedThisFrame) { Sfx.Play("gulp"); SipRpc(); }
         if (autoMode && Time.time >= nextAutoSip)
         { nextAutoSip = Time.time + 0.12f; SipRpc(); }
     }

@@ -151,6 +151,7 @@ public class Flanki : TeamCompetition
         var bottle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         Destroy(bottle.GetComponent<Collider>());
         bottle.transform.localScale = new Vector3(0.1f, 0.16f, 0.1f);
+        Sfx.Play("throw", origin);
         for (float t = 0f; t < 1f; t += Time.deltaTime / 0.45f)
         {
             bottle.transform.position = Vector3.Lerp(origin, target, t)
@@ -158,6 +159,7 @@ public class Flanki : TeamCompetition
             bottle.transform.Rotate(400f * Time.deltaTime, 0f, 0f);
             yield return null;
         }
+        if (hit) Sfx.Play("clank", target);
         if (mine) Flash(hit); // błysk gdy butelka doleci
         Destroy(bottle);
     }
@@ -227,7 +229,7 @@ public class Flanki : TeamCompetition
         bool resetter = ResetterId.Value == NM.LocalClientId;
         if (kb != null)
         {
-            if (drinking && kb.spaceKey.wasPressedThisFrame) SipRpc();
+            if (drinking && kb.spaceKey.wasPressedThisFrame) { Sfx.Play("gulp"); SipRpc(); }
             if (resetter && kb.aKey.wasPressedThisFrame) ResetTapRpc(true);
             if (resetter && kb.dKey.wasPressedThisFrame) ResetTapRpc(false);
         }

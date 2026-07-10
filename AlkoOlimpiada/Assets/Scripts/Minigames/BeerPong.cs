@@ -162,7 +162,20 @@ public class BeerPong : TeamCompetition
         var ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         Destroy(ball.GetComponent<Collider>());
         ball.transform.localScale = Vector3.one * 0.09f;
-        foreach (var p in path) { ball.transform.position = p; yield return null; }
+        if (path.Count > 0) Sfx.Play("throw", path[0]);
+        float prevY = float.MaxValue;
+        bool falling = false, bounceHeard = false;
+        foreach (var p in path)
+        {
+            // pierwszy dołek toru = odbicie od blatu
+            if (!bounceHeard && falling && p.y > prevY)
+            { bounceHeard = true; Sfx.Play("bounce", p); }
+            falling = p.y < prevY;
+            prevY = p.y;
+            ball.transform.position = p;
+            yield return null;
+        }
+        if (hit) Sfx.Play("plop", ball.transform.position);
         if (mine) Flash(hit); // błysk w momencie lądowania
         // piłka znika w kubku (krótki zanik zamiast twardego Destroy)
         for (float t = 0f; t < 0.25f; t += Time.deltaTime)
