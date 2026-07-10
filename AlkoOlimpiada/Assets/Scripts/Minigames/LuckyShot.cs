@@ -5,13 +5,16 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Lucky Shot (Simon Says, drabinka — GDD 8.7): rundy z coraz dłuższą sekwencją strzałek.
-// Pomyłka albo brak kompletu w czasie = odpadasz. Ostatni na nogach wygrywa.
+// Lucky Shot (Simon Says, drabinka — GDD 8.7): każda runda to sekwencja 6 strzałek.
+// Po fazie zapamiętywania odliczanie 3-2-1-SHOT i dopiero wtedy wolno wpisywać.
+// Pomyłka albo brak kompletu w czasie = odpadasz. Komplet = chwytasz kieliszek
+// ze stołu i wypijasz (odchył głowy). Po alkoholu strzałki bujają się przy pokazie.
 public class LuckyShot : Competition
 {
-    public int startLen = 3;
+    public int seqLen = 6;
     public int maxRounds = 6;
     public float showSeconds = 2.5f;
+    public float goCountdown = 3f;  // 3-2-1-SHOT między pokazem a wpisywaniem
     public float answerSeconds = 8f;
 
     protected override string AutoFlag => "-autolucky";
@@ -20,6 +23,7 @@ public class LuckyShot : Competition
     public NetworkVariable<int> Round = new();
     public NetworkVariable<int> AliveCount = new();
     public NetworkVariable<double> HideAt = new();
+    public NetworkVariable<double> AnswerAt = new();   // koniec odliczania = start wpisywania
     public NetworkVariable<double> RoundEndsAt = new();
 
     static readonly char[] glyphs = { 'U', 'D', 'L', 'R' };
@@ -36,6 +40,16 @@ public class LuckyShot : Competition
     int myProg;
     bool myOut, myRoundDone;
     float nextAutoKey;
+    float drinkAnimT = 99f;   // czas od startu animacji picia (99 = brak)
+    Transform myGlass;
+    Vector3 glassHome;
+
+    // linia przed stołem z kieliszkami (stół w scenie na z=-0.5)
+    protected override void GetPose(int index, int count, out Vector3 pos, out float yaw)
+    {
+        pos = new Vector3(index * 2f - (count - 1), 0.1f, -1.6f);
+        yaw = 0f;
+    }
 
     protected override void OnRaceStart()
     {
@@ -51,11 +65,12 @@ public class LuckyShot : Competition
         AliveCount.Value = alive.Count;
         progress.Clear(); okTime.Clear(); failed.Clear(); doneOk.Clear();
         var s = "";
-        for (int i = 0; i < startLen + r - 1; i++)
+        for (int i = 0; i < seqLen; i++)
             s += glyphs[Random.Range(0, glyphs.Length)];
         Seq.Value = s;
         HideAt.Value = Now + showSeconds;
-        RoundEndsAt.Value = HideAt.Value + answerSeconds;
+        AnswerAt.Value = HideAt.Value + goCountdown;
+        RoundEndsAt.Value = AnswerAt.Value + answerSeconds;
         RoundResetRpc(r);
         Debug.Log($"[Lucky] runda {r}: {s} ({alive.Count} graczy)");
     }
@@ -71,7 +86,7 @@ public class LuckyShot : Competition
     [Rpc(SendTo.Server)]
     void KeyRpc(byte g, RpcParams p = default)
     {
-        if (State.Value != Phase.Running || Now < HideAt.Value || Now > RoundEndsAt.Value) return;
+        if (State.Value != Phase.Running || Now < AnswerAt.Value || Now > RoundEndsAt.Value) return;
         ulong id = p.Receive.SenderClientId;
         if (!alive.Contains(id) || failed.Contains(id) || doneOk.Contains(id)) return;
 
@@ -93,6 +108,7 @@ public class LuckyShot : Competition
         myProg = prog;
         myRoundDone = roundDone;
         if (outNow) myOut = true;
+        else if (roundDone) StartDrinkAnim(); // komplet = shot!
     }
 
     protected override void RunningTick()
@@ -129,10 +145,53 @@ public class LuckyShot : Competition
 
     protected override List<ulong> TimeoutRanking() => BuildRanking();
 
+    // ---- animacja: chwyć kieliszek ze stołu, wypij z odchyłem głowy, odstaw ----
+
+    void StartDrinkAnim()
+    {
+        drinkAnimT = 0f;
+        if (myGlass == null)
+        {
+            // własny kieliszek = najbliższy Shot_i (bootstrap stawia 8 na stole)
+            var po = NM.LocalClient?.PlayerObject;
+            if (po == null) return;
+            myGlass = Enumerable.Range(0, 8)
+                .Select(i => GameObject.Find("Shot_" + i)?.transform)
+                .Where(t => t != null)
+                .OrderBy(t => Vector3.Distance(t.position, po.transform.position))
+                .FirstOrDefault();
+            if (myGlass != null) glassHome = myGlass.position;
+        }
+    }
+
+    void LateUpdate()
+    {
+        const float dur = 1.4f;
+        if (drinkAnimT >= dur)
+        {
+            if (myGlass != null && drinkAnimT < 98f) // odstaw po animacji
+            { myGlass.SetPositionAndRotation(glassHome, Quaternion.identity); drinkAnimT = 99f; }
+            return;
+        }
+        drinkAnimT += Time.deltaTime;
+        var cam = OwnCamera();
+        if (cam == null) return;
+        float k = Mathf.Clamp01(drinkAnimT / dur);
+        float tilt = Mathf.Sin(k * Mathf.PI) * 35f; // odchył głowy i powrót
+        cam.transform.localRotation *= Quaternion.Euler(-tilt, 0f, 0f);
+        if (myGlass != null)
+        {
+            Vector3 mouth = cam.transform.position
+                + cam.transform.forward * 0.35f - cam.transform.up * 0.12f;
+            myGlass.position = Vector3.Lerp(glassHome, mouth, Mathf.Clamp01(k * 2f));
+            myGlass.rotation = cam.transform.rotation * Quaternion.Euler(-tilt * 2.2f, 0f, 0f);
+        }
+    }
+
     protected override void ClientTick()
     {
         if (State.Value != Phase.Running || myOut || myRoundDone) return;
-        if (Now < HideAt.Value || Now > RoundEndsAt.Value) return;
+        if (Now < AnswerAt.Value || Now > RoundEndsAt.Value) return;
         var kb = Keyboard.current;
         if (kb != null)
         {
@@ -151,9 +210,6 @@ public class LuckyShot : Competition
         }
     }
 
-    string Pretty(string seq) => string.Join(" ",
-        seq.Select(ch => arrows[System.Array.IndexOf(glyphs, ch)]));
-
     protected override void DrawGame()
     {
         GUI.Label(new Rect(0, Screen.height * 0.14f, Screen.width, 26),
@@ -168,11 +224,33 @@ public class LuckyShot : Competition
         {
             GUI.Label(new Rect(0, Screen.height * 0.22f, Screen.width, 30),
                 "ZAPAMIĘTAJ SEKWENCJĘ:", Ui.S(22));
-            GUI.Label(center, Pretty(Seq.Value.ToString()), Ui.S(48));
+            DrawWobblySeq();
             return;
         }
+        if (Now < AnswerAt.Value) // 3-2-1 zanim wolno wpisywać
+        {
+            GUI.Label(center, Mathf.CeilToInt((float)(AnswerAt.Value - Now)).ToString(), Ui.S(72));
+            return;
+        }
+        if (Now - AnswerAt.Value < 0.8f && !myRoundDone)
+            GUI.Label(new Rect(0, Screen.height * 0.22f, Screen.width, 40), "SHOT!", Ui.S(40));
         GUI.Label(center, myRoundDone
-            ? "KOMPLET! Czekasz na resztę..."
+            ? "KOMPLET! Na zdrowie — czekasz na resztę..."
             : $"POWTÓRZ STRZAŁKAMI:  {myProg}/{Seq.Value.Length}", Ui.S(28));
+    }
+
+    // po alkoholu strzałki pływają — trudniej zapamiętać
+    void DrawWobblySeq()
+    {
+        float d = LocalDrunk01();
+        var s = Seq.Value.ToString();
+        float w = 46f, x0 = Screen.width / 2f - s.Length * w / 2f, y = Screen.height * 0.3f;
+        for (int i = 0; i < s.Length; i++)
+        {
+            float ox = (Mathf.PerlinNoise(Time.time * 1.3f, i * 7.3f) - 0.5f) * 70f * d;
+            float oy = (Mathf.PerlinNoise(i * 7.3f, Time.time * 1.1f) - 0.5f) * 50f * d;
+            GUI.Label(new Rect(x0 + i * w + ox, y + oy, w, 60),
+                arrows[System.Array.IndexOf(glyphs, s[i])], Ui.S(48));
+        }
     }
 }
