@@ -19,7 +19,8 @@ public class PlayerLimbs : NetworkBehaviour
     static readonly string[] emoteNames =
     { "", "machanie", "leżenie", "fikołek", "salut", "taniec", "wskazanie" };
 
-    Transform body, armL, armR, legL, legR;
+    Transform body, armL, armR, legL, legR, head, cam;
+    Vector3 camHome; // domyślna pozycja kamery (przy oku)
     DrunkSystem drunk;
     Vector3 lastPos;
     float phase, amp, emoteT;
@@ -29,8 +30,14 @@ public class PlayerLimbs : NetworkBehaviour
         body = transform.Find("Body");
         armL = body.Find("ArmL"); armR = body.Find("ArmR");
         legL = body.Find("LegL"); legR = body.Find("LegR");
+        head = body.Find("Head");
         drunk = GetComponent<DrunkSystem>();
         lastPos = transform.position;
+        if (IsOwner)
+        {
+            cam = GetComponent<PlayerController>().playerCamera.transform;
+            camHome = cam.localPosition;
+        }
         Emote.OnValueChanged += (_, _) => { emoteT = 0f; ResetPose(); };
 
         // kolor koszulki z id gracza — rozpoznawalność w greyboxie
@@ -44,10 +51,22 @@ public class PlayerLimbs : NetworkBehaviour
 
     void ResetPose()
     {
+        if (cam != null) cam.localPosition = camHome; // kamera wraca do oka
         if (DrunkPose) return; // Zgon/rzyganie ustawia Body po swojemu — nie ruszaj
         body.SetLocalPositionAndRotation(new Vector3(0f, 1f, 0f), Quaternion.identity);
         armL.localRotation = armR.localRotation = Quaternion.identity;
         legL.localRotation = legR.localRotation = Quaternion.identity;
+    }
+
+    // kamera przypięta do głowy przy emotkach ruszających Body (leżenie/fikołek/taniec):
+    // czysty obrót ciała BEZ pitchu myszki (inaczej leżąc patrzysz przez własny brzuch),
+    // pozycja tuż nad głową — poza klockami postaci. Rozglądanie w poziomie działa (yaw
+    // siedzi na korpusie). Po emotce PlayerController/ResetPose przywracają widok.
+    void LateUpdate()
+    {
+        if (!IsOwner || cam == null || DrunkPose || Emote.Value is not (2 or 3 or 5)) return;
+        cam.position = head.position + (head.position - body.position).normalized * 0.22f;
+        cam.localRotation = body.localRotation;
     }
 
     static float EmoteDur(byte e) => e switch
