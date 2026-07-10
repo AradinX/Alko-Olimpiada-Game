@@ -36,8 +36,14 @@ public class ConnectionUI : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
+    void OnDestroy() => SceneManager.sceneLoaded -= OnSceneLoaded; // duplikat z przeładowanego Huba
+
     void Start()
     {
+        // powrót na Hub spawnuje duplikat (NGO go zniszczy, ale Start zdąży się wykonać) —
+        // nie rejestruj prefabu ani callbacków na działającej sieci drugi raz
+        if (NetworkManager.Singleton.IsListening) return;
+
         // przed startem sieci, na hoście i klientach — inaczej spawn nie zmapuje prefabu
         if (beerPrefab != null) NetworkManager.Singleton.AddNetworkPrefab(beerPrefab);
 
