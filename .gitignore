@@ -41,3 +41,7 @@ crashlytics-build.properties
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Unity license artefakty (nie commitować)
+*.alf
+*.ulf
