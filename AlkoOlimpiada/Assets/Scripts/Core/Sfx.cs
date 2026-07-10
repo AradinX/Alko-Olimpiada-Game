@@ -12,7 +12,7 @@ public static class Sfx
     public static void Play(string name, Vector3 pos, float vol = 1f)
     {
         var c = Get(name);
-        if (c != null) AudioSource.PlayClipAtPoint(c, pos, vol);
+        if (c != null) AudioSource.PlayClipAtPoint(c, pos, vol * GameSettings.SfxVol);
     }
 
     // "2D" — przy uchu lokalnego gracza (UI: beepy, fanfary, własne akcje)
@@ -33,6 +33,7 @@ public static class Sfx
             "clank"   => Mix(Tone(1250f, 0.16f, 25f), Tone(1870f, 0.16f, 30f)), // brzdęk puszki
             "gulp"    => Sweep(320f, 110f, 0.12f),                           // łyk
             "vomit"   => Noise(0.55f, 4f),                                   // rzyganie
+            "puff"    => Noise(0.3f, 9f),                                    // zaciąganie się szlugiem
             "zgon"    => Tone(75f, 0.35f, 8f),                               // upadek
             "slap"    => Noise(0.05f, 60f),                                  // cucenie
             "beep"    => Tone(880f, 0.09f, 20f),                             // odliczanie

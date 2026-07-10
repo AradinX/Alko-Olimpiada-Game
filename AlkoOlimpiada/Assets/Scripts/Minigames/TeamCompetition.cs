@@ -51,9 +51,10 @@ public abstract class TeamCompetition : Competition
         ArcCenter.Value = Random.Range(0f, 360f);
     }
 
+    // utrudnienie z alkoholu (0-1); papieros ("pewna ręka") je połowi
     protected float GetDrunk01(ulong id) =>
         NM.ConnectedClients.TryGetValue(id, out var c) && c.PlayerObject != null
-            ? c.PlayerObject.GetComponent<DrunkSystem>().Drunk.Value / 100f : 0f;
+            ? c.PlayerObject.GetComponent<DrunkSystem>().Handicap01() : 0f;
 
     protected DrunkSystem DrunkOf(ulong id) =>
         NM.ConnectedClients.TryGetValue(id, out var c) && c.PlayerObject != null

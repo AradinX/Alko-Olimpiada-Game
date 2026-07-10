@@ -105,7 +105,7 @@ public class Flanki : TeamCompetition
         var ds = DrunkOf(id);
         if (ds == null) return;
 
-        float sip = sipBase * (1f - sipDrunkPenalty * ds.Drunk.Value / 100f);
+        float sip = sipBase * (1f - sipDrunkPenalty * ds.Handicap01()); // papieros łagodzi karę
         ds.AddCompetitionDrink(drunkPerSip);
         mug[id] = mug.GetValueOrDefault(id) + sip;
         MugRpc(mug[id] / mugSize, RpcTarget.Single(id, RpcTargetUse.Temp));

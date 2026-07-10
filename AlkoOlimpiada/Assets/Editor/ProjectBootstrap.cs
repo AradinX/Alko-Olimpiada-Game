@@ -351,6 +351,138 @@ public static class ProjectBootstrap
         Debug.Log("[Bootstrap] Prototype4 OK");
     }
 
+    // Prototyp 7: papierosy na hubie + konkurencja OCZKO (hazard lite). Idempotentny.
+    public static void SetupPrototype7()
+    {
+        var cig = BuildCigarettePrefab();
+
+        var scene = EditorSceneManager.OpenScene("Assets/Scenes/Hub.unity");
+        foreach (var old in Object.FindObjectsByType<CigarettePickup>(FindObjectsSortMode.None))
+            Object.DestroyImmediate(old.gameObject); // idempotentny rerun
+        for (int i = 0; i < 4; i++)
+        {
+            var g = (GameObject)PrefabUtility.InstantiatePrefab(cig);
+            float a = i * Mathf.PI / 2f; // między pigułkami (te stoją na +45°)
+            g.transform.position = new Vector3(Mathf.Cos(a) * 15f, 0f, Mathf.Sin(a) * 15f);
+        }
+
+        var snack = BuildSnackPrefab();
+        foreach (var old in Object.FindObjectsByType<SnackPickup>(FindObjectsSortMode.None))
+            Object.DestroyImmediate(old.gameObject);
+        for (int i = 0; i < 3; i++)
+        {
+            var g = (GameObject)PrefabUtility.InstantiatePrefab(snack);
+            float a = (i + 0.25f) * Mathf.PI * 2f / 3f;
+            g.transform.position = new Vector3(Mathf.Cos(a) * 21f, 0f, Mathf.Sin(a) * 21f);
+        }
+
+        var net = GameObject.Find("NetworkManager");
+        if (net != null && net.GetComponent<PauseMenu>() == null)
+            net.AddComponent<PauseMenu>(); // ustawienia po ESC (przeżywa zmiany scen — DDOL)
+
+        if (GameObject.Find("Station_Arena_Oczko") == null)
+            BuildStation("OCZKO", "Arena_Oczko", "-autooczko",
+                new Vector3(0f, 0.25f, -18f), new Color(0.05f, 0.4f, 0.2f)); // kasynowa zieleń
+        var vm = Object.FindFirstObjectByType<VoteManager>();
+        if (!vm.scenes.Contains("Arena_Oczko"))
+        {
+            vm.scenes = vm.scenes.Append("Arena_Oczko").ToArray();
+            vm.titles = vm.titles.Append("OCZKO").ToArray();
+            EditorUtility.SetDirty(vm);
+        }
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+
+        // arena: zielony stół, gracze w kręgu wokół (domyślne GetPose)
+        var s = NewArena();
+        var c = new GameObject("Oczko");
+        c.AddComponent<NetworkObject>();
+        var oc = c.AddComponent<Oczko>();
+        oc.timeoutSeconds = 150f; // 3 rozdania × (stawka 8 + gra 20 + rozliczenie 6) z zapasem
+        var table = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        table.name = "CardTable";
+        table.transform.position = new Vector3(0f, 0.45f, 0f);
+        table.transform.localScale = new Vector3(2.2f, 0.45f, 2.2f);
+        var felt = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+        { color = new Color(0.05f, 0.35f, 0.15f) };
+        AssetDatabase.CreateAsset(felt, "Assets/Prefabs/FeltMat.mat");
+        table.GetComponent<Renderer>().sharedMaterial = felt;
+        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_Oczko.unity");
+
+        if (!EditorBuildSettings.scenes.Any(x => x.path.Contains("Arena_Oczko")))
+            EditorBuildSettings.scenes = EditorBuildSettings.scenes
+                .Append(new EditorBuildSettingsScene("Assets/Scenes/Arena_Oczko.unity", true))
+                .ToArray();
+        AssetDatabase.SaveAssets();
+        Debug.Log("[Bootstrap] Prototype7 OK");
+    }
+
+    static GameObject BuildCigarettePrefab()
+    {
+        var root = new GameObject("Cigarette");
+        root.AddComponent<NetworkObject>();
+        root.AddComponent<CigarettePickup>();
+        var trig = root.AddComponent<SphereCollider>();
+        trig.isTrigger = true;
+        trig.radius = 0.7f;
+        trig.center = new Vector3(0, 0.2f, 0);
+        // leżący biały walec + pomarańczowy żar (BeerMat jest pomarańczowy — reużyty)
+        var body = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        Object.DestroyImmediate(body.GetComponent<Collider>());
+        body.name = "CigBody";
+        body.transform.SetParent(root.transform, false);
+        body.transform.localPosition = new Vector3(0, 0.2f, 0);
+        body.transform.localRotation = Quaternion.Euler(0, 0, 90);
+        body.transform.localScale = new Vector3(0.06f, 0.22f, 0.06f);
+        var white = new Material(Shader.Find("Universal Render Pipeline/Lit")) { color = Color.white };
+        AssetDatabase.CreateAsset(white, "Assets/Prefabs/CigMat.mat");
+        body.GetComponent<Renderer>().sharedMaterial = white;
+        var tip = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        Object.DestroyImmediate(tip.GetComponent<Collider>());
+        tip.name = "CigTip";
+        tip.transform.SetParent(root.transform, false);
+        tip.transform.localPosition = new Vector3(-0.24f, 0.2f, 0);
+        tip.transform.localScale = new Vector3(0.07f, 0.07f, 0.07f);
+        var bm = AssetDatabase.LoadAssetAtPath<Material>("Assets/Prefabs/BeerMat.mat");
+        if (bm != null) tip.GetComponent<Renderer>().sharedMaterial = bm;
+        var p = PrefabUtility.SaveAsPrefabAsset(root, "Assets/Prefabs/Cigarette.prefab");
+        Object.DestroyImmediate(root);
+        return p;
+    }
+
+    static GameObject BuildSnackPrefab()
+    {
+        var root = new GameObject("Snack");
+        root.AddComponent<NetworkObject>();
+        root.AddComponent<SnackPickup>();
+        var trig = root.AddComponent<SphereCollider>();
+        trig.isTrigger = true;
+        trig.radius = 0.7f;
+        trig.center = new Vector3(0, 0.2f, 0);
+        // biały talerz + rumiany kurczak
+        var plate = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        Object.DestroyImmediate(plate.GetComponent<Collider>());
+        plate.name = "Plate";
+        plate.transform.SetParent(root.transform, false);
+        plate.transform.localPosition = new Vector3(0, 0.05f, 0);
+        plate.transform.localScale = new Vector3(0.5f, 0.02f, 0.5f);
+        var white = AssetDatabase.LoadAssetAtPath<Material>("Assets/Prefabs/CigMat.mat");
+        if (white != null) plate.GetComponent<Renderer>().sharedMaterial = white;
+        var chicken = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        Object.DestroyImmediate(chicken.GetComponent<Collider>());
+        chicken.name = "Chicken";
+        chicken.transform.SetParent(root.transform, false);
+        chicken.transform.localPosition = new Vector3(0, 0.17f, 0);
+        chicken.transform.localScale = new Vector3(0.3f, 0.22f, 0.4f);
+        var roast = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+        { color = new Color(0.7f, 0.42f, 0.15f) };
+        AssetDatabase.CreateAsset(roast, "Assets/Prefabs/RoastMat.mat");
+        chicken.GetComponent<Renderer>().sharedMaterial = roast;
+        var p = PrefabUtility.SaveAsPrefabAsset(root, "Assets/Prefabs/Snack.prefab");
+        Object.DestroyImmediate(root);
+        return p;
+    }
+
     static void BuildStation(string title, string sceneName, string autoFlag,
         Vector3 pos, Color color)
     {

@@ -60,7 +60,7 @@ public class Sprint500 : Competition
         }
         ds.AddPermanent(drunkPerSip); // chlanie w konkurencji zostaje na stałe
 
-        float sip = sipBase * (1f - sipDrunkPenalty * drunk / 100f);
+        float sip = sipBase * (1f - sipDrunkPenalty * ds.Handicap01()); // papieros łagodzi karę
         progress[id] = progress.GetValueOrDefault(id) + sip;
         if (progress[id] >= mugSize)
         {
