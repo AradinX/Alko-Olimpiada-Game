@@ -210,6 +210,7 @@ public static class ProjectBootstrap
         var pds = player.GetComponent<DrunkSystem>();
         pds.decayPerSecond = 0.2f;
         pds.catchRadius = 25f; // przyłapanie po widoku, nie po bliskości
+        pds.beerStrength = 12f; // 2 piwa Szumi / 4 Lekko chycony / 8 Ligancko / 9 Zgon
         if (player.transform.Find("HandBottle") == null) // butelka w ręce (Beers > 0)
         {
             var hb = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -366,13 +367,25 @@ public static class ProjectBootstrap
         np.naturalDrunkGain = 12f;
         EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_NaPol.unity");
 
-        // Lucky Shot: gra w UI
+        // Lucky Shot: linia graczy przed stołem z kieliszkami
         s = NewArena();
         c = new GameObject("LuckyShot");
         c.AddComponent<NetworkObject>();
         var lk = c.AddComponent<LuckyShot>();
-        lk.timeoutSeconds = 25f;
+        lk.timeoutSeconds = 90f; // 6 rund × (pokaz + odliczanie 3-2-1 + odpowiedź)
         lk.naturalDrunkGain = 12f;
+        var shotTable = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        shotTable.name = "ShotTable";
+        shotTable.transform.position = new Vector3(0f, 0.75f, -0.5f);
+        shotTable.transform.localScale = new Vector3(18f, 0.3f, 0.8f);
+        for (int i = 0; i < 8; i++) // sloty zgodne z LuckyShot.GetPose
+        {
+            var glass = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            Object.DestroyImmediate(glass.GetComponent<Collider>());
+            glass.name = "Shot_" + i;
+            glass.transform.position = new Vector3(i * 2f - 7f, 0.95f, -0.5f);
+            glass.transform.localScale = new Vector3(0.06f, 0.05f, 0.06f);
+        }
         EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_LuckyShot.unity");
 
         // Spacer: belki nad ziemią, meta na końcu
@@ -412,18 +425,25 @@ public static class ProjectBootstrap
         c = new GameObject("BeerPong");
         c.AddComponent<NetworkObject>();
         var bp = c.AddComponent<BeerPong>();
-        bp.timeoutSeconds = 120f;
+        bp.timeoutSeconds = 300f; // 15 kubków na drużynę
+        bp.turnSeconds = 12f; // celowanie + ładowanie siły trwa dłużej niż timing kółka
         Cube("Table", new Vector3(0f, 0.5f, 0f), new Vector3(2f, 1f, 8f));
+        // piramida 5-4-3-2-1 od strony gracza do środka, ranty się stykają (śr. 0.2)
         for (int t = 0; t < 2; t++)
-            for (int i = 0; i < 6; i++)
-            {
-                var cup = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                Object.DestroyImmediate(cup.GetComponent<Collider>());
-                cup.name = $"Cup_{t}_{i}";
-                cup.transform.position = new Vector3(i % 3 * 0.4f - 0.4f, 1.12f,
-                    (t == 0 ? -1f : 1f) * (2.8f + i / 3 * 0.45f));
-                cup.transform.localScale = new Vector3(0.14f, 0.11f, 0.14f);
-            }
+        {
+            int i = 0;
+            for (int row = 0; row < 5; row++)
+                for (int k = 0; k < 5 - row; k++, i++)
+                {
+                    var cup = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                    Object.DestroyImmediate(cup.GetComponent<Collider>());
+                    cup.name = $"Cup_{t}_{i}";
+                    float x = (k - (5 - row - 1) / 2f) * 0.2f;
+                    float z = 3.55f - row * 0.174f; // rzędy co r*sqrt(3) jak w trójkącie
+                    cup.transform.position = new Vector3(x, 1.12f, (t == 0 ? -1f : 1f) * z);
+                    cup.transform.localScale = new Vector3(0.2f, 0.11f, 0.2f);
+                }
+        }
         EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_BeerPong.unity");
     }
 

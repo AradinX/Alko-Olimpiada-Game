@@ -17,8 +17,13 @@ public abstract class Competition : NetworkBehaviour
     public float spawnRadius = 3f;
     public float naturalDrunkGain = 0f; // GDD: każda konkurencja upija (0 gdy gra sama poi)
 
-    public static bool InputLocked;       // blokada WASD/skoku (patrzenie działa)
     public static Competition Current;    // aktywna konkurencja (null na hubie)
+
+    // blokada WASD/skoku (patrzenie działa); Spacer pozwala chodzić w Running.
+    // Liczona z Current zamiast flagi: OnNetworkDespawn przy zmianie sceny bywał
+    // pomijany na hoście i flaga zostawała true — zniszczony obiekt == null i po sprawie
+    public static bool InputLocked =>
+        Current != null && (Current.State.Value != Phase.Running || Current.LockMovement);
 
     protected virtual bool LockMovement => true; // Spacer nadpisuje na false
 
@@ -39,7 +44,6 @@ public abstract class Competition : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         Current = this;
-        InputLocked = true;
         autoMode = Array.IndexOf(Environment.GetCommandLineArgs(), AutoFlag) >= 0;
         if (IsServer)
         {
@@ -51,7 +55,6 @@ public abstract class Competition : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         if (Current == this) Current = null;
-        InputLocked = false;
         if (IsServer && NM != null && NM.SceneManager != null)
             NM.SceneManager.OnLoadEventCompleted -= OnAllLoaded;
     }
@@ -85,12 +88,7 @@ public abstract class Competition : NetworkBehaviour
     {
         if (!IsSpawned) return;
         if (IsServer) ServerTick();
-        if (NM.IsClient)
-        {
-            // Spacer pozwala chodzić w Running; reszta faz zawsze blokuje
-            InputLocked = State.Value != Phase.Running || LockMovement;
-            ClientTick();
-        }
+        if (NM.IsClient) ClientTick();
     }
 
     void ServerTick()

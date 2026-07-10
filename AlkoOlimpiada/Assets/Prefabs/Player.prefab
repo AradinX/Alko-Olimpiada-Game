@@ -444,7 +444,7 @@ MonoBehaviour:
   decayPerSecond: 0.2
   reviveRange: 3
   reviveTo: 50
-  beerStrength: 15
+  beerStrength: 12
   vomitDrainPerSecond: 6
   catchRadius: 25
   catchFov: 40

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
@@ -5,7 +6,8 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Flanki (GDD 8.2): drużyny naprzemiennie rzucają w puszkę (kółko timingowe + SPACJA).
+// Flanki (GDD 8.2): rzucasz butelką w puszkę — musisz CELOWAĆ myszką w puszkę
+// I trafić SPACJĄ w zielone pole kółka (samo full-power nie wystarczy).
 // Trafienie = drużyna rzucająca chleje (SPACJA), aż przeciwnik postawi puszkę
 // (naprzemienne A-D-A-D). Wygrywa drużyna, która pierwsza dopije wszystkie kufle.
 public class Flanki : TeamCompetition
@@ -16,7 +18,8 @@ public class Flanki : TeamCompetition
     public float sipBase = 4f;
     public float sipDrunkPenalty = 0.6f;
     public float drunkPerSip = 0.5f;
-    public int resetNeeded = 14; // naprzemiennych A-D do postawienia puszki
+    public int resetNeeded = 14;     // naprzemiennych A-D do postawienia puszki
+    public float canAimRadius = 0.4f; // jak blisko puszki musi przejść promień z kamery
 
     protected override string AutoFlag => "-autoflanki";
 
@@ -33,6 +36,14 @@ public class Flanki : TeamCompetition
     double lastAutoTurn;
     float nextAutoTap;
     bool autoTapA;
+    float myMug;    // wypite 0..1 (MugRpc)
+    Transform can;  // "Puszka" ze sceny
+
+    Transform Can()
+    {
+        if (can == null) can = GameObject.Find("Puszka")?.transform;
+        return can;
+    }
 
     protected override void OnRaceStart()
     {
@@ -43,14 +54,31 @@ public class Flanki : TeamCompetition
         UpdateLive();
     }
 
+    // trafienie wymaga OBU: timing kółka + promień z kamery przechodzi blisko puszki
+    bool AimOk(Vector3 origin, Vector3 dir)
+    {
+        var c = Can();
+        if (c == null) return true; // brak puszki w scenie — nie blokuj gry
+        Vector3 to = c.position - origin;
+        float along = Vector3.Dot(to, dir.normalized);
+        if (along < 0f) return false;
+        return Vector3.Distance(origin + dir.normalized * along, c.position) <= canAimRadius;
+    }
+
     [Rpc(SendTo.Server)]
-    void ThrowRpc(RpcParams p = default)
+    void ThrowRpc(Vector3 origin, Vector3 dir, RpcParams p = default)
     {
         if (State.Value != Phase.Running || FState.Value != FPhase.Throwing) return;
         ulong id = p.Receive.SenderClientId;
         if (id != TurnPlayer.Value) return;
+        // sanity: rzut z okolic głowy gracza
+        if (!NM.ConnectedClients.TryGetValue(id, out var cl) || cl.PlayerObject == null
+            || Vector3.Distance(origin,
+                cl.PlayerObject.transform.position + Vector3.up * 1.7f) > 2.5f) return;
 
-        if (WheelHit())
+        bool hit = WheelHit() && (autoMode || AimOk(origin, dir));
+        ThrowFxRpc(origin, hit);
+        if (hit)
         {
             DrinkingTeam.Value = TeamOf(id);
             var opp = Team(1 - TeamOf(id));
@@ -80,6 +108,7 @@ public class Flanki : TeamCompetition
         float sip = sipBase * (1f - sipDrunkPenalty * ds.Drunk.Value / 100f);
         ds.AddCompetitionDrink(drunkPerSip);
         mug[id] = mug.GetValueOrDefault(id) + sip;
+        MugRpc(mug[id] / mugSize, RpcTarget.Single(id, RpcTargetUse.Temp));
         UpdateLive();
 
         if (Team(DrinkingTeam.Value).All(m => mug.GetValueOrDefault(m) >= mugSize))
@@ -104,6 +133,41 @@ public class Flanki : TeamCompetition
         Debug.Log("[Flanki] puszka postawiona — koniec picia");
         FState.Value = FPhase.Throwing;
         NextTurn();
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    void MugRpc(float v, RpcParams p = default) => myMug = v;
+
+    // wszyscy widzą lot butelki w stronę puszki
+    [Rpc(SendTo.ClientsAndHost)]
+    void ThrowFxRpc(Vector3 origin, bool hit) => StartCoroutine(BottleFx(origin, hit));
+
+    IEnumerator BottleFx(Vector3 origin, bool hit)
+    {
+        var c = Can();
+        Vector3 target = c != null ? c.position : Vector3.zero;
+        if (!hit) target += new Vector3(Random.Range(-1.2f, 1.2f), 0f, Random.Range(0.5f, 2f));
+        var bottle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        Destroy(bottle.GetComponent<Collider>());
+        bottle.transform.localScale = new Vector3(0.1f, 0.16f, 0.1f);
+        for (float t = 0f; t < 1f; t += Time.deltaTime / 0.45f)
+        {
+            bottle.transform.position = Vector3.Lerp(origin, target, t)
+                + Vector3.up * (Mathf.Sin(t * Mathf.PI) * 1.2f); // lekki łuk
+            bottle.transform.Rotate(400f * Time.deltaTime, 0f, 0f);
+            yield return null;
+        }
+        Destroy(bottle);
+    }
+
+    // puszka leży w fazie picia, stoi w fazie rzucania — widzą wszyscy
+    void SyncCan()
+    {
+        var c = Can();
+        if (c == null) return;
+        bool down = FState.Value == FPhase.Drinking;
+        c.localRotation = down ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity;
+        c.localPosition = new Vector3(0f, down ? 0.13f : 0.25f, 0f);
     }
 
     protected override void RunningTick()
@@ -135,15 +199,25 @@ public class Flanki : TeamCompetition
 
     protected override void ClientTick()
     {
+        SyncCan();
         if (State.Value != Phase.Running) return;
         var kb = Keyboard.current;
         bool myTurn = TurnPlayer.Value == NM.LocalClientId;
 
         if (FState.Value == FPhase.Throwing)
         {
-            if (myTurn && kb != null && kb.spaceKey.wasPressedThisFrame) ThrowRpc();
+            if (myTurn && kb != null && kb.spaceKey.wasPressedThisFrame)
+            {
+                var cam = OwnCamera();
+                if (cam != null) ThrowRpc(cam.transform.position, cam.transform.forward);
+            }
             if (autoMode && myTurn && TurnStart.Value != lastAutoTurn && WheelHit())
-            { lastAutoTurn = TurnStart.Value; ThrowRpc(); }
+            {
+                lastAutoTurn = TurnStart.Value;
+                var po = NM.LocalClient?.PlayerObject;
+                if (po != null)
+                    ThrowRpc(po.transform.position + Vector3.up * 1.7f, Vector3.forward);
+            }
             return;
         }
         // Drinking
@@ -171,16 +245,39 @@ public class Flanki : TeamCompetition
         {
             bool myTurn = TurnPlayer.Value == NM.LocalClientId;
             GUI.Label(center, myTurn
-                ? "RZUCASZ! SPACJA gdy wskazówka w zielonym polu"
+                ? "RZUCASZ! Celuj myszką w puszkę + SPACJA gdy wskazówka w zielonym polu"
                 : $"Rzuca {Olympics.Nick(TurnPlayer.Value)}...", Ui.S(24));
-            DrawWheel(new Vector2(Screen.width / 2f, Screen.height * 0.55f), 90f);
+            if (myTurn) // celownik: kamera = tor rzutu
+                GUI.Label(new Rect(Screen.width / 2f - 15f, Screen.height / 2f - 15f, 30f, 30f),
+                    "+", Ui.S(30));
+            // kółko z boku, żeby nie zasłaniało puszki
+            DrawWheel(new Vector2(Screen.width * 0.82f, Screen.height * 0.62f), 70f);
             return;
         }
         if (myTeam == DrinkingTeam.Value)
+        {
             GUI.Label(center, "PUSZKA LEŻY — CHLEJ! (SPACJA)", Ui.S(28));
+            DrawMug();
+        }
         else if (ResetterId.Value == NM.LocalClientId)
             GUI.Label(center, $"PODNIEŚ PUSZKĘ: wciskaj A-D-A-D!  ({ResetCount.Value}/{resetNeeded})", Ui.S(28));
         else
             GUI.Label(center, "Twoja drużyna stawia puszkę...", Ui.S(24));
+    }
+
+    // pionowy kufel po lewej: ile piwa jeszcze zostało
+    void DrawMug()
+    {
+        float h = Screen.height * 0.32f;
+        var back = new Rect(28f, (Screen.height - h) / 2f, 26f, h);
+        GUI.color = new Color(0f, 0f, 0f, 0.5f);
+        GUI.DrawTexture(back, Texture2D.whiteTexture);
+        float left = Mathf.Clamp01(1f - myMug); // myMug = wypite
+        GUI.color = new Color(0.95f, 0.72f, 0.15f, 0.95f);
+        GUI.DrawTexture(new Rect(back.x, back.yMax - h * left, back.width, h * left),
+            Texture2D.whiteTexture);
+        GUI.color = Color.white;
+        GUI.Label(new Rect(back.x - 30f, back.yMax + 6f, 90f, 22f),
+            $"KUFEL {left:P0}", Ui.S(14));
     }
 }

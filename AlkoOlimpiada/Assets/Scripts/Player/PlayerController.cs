@@ -79,6 +79,14 @@ public class PlayerController : NetworkBehaviour
         if (s.name == "Hub") Place();
     }
 
+    // znany bug Input System: po zmianie okna (alt-tab) stan klawiszy bywa niespójny
+    // i WASD przestaje reagować — twardy reset klawiatury przy powrocie focusa
+    void OnApplicationFocus(bool focused)
+    {
+        if (focused && IsOwner && Keyboard.current != null)
+            InputSystem.ResetDevice(Keyboard.current);
+    }
+
     void Update()
     {
         if (!IsOwner) return;

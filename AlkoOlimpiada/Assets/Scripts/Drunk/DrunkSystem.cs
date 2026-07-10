@@ -12,7 +12,7 @@ public class DrunkSystem : NetworkBehaviour
     public float decayPerSecond = 0.2f;      // pkt 2: trzeźwiejesz wolniej
     public float reviveRange = 3f;
     public float reviveTo = 50f;
-    public float beerStrength = 15f;
+    public float beerStrength = 12f;         // 2 piwa Szumi / 4 Lekko chycony / 8 Ligancko / 9 Zgon
     public float vomitDrainPerSecond = 6f;   // im dłużej rzygasz, tym więcej schodzi
     public float catchRadius = 25f;          // zasięg wzroku przy przyłapaniu
     public float catchFov = 40f;             // musi mieć cię w kadrze (stopnie od osi patrzenia)
@@ -23,7 +23,7 @@ public class DrunkSystem : NetworkBehaviour
 
     // etapy pijaństwa (progi na pasku); bujanie zaczyna się od pierwszego i pogłębia
     public static readonly (float min, string name)[] Stages =
-    { (20f, "Szumi"), (45f, "Lekko chycony"), (70f, "Jest ligancko") };
+    { (20f, "Szumi"), (45f, "Lekko chycony"), (90f, "Jest ligancko") };
 
     // aktualne mapowanie ruchu (owner); etap 2 zamienia A/D, etap 3 losuje ukryte klawisze
     public Key keyW = Key.W, keyS = Key.S, keyA = Key.A, keyD = Key.D;
