@@ -2,6 +2,16 @@
 
 Instrukcja dla nowego współpracownika. Zakładam czysty Windows + zainstalowane Visual Studio.
 
+## Opcja szybka: skrypt (zalecane)
+
+Pobierz [setup.ps1](https://raw.githubusercontent.com/AradinX/Alko-Olimpiada-Game/master/setup.ps1) (prawy klik → Zapisz jako), potem w **PowerShellu**:
+
+```
+powershell -ExecutionPolicy Bypass -File .\Downloads\setup.ps1
+```
+
+Skrypt zainstaluje Git (z Git Bash i LFS), Unity Hub, edytor Unity 6000.5.3f1 i sklonuje repo. Na końcu wypisze, co kliknąć w Unity Hub. Jeśli coś padnie — kroki ręczne poniżej.
+
 ## 1. Git + Git LFS
 
 1. Pobierz i zainstaluj Git: https://git-scm.com/download/win (wszędzie domyślne opcje).
