@@ -748,6 +748,261 @@ public static class ProjectBootstrap
         EditorApplication.Exit(filled ? 0 : 1);
     }
 
+    // Prototyp 8: model postaci (Assets/3D/Guy.fbx, rig AccuRig) zamiast klocków.
+    // Zdejmuje klockowe części z Body, wstawia model, skaluje do 1.8 m, stopy na
+    // ziemi. PlayerLimbs sam znajduje kości CC_Base_*. Idempotentne.
+    public static void SetupCharacterModel()
+    {
+        var model = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Guy.fbx");
+        if (model == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/Guy.fbx"); EditorApplication.Exit(1); return; }
+
+        var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
+        var body = player.transform.Find("Body");
+        foreach (var n in new[] { "Torso", "Head", "ArmL", "ArmR", "LegL", "LegR", "Guy" })
+        {
+            var t = body.Find(n);
+            if (t != null) Object.DestroyImmediate(t.gameObject);
+        }
+
+        var inst = (GameObject)PrefabUtility.InstantiatePrefab(model, body);
+        inst.name = "Guy";
+        inst.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+        // Poza bazowa przychodzi WYPIECZONA z Blendera (export3: pose mode -> rest);
+        // bootstrap ani gra niczego nie doginają. Ręczne poprawki: kości CC_Base_*
+        // w prefabie albo Pose Mode w Blenderze + reeksport.
+
+        // Unity nie podpina tekstur osadzonych w FBX z Blendera — jawny URP Lit
+        // z albedo wyciągniętym z .blend (GuyAlbedo.png)
+        var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/3D/GuyMat.mat");
+        if (mat == null)
+        {
+            mat = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+            { mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/3D/GuyAlbedo.png") };
+            AssetDatabase.CreateAsset(mat, "Assets/3D/GuyMat.mat");
+        }
+        foreach (var r in inst.GetComponentsInChildren<Renderer>()) r.sharedMaterial = mat;
+
+        Bounds B()
+        {
+            var b = new Bounds(inst.transform.position, Vector3.zero);
+            foreach (var r in inst.GetComponentsInChildren<Renderer>()) b.Encapsulate(r.bounds);
+            return b;
+        }
+        var b0 = B();
+        inst.transform.localScale *= 1.8f / b0.size.y;
+        var b1 = B();
+        // stopy na y=0 roota; b1.min.y to świat == lokal Body przesunięty o +1,
+        // więc wystarczy zniwelować sam b1.min.y (Body bez obrotu i skali).
+        // Dodatkowo w dół o skinWidth — CharacterController zatrzymuje kapsułę
+        // tyle nad podłożem i bez tego stopy lewitują. X/Z na środek bounds —
+        // pivot z Blendera nie musi siedzieć w środku bryły.
+        float skin = player.GetComponent<CharacterController>().skinWidth;
+        inst.transform.localPosition = new Vector3(-b1.center.x, -b1.min.y - skin, -b1.center.z);
+        Debug.Log($"[Bootstrap] Guy: przed={b0.size}, po={B().size}, scale={inst.transform.localScale.x:F4}");
+
+        PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
+        PrefabUtility.UnloadPrefabContents(player);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[Bootstrap] SetupCharacterModel OK");
+    }
+
+    // Wyśrodkowanie istniejącego modelu w prefabie na osi postaci (X/Z wg środka
+    // bounds; Y nie ruszamy — wysokość stroi użytkownik ręcznie w prefabie).
+    public static void CenterCharacterModel()
+    {
+        var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
+        var guy = player.transform.Find("Body/Guy");
+        var rs = guy.GetComponentsInChildren<Renderer>();
+        var b = rs[0].bounds;
+        foreach (var r in rs) b.Encapsulate(r.bounds);
+        var lp = guy.localPosition;
+        guy.localPosition = new Vector3(lp.x - b.center.x, lp.y, lp.z - b.center.z);
+        Debug.Log($"[Bootstrap] Center: oś była zbita o ({b.center.x:F3}, {b.center.z:F3}), Guy teraz {guy.localPosition}");
+        PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
+        PrefabUtility.UnloadPrefabContents(player);
+        AssetDatabase.SaveAssets();
+    }
+
+    // Arena Lucky Shot pod "MENEL MÓWI": jeden okrągły stół na środku, kieliszek
+    // na blacie, gracze dookoła (domyślny krąg Competition). Idempotentne.
+    public static void SetupLuckyShotArena()
+    {
+        var scene = EditorSceneManager.OpenScene("Assets/Scenes/Arena_LuckyShot.unity");
+        foreach (var n in new[] { "ShotTable", "Shot_0", "Shot_1", "Shot_2", "Shot_3",
+                                  "Shot_4", "Shot_5", "Shot_6", "Shot_7", "BigTable" })
+        {
+            var g = GameObject.Find(n);
+            if (g != null) Object.DestroyImmediate(g);
+        }
+        var table = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        table.name = "BigTable";
+        table.transform.position = new Vector3(0f, 0.45f, 0f);
+        table.transform.localScale = new Vector3(3f, 0.45f, 3f); // średnica 3 m
+        var glass = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        Object.DestroyImmediate(glass.GetComponent<Collider>());
+        glass.name = "Shot_0"; // LuckyShot.StartDrinkAnim szuka Shot_i
+        glass.transform.position = new Vector3(0f, 0.98f, 0f);
+        glass.transform.localScale = new Vector3(0.07f, 0.06f, 0.07f);
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[Bootstrap] SetupLuckyShotArena OK");
+    }
+
+    // Butelka.fbx jako wizual piwa: podmienia walec w Beer.prefab oraz butelkę
+    // w ręce gracza (HandBottle) — podpiętą pod kość dłoni CC_Base_R_Hand,
+    // więc rusza się razem z ręką (chód, emotki). Idempotentne.
+    public static void SetupBottleAssets()
+    {
+        var model = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Butelka.fbx");
+        if (model == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/Butelka.fbx"); EditorApplication.Exit(1); return; }
+
+        var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/3D/ButelkaMat.mat");
+        if (mat == null)
+        {
+            mat = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+            { mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/3D/ButelkaAlbedo.png") };
+            AssetDatabase.CreateAsset(mat, "Assets/3D/ButelkaMat.mat");
+        }
+
+        Bounds BoundsOf(GameObject go)
+        {
+            var rs = go.GetComponentsInChildren<Renderer>();
+            var b = rs[0].bounds;
+            foreach (var r in rs) b.Encapsulate(r.bounds);
+            return b;
+        }
+        // model butelki leży w pliku wzdłuż Z — obróć najdłuższą oś do pionu,
+        // potem skaluj do zadanej wysokości
+        GameObject Spawn(Transform parent, float height)
+        {
+            var g = (GameObject)PrefabUtility.InstantiatePrefab(model, parent);
+            foreach (var r in g.GetComponentsInChildren<Renderer>()) r.sharedMaterial = mat;
+            var b = BoundsOf(g);
+            if (b.size.z >= b.size.x && b.size.z >= b.size.y)
+                g.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f) * g.transform.localRotation;
+            else if (b.size.x >= b.size.y && b.size.x >= b.size.z)
+                g.transform.localRotation = Quaternion.Euler(0f, 0f, 90f) * g.transform.localRotation;
+            b = BoundsOf(g);
+            g.transform.localScale *= height / b.size.y;
+            return g;
+        }
+
+        // --- Beer.prefab: butelka zamiast walca, stoi na ziemi, 45 cm ---
+        var beer = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Beer.prefab");
+        foreach (var n in new[] { "Bottle", "Butelka" })
+        {
+            var t = beer.transform.Find(n);
+            if (t != null) Object.DestroyImmediate(t.gameObject);
+        }
+        var vis = Spawn(beer.transform, 0.45f);
+        vis.name = "Butelka";
+        var vb = BoundsOf(vis);
+        vis.transform.localPosition -= new Vector3(vb.center.x, vb.min.y, vb.center.z);
+        PrefabUtility.SaveAsPrefabAsset(beer, "Assets/Prefabs/Beer.prefab");
+        PrefabUtility.UnloadPrefabContents(beer);
+
+        // --- Player.prefab: butelka w dłoni (kość CC_Base_R_Hand) ---
+        var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
+        Transform oldHb = null, hand = null;
+        foreach (var t in player.GetComponentsInChildren<Transform>(true))
+        {
+            if (t.name == "HandBottle") oldHb = t;
+            if (t.name == "CC_Base_R_Hand") hand = t;
+        }
+        if (oldHb != null) Object.DestroyImmediate(oldHb.gameObject);
+        if (hand == null)
+        {
+            Debug.LogError("[Bootstrap] Brak kości CC_Base_R_Hand w prefabie gracza");
+            PrefabUtility.UnloadPrefabContents(player);
+            EditorApplication.Exit(1);
+            return;
+        }
+        // pod rootem gracza (uniform skala!), FollowBone dokleja do kości w LateUpdate
+        var hb = Spawn(player.transform, 0.3f); // 30 cm butelka w garści
+        hb.name = "HandBottle";
+        var hbB = BoundsOf(hb);
+        // dłoń trzyma za szyjkę (punkt 1/3 od góry), lekko przed dłonią
+        Vector3 grip = hbB.center + Vector3.up * (hbB.size.y / 6f);
+        Vector3 wantPos = hand.position + player.transform.forward * 0.08f;
+        hb.transform.position += wantPos - grip;
+        var fb = hb.AddComponent<FollowBone>();
+        fb.bone = hand;
+        fb.posOffset = Quaternion.Inverse(hand.rotation) * (hb.transform.position - hand.position);
+        fb.rotOffset = Quaternion.Inverse(hand.rotation) * hb.transform.rotation;
+        Debug.Log($"[Bootstrap] HandBottle: bounds={BoundsOf(hb).size}");
+        hb.SetActive(false); // DrunkSystem włącza, gdy Beers > 0
+        PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
+        PrefabUtility.UnloadPrefabContents(player);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[Bootstrap] SetupBottleAssets OK");
+    }
+
+    // Podłoga referencyjna w prefabie gracza: pokazuje, gdzie w grze jest ziemia
+    // (CharacterController wisi skinWidth nad podłożem, więc płaszczyzna siedzi
+    // skinWidth POD rootem). Stopy modelu (Body/Guy) ustawiaj tak, żeby jej
+    // dotykały. Uwaga: tag EditorOnly NIE wycina obiektów z prefabów spawnowanych
+    // w runtime — dlatego PlayerController.Awake niszczy GroundRef w grze.
+    public static void AddGroundRef()
+    {
+        var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
+        if (player.transform.Find("GroundRef") == null)
+        {
+            var g = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            Object.DestroyImmediate(g.GetComponent<Collider>()); // sama grafika, zero fizyki
+            g.name = "GroundRef";
+            g.tag = "EditorOnly";
+            g.transform.SetParent(player.transform, false);
+            g.transform.localPosition =
+                new Vector3(0f, -player.GetComponent<CharacterController>().skinWidth, 0f);
+            g.transform.localScale = new Vector3(0.3f, 1f, 0.3f); // 3x3 m
+        }
+        PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
+        PrefabUtility.UnloadPrefabContents(player);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[Bootstrap] GroundRef OK");
+    }
+
+    // Podgląd prefabu gracza do PNG (przód i bok) — weryfikacja skali/orientacji
+    // bez odpalania gry. Wymaga -batchmode BEZ -nographics.
+    public static void RenderPlayerPreview()
+    {
+        var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Player.prefab");
+        var player = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+        foreach (var t in player.GetComponentsInChildren<Transform>(true))
+            if (t.name == "HandBottle") t.gameObject.SetActive(true); // pokaż butelkę w dłoni
+        var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        // światło od przodu — twarz ma być widoczna na podglądzie
+        GameObject.Find("Directional Light").transform.rotation = Quaternion.Euler(40f, 190f, 0f);
+
+        var camGO = new GameObject("PreviewCam");
+        var cam = camGO.AddComponent<Camera>();
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = new Color(0.3f, 0.5f, 0.7f);
+        var rt = new RenderTexture(768, 1024, 24);
+        cam.targetTexture = rt;
+
+        void Shot(Vector3 pos, string file)
+        {
+            camGO.transform.position = pos;
+            camGO.transform.LookAt(new Vector3(0f, 1f, 0f));
+            cam.Render(); // rozgrzewka: pierwszy render bywa bez dogranych tekstur
+            cam.Render();
+            RenderTexture.active = rt;
+            var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+            tex.Apply();
+            File.WriteAllBytes(file, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            Debug.Log("[Bootstrap] Podgląd: " + file);
+        }
+        Shot(new Vector3(0f, 1.2f, 3.2f), "preview_front.png");  // od +Z: widać przód gracza (gracz patrzy w +Z)
+        Shot(new Vector3(3.2f, 1.2f, 0f), "preview_side.png");
+        EditorApplication.Exit(0);
+    }
+
     public static void Build()
     {
         var report = BuildPipeline.BuildPlayer(

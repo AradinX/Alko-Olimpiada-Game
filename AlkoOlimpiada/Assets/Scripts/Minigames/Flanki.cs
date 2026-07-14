@@ -6,8 +6,9 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Flanki (GDD 8.2): rzucasz butelką w puszkę — musisz CELOWAĆ myszką w puszkę
-// I trafić SPACJĄ w zielone pole kółka (samo full-power nie wystarczy).
+// Flanki (GDD 8.2): rzucasz butelką w puszkę — CELUJESZ myszką (bez znacznika,
+// na oko po środku ekranu) i ŁADUJESZ SIŁĘ trzymając SPACJĘ (pasek pływa w górę
+// i w dół) — puszczasz, gdy siła pasuje do odległości od puszki.
 // Trafienie = drużyna rzucająca chleje (SPACJA), aż przeciwnik postawi puszkę
 // (naprzemienne A-D-A-D). Wygrywa drużyna, która pierwsza dopije wszystkie kufle.
 public class Flanki : TeamCompetition
@@ -18,8 +19,11 @@ public class Flanki : TeamCompetition
     public float sipBase = 4f;
     public float sipDrunkPenalty = 0.6f;
     public float drunkPerSip = 0.5f;
-    public int resetNeeded = 14;     // naprzemiennych A-D do postawienia puszki
+    public int resetNeeded = 14;      // naprzemiennych A-D do postawienia puszki
     public float canAimRadius = 0.4f; // jak blisko puszki musi przejść promień z kamery
+    public float maxThrow = 14f;      // zasięg rzutu przy pełnej sile (m)
+    public float powerTolerance = 1.3f; // dopuszczalny błąd siły w metrach
+    public float chargeSpeed = 0.85f; // pełne naładowanie w ~1.2 s (ping-pong)
 
     protected override string AutoFlag => "-autoflanki";
 
@@ -38,6 +42,8 @@ public class Flanki : TeamCompetition
     bool autoTapA;
     float myMug;    // wypite 0..1 (MugRpc)
     Transform can;  // "Puszka" ze sceny
+    float heldT;    // czas trzymania spacji (ładowanie siły)
+    bool chargingThrow;
 
     Transform Can()
     {
@@ -66,7 +72,7 @@ public class Flanki : TeamCompetition
     }
 
     [Rpc(SendTo.Server)]
-    void ThrowRpc(Vector3 origin, Vector3 dir, RpcParams p = default)
+    void ThrowRpc(Vector3 origin, Vector3 dir, float power, RpcParams p = default)
     {
         if (State.Value != Phase.Running || FState.Value != FPhase.Throwing) return;
         ulong id = p.Receive.SenderClientId;
@@ -76,8 +82,12 @@ public class Flanki : TeamCompetition
             || Vector3.Distance(origin,
                 cl.PlayerObject.transform.position + Vector3.up * 1.7f) > 2.5f) return;
 
-        bool hit = WheelHit() && (autoMode || AimOk(origin, dir));
-        ThrowFxRpc(origin, hit, id);
+        // trafienie = celowanie kamerą w puszkę + siła dopasowana do odległości
+        var cn = Can();
+        float dist = cn != null ? Vector3.Distance(origin, cn.position) : power * maxThrow;
+        float over = power * maxThrow - dist; // przerzut(+)/niedorzut(-) do FX
+        bool hit = Mathf.Abs(over) <= powerTolerance && (autoMode || AimOk(origin, dir));
+        ThrowFxRpc(origin, hit, id, Mathf.Clamp(over, -3f, 3f));
         if (hit)
         {
             DrinkingTeam.Value = TeamOf(id);
@@ -140,14 +150,19 @@ public class Flanki : TeamCompetition
 
     // wszyscy widzą lot butelki w stronę puszki
     [Rpc(SendTo.ClientsAndHost)]
-    void ThrowFxRpc(Vector3 origin, bool hit, ulong thrower) =>
-        StartCoroutine(BottleFx(origin, hit, thrower == NM.LocalClientId));
+    void ThrowFxRpc(Vector3 origin, bool hit, ulong thrower, float over) =>
+        StartCoroutine(BottleFx(origin, hit, thrower == NM.LocalClientId, over));
 
-    IEnumerator BottleFx(Vector3 origin, bool hit, bool mine)
+    IEnumerator BottleFx(Vector3 origin, bool hit, bool mine, float over)
     {
         var c = Can();
         Vector3 target = c != null ? c.position : Vector3.zero;
-        if (!hit) target += new Vector3(Random.Range(-1.2f, 1.2f), 0f, Random.Range(0.5f, 2f));
+        if (!hit) // pudło: butelka leci za krótko/za daleko wzdłuż rzutu + lekki rozrzut
+        {
+            Vector3 dirH = (target - origin); dirH.y = 0f; dirH.Normalize();
+            target += dirH * (Mathf.Abs(over) > 0.3f ? over : 1.2f)
+                    + new Vector3(Random.Range(-0.5f, 0.5f), 0f, 0f);
+        }
         var bottle = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         Destroy(bottle.GetComponent<Collider>());
         bottle.transform.localScale = new Vector3(0.1f, 0.16f, 0.1f);
@@ -210,17 +225,32 @@ public class Flanki : TeamCompetition
 
         if (FState.Value == FPhase.Throwing)
         {
-            if (myTurn && kb != null && kb.spaceKey.wasPressedThisFrame)
+            if (myTurn && kb != null)
             {
-                var cam = OwnCamera();
-                if (cam != null) ThrowRpc(cam.transform.position, cam.transform.forward);
+                // ładowanie siły: trzymaj SPACJĘ (pasek ping-pong), puść = rzut
+                if (kb.spaceKey.isPressed) { chargingThrow = true; heldT += Time.deltaTime; }
+                else if (chargingThrow)
+                {
+                    chargingThrow = false;
+                    float power = Mathf.PingPong(heldT * chargeSpeed, 1f);
+                    heldT = 0f;
+                    var cam = OwnCamera();
+                    if (cam != null) ThrowRpc(cam.transform.position, cam.transform.forward, power);
+                }
             }
-            if (autoMode && myTurn && TurnStart.Value != lastAutoTurn && WheelHit())
+            else { chargingThrow = false; heldT = 0f; }
+            if (autoMode && myTurn && TurnStart.Value != lastAutoTurn)
             {
                 lastAutoTurn = TurnStart.Value;
                 var po = NM.LocalClient?.PlayerObject;
                 if (po != null)
-                    ThrowRpc(po.transform.position + Vector3.up * 1.7f, Vector3.forward);
+                {
+                    Vector3 o = po.transform.position + Vector3.up * 1.7f;
+                    var cn = Can(); // idealna siła z dystansu — test pipeline'u siły
+                    float power = cn != null
+                        ? Mathf.Clamp01(Vector3.Distance(o, cn.position) / maxThrow) : 0.5f;
+                    ThrowRpc(o, Vector3.forward, power);
+                }
             }
             return;
         }
@@ -249,13 +279,9 @@ public class Flanki : TeamCompetition
         {
             bool myTurn = TurnPlayer.Value == NM.LocalClientId;
             GUI.Label(center, myTurn
-                ? "RZUCASZ! Celuj myszką w puszkę + SPACJA gdy wskazówka w zielonym polu"
+                ? "RZUCASZ! Celuj myszką w puszkę (bez celownika), trzymaj SPACJĘ i puść z DOBRĄ SIŁĄ"
                 : $"Rzuca {Olympics.Nick(TurnPlayer.Value)}...", Ui.S(24));
-            if (myTurn) // celownik: kamera = tor rzutu
-                GUI.Label(new Rect(Screen.width / 2f - 15f, Screen.height / 2f - 15f, 30f, 30f),
-                    "+", Ui.S(30));
-            // kółko z boku, żeby nie zasłaniało puszki
-            DrawWheel(new Vector2(Screen.width * 0.82f, Screen.height * 0.62f), 70f);
+            if (myTurn) DrawPowerBar();
             return;
         }
         if (myTeam == DrinkingTeam.Value)
@@ -267,6 +293,21 @@ public class Flanki : TeamCompetition
             GUI.Label(center, $"PODNIEŚ PUSZKĘ: wciskaj A-D-A-D!  ({ResetCount.Value}/{resetNeeded})", Ui.S(28));
         else
             GUI.Label(center, "Twoja drużyna stawia puszkę...", Ui.S(24));
+    }
+
+    // pionowy pasek siły po prawej — pływa w górę i w dół, puść w dobrym momencie
+    void DrawPowerBar()
+    {
+        float h = Screen.height * 0.32f;
+        var back = new Rect(Screen.width - 74f, (Screen.height - h) / 2f, 30f, h);
+        GUI.color = new Color(0f, 0f, 0f, 0.55f);
+        GUI.DrawTexture(back, Texture2D.whiteTexture);
+        float power = chargingThrow ? Mathf.PingPong(heldT * chargeSpeed, 1f) : 0f;
+        GUI.color = Color.Lerp(new Color(1f, 0.85f, 0.2f), new Color(0.95f, 0.25f, 0.1f), power);
+        GUI.DrawTexture(new Rect(back.x, back.yMax - h * power, back.width, h * power),
+            Texture2D.whiteTexture);
+        GUI.color = Color.white;
+        GUI.Label(new Rect(back.x - 30f, back.yMax + 6f, 100f, 22f), "SIŁA", Ui.S(14));
     }
 
     // pionowy kufel po lewej: ile piwa jeszcze zostało

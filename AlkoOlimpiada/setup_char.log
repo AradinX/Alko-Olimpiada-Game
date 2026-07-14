@@ -1,0 +1,421 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.5/staging' branch; Version is '6000.5.3f1 (c2eb47b3a2a9) revision 12774215'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) Core' Language: 'pl' Physical Memory: 32424 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-xarad" at "2026-07-12T17:59:24.9911888Z"
+Process architecture: x64
+Date: 2026-07-12T17:59:24Z
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.18.1'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-xarad"
+[Licensing::IpcConnector] LicenseClient-xarad channel disconnected successfully.
+[Licensing::IpcConnector] Channel LicenseClient-xarad-6000.5.3 doesn't exist
+[Licensing::Module] Successfully launched the LicensingClient (PId: 187528)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-xarad-6000.5.3" at "2026-07-12T17:59:25.881772Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 187528, path: "C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              61c5f086ce26426caeb18dcd9eb71587
+  Correlation Id:          01db74a23e5916414434c93bf193a70c
+  External correlation Id: 2288630239284049297
+  Machine Id:              21G62mCnPenogjNvmLe27qd98KE=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-xarad-6000.5.3" (connect: 0.25s, validation: 0.34s, handshake: 0.00s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-xarad-6000.5.3-notifications" at "2026-07-12T17:59:26.2302473Z"
+[Licensing::Module] Connected to LicensingClient (PId: 187528, launch time: 0.01, total connection time: 0.59s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 7972593181078-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 1.29s
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Unity.exe
+-batchmode
+-quit
+-projectPath
+C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada
+-executeMethod
+ProjectBootstrap.SetupCharacterModel
+-logFile
+C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\setup_char.log
+Successfully changed project path to: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada
+C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-main-allocator-mimalloc-enabled=0"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+Logging is directed to a specific file, skipping project log.Player connection [184940]  Target information:
+
+Player connection [184940]  * "[IP] 192.168.100.74 [Port] 55504 [Flags] 2 [Guid] 1225617366 [EditorId] 1225617366 [Version] 1048832 [Id] WindowsEditor(7,Adrian) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [184940] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [184940] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-189364" after 0.3 seconds.
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Initialize engine version: 6000.5.3f1 (c2eb47b3a2a9)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+d3d12: failed to query info queue interface (0x80004002).
+Direct3D:
+    Version:         Direct3D 12 [level 12.2]
+    Renderer:        NVIDIA GeForce RTX 4060 Laptop GPU (ID=0x28e0)
+    Vendor:          NVIDIA
+    VRAM:            7956 MB
+    App VRAM Budget: 7188 MB
+    Driver:          32.0.16.1047
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/BCLExtensions/runtime/netstandard2.1'
+Mono path[2] = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56364
+CodeReloadManager initialized
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.001869 seconds.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.310 seconds
+Domain Reload Profiling: 703ms
+	BeginReloadAssembly (104ms)
+		CreateAndSetChildDomain (14ms)
+	RebuildCommonClasses (4ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (50ms)
+	LoadAllAssembliesAndSetupDomain (220ms)
+		LoadAssemblies (88ms)
+		AnalyzeDomain (158ms)
+			TypeCache.Refresh (157ms)
+				TypeCache.ScanAssembly (146ms)
+	FinalizeReload (313ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (69ms)
+			ProcessInitializeOnLoadAttributes (84ms)
+			ProcessInitializeOnLoadMethodAttributes (94ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 64 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.ai.assistant@2.13.0-pre.2 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ai.assistant@6fee27370e6a)
+    com.unity.ai.inference@2.6.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ai.inference@9a123aee5df7)
+    com.unity.inputsystem@1.19.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.inputsystem@21a28c3a6c83)
+    com.unity.netcode.gameobjects@2.13.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.netcode.gameobjects@0f12e689d980)
+    com.unity.services.authentication@3.7.3 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.authentication@4e591ebe4d6b)
+    com.unity.services.relay@1.1.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.relay@8184f21eb2dd)
+    com.unity.services.vivox@16.11.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.vivox@50a15770bdad)
+    com.unity.services.core@1.18.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.core@3464cb68d709)
+    com.unity.settings-manager@2.1.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.settings-manager@0b8638c5ce86)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.services.qos@1.4.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.qos@03d4b52d4980)
+    com.unity.nuget.mono-cecil@1.11.6 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.burst@1.8.29 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.burst@6bb9aca3ef38)
+    com.unity.dt.app-ui@2.1.7 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.dt.app-ui@b097002a00c2)
+    com.unity.searcher@4.9.4 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.searcher@d45a78918735)
+    com.unity.test-framework.performance@3.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.test-framework.performance@8b56083ec0f0)
+  Built-in packages:
+    com.unity.multiplayer.center@1.0.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.multiplayer.center@b860850997d0)
+    com.unity.render-pipelines.universal@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.render-pipelines.universal@276396f56b3f)
+    com.unity.ugui@2.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ugui@377fd60ad87b)
+    com.unity.modules.accessibility@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.ai@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.physicscore2d@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.physicscore2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vectorgraphics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.transport@6.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.transport@0e7d0f4a8f2e)
+    com.unity.render-pipelines.core@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.render-pipelines.core@0733e3164aa3)
+    com.unity.shadergraph@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.shadergraph@8aa9acb51790)
+    com.unity.render-pipelines.universal-config@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.render-pipelines.universal-config@fdda01c80fe3)
+    com.unity.collections@6.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.collections@a43cabe808ca)
+    com.unity.2d.sprite@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.2d.sprite@053a968eab56)
+    com.unity.mathematics@1.4.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.mathematics@981956d94fb6)
+    com.unity.test-framework@1.7.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.test-framework@1405238725ab)
+    com.unity.ext.nunit@2.1.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ext.nunit@44f7d31723bd)
+[Package Manager] com.unity.services.relay is deprecated: The Relay package is deprecated and will not receive further updates. The SDK is now part of the unified Multiplayer Services package (com.unity.services.multiplayer). Migrate to that package to access ongoing support and improvements.
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.14 seconds
+Refreshing native plugins compatible for Editor in 5.38 ms, found 3 plugins.
+Starting: C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+DisplayProgressbar: Compiling Scripts
+ExitCode: 4 Duration: 0s378ms
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/1900b0aE-inputdata.json
+[1259/1659  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+*** Tundra requires additional run (0.35 seconds), 1 items updated, 1258 evaluated
+Starting: C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\netcorerun\netcorerun.exe "C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+WorkingDir: C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+ExitCode: 0 Duration: 1s440ms
+Starting: C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --dagfilejson="Library\Bee\1900b0aE.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+ExitCode: 0 Duration: 0s645ms
+Finished compiling graph: 1663 nodes, 37553 flattened edges (29345 ToBuild, 276 ToUse), maximum node priority 2289
+[1259/1659  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+*** Tundra build success (0.62 seconds), 1 items updated, 1659 evaluated
+AssetDatabase: script compilation time: 2.858856s
+Begin MonoManager ReloadAssembly
+Refreshing native plugins compatible for Editor in 4.36 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 4.60 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 4.28 ms, found 3 plugins.
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  3.592 seconds
+Domain Reload Profiling: 4647ms
+	BeginReloadAssembly (295ms)
+		DisableScriptedObjects (21ms)
+		CreateAndSetChildDomain (157ms)
+	RebuildCommonClasses (6ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (76ms)
+	LoadAllAssembliesAndSetupDomain (665ms)
+		LoadAssemblies (310ms)
+		AnalyzeDomain (315ms)
+			TypeCache.Refresh (233ms)
+				TypeCache.ScanAssembly (218ms)
+			BuildScriptInfoCaches (75ms)
+			ResolveRequiredComponents (5ms)
+	FinalizeReload (3593ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (106ms)
+			ProcessInitializeOnLoadAttributes (2799ms)
+			ProcessInitializeOnLoadMethodAttributes (515ms)
+			AfterProcessingInitializeOnLoad (5ms)
+		AwakeInstancesAfterBackupRestoration (20ms)
+Importing 'GUID: 0916348d8e14b584babc50bc225a5f4f - Path: Assets/3D/Guy.fbx' with importer (FBXImporter)
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Imported 'GUID: 0916348d8e14b584babc50bc225a5f4f' -> (Import Result ID: '8ab89da0091fa4b6946f50b5859822b6') in 0.125 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=0de1b210b9f4b8d3d68ed2733e39c2fe DependenciesID=ef5843cd80076c3ced40aa0602cc20b8 StaticDependenciesID=1975a62b0cb0c37bff95a303436da646 
+Importing 'GUID: 6dbafefb66a47cb45b120107b294d12b - Path: Assets/Prefabs/Player.prefab' with importer (PrefabImporter)
+Imported 'GUID: 6dbafefb66a47cb45b120107b294d12b' -> (Import Result ID: 'a512f1bcc021d960b1b75e24b05d0f5c') in 0.040 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=49a0e7eb9ccdbc270600846ade058722 DependenciesID=e21774038e8e9d2214d54312080da6e7 StaticDependenciesID=bc630dfc509acfee329894ecd1cc865b 
+Starting new worker id: 0 with log in C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada/Logs/AssetImportWorkerHW0.log
+Refreshing native plugins compatible for Editor in 6.52 ms, found 3 plugins.
+Preloading 2 native plugins for Editor in 3.23 ms.
+
+Asset Pipeline Refresh (id=fddf56b6af235e247a1d217820ce40c3): Total: 9.134 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=2 (actual=2, local cache=0, cache server=0)
+		Asset DB Process Time: managed=16 ms, native=4293 ms
+		Asset DB Callback time: managed=623 ms, native=160 ms
+		Scripting: domain reloads=1, domain reload time=1115 ms, compile time=2860 ms, other=65 ms
+		Project Asset Count: scripts=1986, non-scripts=4822
+		Asset File Changes: new=0, changed=1, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokePackagesCallback: 141.555ms
+	ApplyChangesToAssetFolders: 0.813ms
+	Scan: 131.494ms
+	Collect global state as custom dependencies: 6.599ms
+	OnSourceAssetsModified: 0.628ms
+	CategorizeScriptCompilationAssets: 45.596ms
+	ProcessAssetsWithTransientArtifactChanges: 76.327ms
+	CategorizeAssets: 64.627ms
+	CompileScripts: 2860.046ms
+	ImportOutOfDateAssets: 3849.876ms (3616.860ms without children)
+		ImportManagerImport: 167.569ms (2.204ms without children)
+		UnloadImportedAssets: 0.650ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.740ms
+		ImportSchedulerStart: 64.020ms
+	PostProcessAllAssets: 625.519ms
+		XRBuildSystem.XRAssetImported 0.942ms
+		VCAutoAddAssetPostprocess 0.922ms
+		MonoPostProcessAllAssets: 622.562ms
+			AssetPostprocessor.OnPostprocessAllAssets 187.200ms
+			StyleCatalogPostProcessor.OnPostprocessAllAssets 80.929ms
+			AssetReferenceReimportMonitor.OnPostprocessAllAssets 30.148ms
+			NetworkPrefabProcessor.OnPostprocessAllAssets 23.229ms
+			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 16.680ms
+			BuilderAssetPostprocessor.OnPostprocessAllAssets 6.296ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 3.208ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 2.693ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 2.395ms
+			GraphRefreshPostprocessor.OnPostprocessAllAssets 2.304ms
+			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 2.139ms
+			AssetChangedListener.OnPostprocessAllAssets 1.755ms
+			SyncVS.PostprocessSyncProject 1.731ms
+			AssetChangeDetector.OnPostprocessAllAssets 1.547ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 1.524ms
+			SpriteEditorTexturePostprocessor.OnPostprocessAllAssets 1.137ms
+			MaterialPostprocessor.OnPostprocessAllAssets 0.980ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.921ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 0.671ms
+			InputActionAssetPostprocessor.OnPostprocessAllAssets 0.554ms
+			TextAssetPostProcessor.OnPostprocessAllAssets 0.522ms
+			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.460ms
+			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 0.446ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.440ms
+			SkillsProjectAssetPostprocessor.OnPostprocessAllAssets 0.383ms
+			InputActionJsonNameModifierAssetProcessor.OnPostprocessAllAssets 0.363ms
+			PostProcessor.OnPostprocessAllAssets 0.301ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.298ms
+			AssetEvents.OnPostprocessAllAssets 0.285ms
+			SpeedTreePostProcessor.OnPostprocessAllAssets 0.264ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.248ms
+			SampleDependencyImporterPostProcessor.OnPostprocessAllAssets 0.241ms
+			AudioMixerPostprocessor.OnPostprocessAllAssets 0.216ms
+			ProjectSettingsPostprocessor.OnPostprocessAllAssets 0.215ms
+			TMPro_TexturePostProcessor.OnPostprocessAllAssets 0.176ms
+			ConfigAssetsTracker.OnPostprocessAllAssets 0.174ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.115ms
+			ScenarioDriftAssetsTracker.OnPostprocessAllAssets 0.089ms
+			AudioContainerPostProcessor.OnPostprocessAllAssets 0.062ms
+			TrackSelectedAssetsProcessor.OnPostprocessAllAssets 0.055ms
+	PostAssetChangesProfiler: 17.882ms
+	UnloadStreamsBegin: 2.270ms
+	PersistCurrentRevisions: 0.264ms
+	GenerateScriptTypeHashes: 2.634ms
+	GenerateScriptTypeSerializationHashes: 5.378ms
+	Untracked: 1296.574ms
+
+Application.AssetDatabase Initial Refresh End
+Scanning for USB devices : 9.606ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-AlkoOlimpiada
+Unloading 131 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 9311 unused Assets / (28.9 MB). Loaded Objects now: 10651.
+Memory consumption went from 0.56 GB to 0.53 GB.
+Total: 30.941500 ms (FindLiveObjects: 0.627900 ms CreateObjectMapping: 3.208300 ms MarkObjects: 14.184300 ms  DeleteObjects: 12.915700 ms)
+
+Loaded scene 'Library/Unused/239564c3f7db00f49ac380578626b80c'
+	Deserialize:            5.349 ms
+	Integration:            68.139 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       0.013 ms
+	Total Operation Time:   73.502 ms
+[Bootstrap] Guy: przed=(0.85, 0.98, 0.47), po=(1.56, 1.80, 0.86), scale=1,8321
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ProjectBootstrap:SetupCharacterModel () (at Assets/Editor/ProjectBootstrap.cs:802)
+
+(Filename: Assets/Editor/ProjectBootstrap.cs Line: 802)
+
+Importing 'GUID: 6dbafefb66a47cb45b120107b294d12b - Path: Assets/Prefabs/Player.prefab' with importer (PrefabImporter)
+Imported 'GUID: 6dbafefb66a47cb45b120107b294d12b' -> (Import Result ID: '1ad74e9b9a1873e9a695bf0457e3e0de') in 0.004 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=5522a2c91402de6e6e2dd13fd6425b5d DependenciesID=e2084f80e8292dbf9d06ee5305f960de StaticDependenciesID=390ea515c8c6c5b5468c1d28970a9445 
+Refreshing native plugins compatible for Editor in 3.72 ms, found 3 plugins.
+Asset Pipeline Refresh (id=058372c40b230254bbef77e8d018a589): Total: 0.167 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 0000000000000000b000000000000000 - Path: ProjectSettings/EditorBuildSettings.asset' with importer (LibraryAssetImporter)
+Imported 'GUID: 0000000000000000b000000000000000' -> (Import Result ID: 'ff10dbacff4356c6932456eab9df5cb7') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=4647dd083cfc32cebcd7526e8846440c DependenciesID=15345bb98686c8e462405130794c0956 StaticDependenciesID=529f1a595fc1a279424fdea3dc4c9f01 
+Refreshing native plugins compatible for Editor in 4.06 ms, found 3 plugins.
+Asset Pipeline Refresh (id=2bd7dd39a7bfa7343b4e83e7981ed47e): Total: 0.065 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[Bootstrap] SetupCharacterModel OK
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ProjectBootstrap:SetupCharacterModel () (at Assets/Editor/ProjectBootstrap.cs:807)
+
+(Filename: Assets/Editor/ProjectBootstrap.cs Line: 807)
+
+Batchmode quit successfully invoked - shutting down!
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input Polling Thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-xarad-6000.5.3-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-xarad-6000.5.3 channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+CodeReloadManager destroyed
+Exiting batchmode successfully now!
+Exiting without the bug reporter. Application will terminate with return code 0

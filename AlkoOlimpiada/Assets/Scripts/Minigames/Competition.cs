@@ -123,6 +123,12 @@ public abstract class Competition : NetworkBehaviour
             case Phase.Countdown when Now >= PhaseEndsAt.Value:
                 raceStart = Now;
                 State.Value = Phase.Running;
+                // piwo startowe wchodzi OD RAZU — utrudnienia czujesz w trakcie
+                // konkurencji, nie dopiero po powrocie na hub
+                if (naturalDrunkGain > 0)
+                    foreach (var r in racers)
+                        if (NM.ConnectedClients.TryGetValue(r, out var rc) && rc.PlayerObject != null)
+                            rc.PlayerObject.GetComponent<DrunkSystem>().AddPermanent(naturalDrunkGain);
                 OnRaceStart();
                 Debug.Log($"[{GetType().Name}] START, {racers.Count} graczy");
                 break;
@@ -145,8 +151,6 @@ public abstract class Competition : NetworkBehaviour
             if (NM.ConnectedClients.TryGetValue(r, out var c) && c.PlayerObject != null)
             {
                 var d = c.PlayerObject.GetComponent<DrunkSystem>();
-                // alkohol z konkurencji zostaje na stałe (podłoga paska)
-                if (naturalDrunkGain > 0) d.AddPermanent(naturalDrunkGain);
                 d.Curse.Value = 0;    // klątwa z piwa specjalnego zużyta
                 d.Steady.Value = false; // pewna ręka z papierosa zużyta
             }
