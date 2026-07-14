@@ -1,0 +1,42 @@
+Mono path[0] = 'C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada/Builds/Win/AlkoOlimpiada_Data/Managed'
+Mono config path = 'C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada/Builds/Win/MonoBleedingEdge/etc'
+CodeReloadManager initialized
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Initialize engine version: 6000.5.3f1 (c2eb47b3a2a9)
+[Subsystems] Discovering subsystems at path C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada/Builds/Win/AlkoOlimpiada_Data/UnitySubsystems
+Forcing GfxDevice: Null
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+Begin MonoManager ReloadAssembly
+- Finished resetting the current domain, in  0.025 seconds
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Microsoft Media Foundation video decoding to texture disabled: graphics device is Null, only Direct3D 11 and Direct3D 12 (only on desktop) are supported for hardware-accelerated video decoding.
+UnloadTime: 0.809000 ms
+[Net] Polaczony klient 0, graczy: 1
+[Net] Polaczony klient 1, graczy: 2
+[Vote] wylosowano Arena_LuckyShot (2/2 glosow)
+Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 5.945300 ms
+Unloading 18 unused Assets to reduce memory usage. Loaded Objects now: 3803.
+Total: 1.805300 ms (FindLiveObjects: 0.123700 ms CreateObjectMapping: 0.245500 ms MarkObjects: 1.390700 ms  DeleteObjects: 0.044900 ms)
+
+[Lucky] #1: MENEL MÓWI: kliknij [K] (2 w grze)
+[LuckyShot] START, 2 graczy
+[Lucky] #2: MENEL MÓWI: NIE klikaj [SPACJA] (2 w grze)
+[Lucky] Gracz995 odpada (pułapka: MENEL MÓWI: NIE klikaj [SPACJA])
+[LuckyShot] WYNIKI: #1  Gracz365  +5 pkt | #2  Gracz995  +3 pkt
+Unloading 2 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 0.933400 ms
+Unloading 1 unused Assets to reduce memory usage. Loaded Objects now: 4219.
+Total: 2.168600 ms (FindLiveObjects: 0.126100 ms CreateObjectMapping: 0.290500 ms MarkObjects: 1.735600 ms  DeleteObjects: 0.016200 ms)
+

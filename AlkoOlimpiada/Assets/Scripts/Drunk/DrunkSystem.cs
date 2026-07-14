@@ -18,6 +18,8 @@ public class DrunkSystem : NetworkBehaviour
     public float catchFov = 40f;             // musi mieć cię w kadrze (stopnie od osi patrzenia)
     public int catchPenalty = 2;
     public int maxBeers = 1;                 // jedno piwo w ręce
+    public float lieSeconds = 1.2f;          // faza leżenia po powaleniu (zanim zaczniesz wstawać)
+    public float floorFraction = 0.5f;       // ile alkoholu z konkurencji zostaje na stałe (podłoga)
     public float spikedExtra = 35f;          // pigułka w piwie
     public float spikedCurseSeconds = 40f;   // klątwa z pigułki działa od razu, przez tyle sekund
     public GameObject beerPrefab;            // wyrzucone piwo ląduje na ziemi (bootstrap)
@@ -37,6 +39,7 @@ public class DrunkSystem : NetworkBehaviour
     public NetworkVariable<float> Floor = new();     // pkt 1: alkohol z konkurencji na stałe
     public NetworkVariable<bool> PassedOut = new();
     public NetworkVariable<bool> Vomiting = new();
+    public NetworkVariable<bool> Down = new();       // powalony pchnięciem; wstawanie automatyczne
     public NetworkVariable<int> Beers = new();       // piwo w ręce (max 1)
     public NetworkVariable<bool> HeldSpecial = new(); // trzymane piwo jest złote
     public NetworkVariable<int> Pills = new();       // ekwipunek pigułek
@@ -51,6 +54,13 @@ public class DrunkSystem : NetworkBehaviour
 
     // utrudnienia w konkurencjach liczą z tego zamiast surowego Drunk — papieros je połowi
     public float Handicap01() => Drunk.Value / 100f * (Steady.Value ? 0.5f : 1f);
+
+    // powalenie: DownPose 0 (stoi) → 1 (leży), animowane u wszystkich klientów;
+    // upadek jest szybki, wstawanie powolne — im bardziej pijany, tym dłużej
+    public float DownPose { get; private set; }
+    public bool Downed => Down.Value || DownPose > 0.05f;
+    public float GetUpSeconds => 0.6f + 2f * (Drunk.Value / 100f);
+    double getUpAt; // serwer: koniec fazy leżenia
 
     public int Stage
     {
@@ -83,6 +93,9 @@ public class DrunkSystem : NetworkBehaviour
     {
         body = transform.Find("Body");
         handBottle = transform.Find("HandBottle");
+        if (handBottle == null) // butelka podpięta pod kość dłoni modelu
+            foreach (var t in GetComponentsInChildren<Transform>(true))
+                if (t.name == "HandBottle") { handBottle = t; break; }
         cam = GetComponent<PlayerController>().playerCamera;
     }
 
@@ -106,6 +119,10 @@ public class DrunkSystem : NetworkBehaviour
             Invoke(nameof(ReviveRpc), 6f);
             Invoke(nameof(AutoDrop), 8f);
         }
+        // smoke test powalenia: pełny cykl leżenie -> automatyczne wstawanie (-autoknock)
+        if (IsServer && System.Array.IndexOf(
+                System.Environment.GetCommandLineArgs(), "-autoknock") >= 0)
+            Invoke(nameof(KnockDown), 3f);
     }
 
     // pijacki post-process (GDD 10): profil budowany w kodzie — zero assetów w scenach
@@ -147,10 +164,23 @@ public class DrunkSystem : NetworkBehaviour
         }
     }
 
-    // pkt 1: picie w konkurencji podnosi też podłogę — tego już nie wytrzeźwiejesz
+    // powalenie pchnięciem: leżysz lieSeconds, potem wstajesz automatycznie (GetUpSeconds)
+    public void KnockDown()
+    {
+        if (PassedOut.Value || Down.Value) return;
+        Down.Value = true;
+        getUpAt = NetworkManager.ServerTime.Time + lieSeconds;
+        Sfx.Play("slap", transform.position);
+        Debug.Log($"[Drunk] gracz {OwnerClientId} powalony: leży {lieSeconds:0.0} s"
+                  + $" + wstaje {GetUpSeconds:0.0} s");
+    }
+
+    // picie w konkurencji podnosi też podłogę — tego już nie wytrzeźwiejesz.
+    // Na stałe zostaje tylko część (floorFraction), inaczej olimpiada kończyła
+    // się seryjnym Zgonem
     public void AddPermanent(float amount)
     {
-        Floor.Value = Mathf.Min(90f, Floor.Value + amount);
+        Floor.Value = Mathf.Min(90f, Floor.Value + amount * floorFraction);
         AddDrink(amount);
     }
 
@@ -318,6 +348,13 @@ public class DrunkSystem : NetworkBehaviour
                 && NetworkManager.ServerTime.Time >= CurseUntil.Value)
             { InstantCurse.Value = 0; CurseUntil.Value = 0; }
 
+            // koniec fazy leżenia — od tej pory klienci animują wstawanie
+            if (Down.Value && NetworkManager.ServerTime.Time >= getUpAt)
+            {
+                Down.Value = false;
+                Debug.Log($"[Drunk] gracz {OwnerClientId} wstaje ({GetUpSeconds:0.0} s)");
+            }
+
             if (Vomiting.Value)
             {
                 Drunk.Value = Mathf.Max(Floor.Value, Drunk.Value - vomitDrainPerSecond * Time.deltaTime);
@@ -339,10 +376,23 @@ public class DrunkSystem : NetworkBehaviour
         if (!Mathf.Approximately(transform.localScale.x, sc))
             transform.localScale = Vector3.one * sc;
 
+        // powalony: upadek szybki, wstawanie powolne i automatyczne (PlayerLimbs rysuje pozę)
+        DownPose = Mathf.MoveTowards(DownPose, Down.Value ? 1f : 0f,
+            (Down.Value ? 4f : 1f / GetUpSeconds) * Time.deltaTime);
+
         if (!IsOwner || PassedOut.Value) { reviveTarget = null; return; }
 
         int st = Stage;
-        if (st != lastStage) { lastStage = st; ApplyControls(st); }
+        if (st != lastStage)
+        {
+            bool wasScrambled = lastStage >= 2;
+            lastStage = st;
+            ApplyControls(st);
+            // komunikat o zamianie klawiszy — bez niego wyglądało na buga
+            if (st == 2) { msg = "LEKKO CHYCONY: [A] i [D] się pozamieniały!"; msgUntil = Time.time + 4f; }
+            else if (st >= 3) { msg = "JEST LIGANCKO: klawisze ruchu totalnie pomieszane!"; msgUntil = Time.time + 4f; }
+            else if (wasScrambled) { msg = "Sterowanie wraca do normy"; msgUntil = Time.time + 4f; }
+        }
 
         // octodad: klawisze ruchu losują się co 3 s, po klątwie wraca mapowanie z etapu
         bool octo = CurseActive(128);
@@ -516,6 +566,8 @@ public class DrunkSystem : NetworkBehaviour
         var center = new Rect(0, Screen.height * 0.4f, Screen.width, 40);
         if (PassedOut.Value) GUI.Label(center, "ZGON — czekaj aż cię ocucą", style);
         else if (Vomiting.Value) GUI.Label(center, "RZYGASZ... (trzeźwiejesz, byle nikt nie widział)", style);
+        else if (Down.Value) GUI.Label(center, "POWALONY — leżysz na ziemi...", style);
+        else if (DownPose > 0.05f) GUI.Label(center, "Zbierasz się z ziemi...", style);
         else if (reviveTarget != null) GUI.Label(center, "[E] Ocuć kolegę", style);
         else if (nearPill != null && nearPill.Available.Value)
             GUI.Label(center, "[E] Podnieś pigułkę", style);

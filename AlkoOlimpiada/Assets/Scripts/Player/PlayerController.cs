@@ -18,11 +18,19 @@ public class PlayerController : NetworkBehaviour
 
     CharacterController cc;
     DrunkSystem drunk;
-    float pitch;
+    [HideInInspector] public float pitch; // PlayerLimbs dodaje go do widoku leżąc
     float yVelocity;
     float nextPush;
     Vector3 knock;               // odrzut po popchnięciu
     PlayerController aimTarget;  // gracz na celowniku (hub)
+
+    void Awake()
+    {
+        // GroundRef to edytorski poziomownik w prefabie — tag EditorOnly nie
+        // wycina go z prefabów spawnowanych w runtime, więc sprzątamy tu
+        var gr = transform.Find("GroundRef");
+        if (gr != null) Destroy(gr.gameObject);
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -113,9 +121,12 @@ public class PlayerController : NetworkBehaviour
 
         if (Competition.InputLocked) return; // konkurencja: patrzysz, ale nie chodzisz
 
+        // powalony pchnięciem: patrzysz, ale nie ruszasz się (odrzut i grawitacja działają)
+        bool downed = drunk != null && drunk.Downed;
+
         // agresja (GDD sekcja 6): od etapu "Lekko chycony" można popychać, tylko na hubie
         aimTarget = null;
-        if (Competition.Current == null && Cursor.lockState == CursorLockMode.Locked
+        if (!downed && Competition.Current == null && Cursor.lockState == CursorLockMode.Locked
             && Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward,
                 out var hit, pushRange)
             && hit.collider.GetComponentInParent<PlayerController>() is { } victim
@@ -136,11 +147,12 @@ public class PlayerController : NetworkBehaviour
         float speed = kb.leftShiftKey.isPressed ? sprintSpeed : walkSpeed;
         Vector3 move = (transform.right * x + transform.forward * z).normalized * speed;
         move = Quaternion.Euler(0f, drunk.VeerAngle(), 0f) * move; // pijacki zygzak (SoT)
+        if (downed) move = Vector3.zero;
 
         if (cc.isGrounded)
         {
             yVelocity = -2f;
-            if (kb.spaceKey.wasPressedThisFrame)
+            if (kb.spaceKey.wasPressedThisFrame && !downed)
                 yVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
         yVelocity += gravity * Time.deltaTime;
@@ -164,7 +176,18 @@ public class PlayerController : NetworkBehaviour
         if (Vector3.Distance(victim.transform.position, transform.position) > pushRange + 1.5f) return;
         Vector3 dir = (victim.transform.position - transform.position).normalized + Vector3.up * 0.35f;
         victim.KnockRpc(dir * pushForce);
+        victim.GetComponent<DrunkSystem>().KnockDown(); // popchnięty się przewraca
         Debug.Log($"[Push] {Olympics.Nick(OwnerClientId)} popchnął {Olympics.Nick(targetId)}");
+
+        // mocno wstawiony: pchnięcie potrafi przewrócić i napastnika — im bardziej pijany,
+        // tym częściej (0% na progu "Lekko chycony" → 100% przy Zgonie)
+        if (Random.value < Mathf.InverseLerp(DrunkSystem.Stages[1].min, 100f, drunk.Drunk.Value))
+        {
+            KnockRpc((-dir + Vector3.up * 0.7f) * (pushForce * 0.5f));
+            drunk.KnockDown();
+            drunk.MsgOwner("Popchnąłeś się razem z nim...");
+            Debug.Log($"[Push] {Olympics.Nick(OwnerClientId)} przewrócił się od własnego pchnięcia");
+        }
     }
 
     [Rpc(SendTo.Owner)]

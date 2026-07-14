@@ -5,13 +5,17 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Rzutki: każdy stoi przed swoją tarczą, 3 rzuty (LPM). Celownik pływa tym
-// mocniej, im bardziej jesteś pijany. Serwer liczy trafienie raycastem.
+// Rzutki: każdy stoi przed swoją tarczą, 3 rzuty. Celujesz myszką, TRZYMASZ
+// SPACJĘ — kółko na ekranie kurczy się i rośnie — puszczasz: im mniejsze kółko
+// w tym momencie, tym mniejszy rozrzut lotki. Celownik pływa tym mocniej,
+// im bardziej jesteś pijany. Serwer liczy trafienie raycastem.
 public class Rzutki : Competition
 {
     public int dartsPerPlayer = 3;
     public float boardRadius = 0.6f;
-    public float aimWander = 0.12f; // maks. offset celownika (viewport) przy pełnym upojeniu
+    public float aimWander = 0.12f;  // maks. offset celownika (viewport) przy pełnym upojeniu
+    public float pulseSpeed = 1.5f;  // cykle kurczenia kółka na sekundę (ping-pong)
+    public float maxSpread = 0.09f;  // rozrzut (viewport) przy największym kółku
 
     protected override string AutoFlag => "-autorzutki";
 
@@ -22,6 +26,9 @@ public class Rzutki : Competition
     // klient
     int myThrown;
     float nextAutoThrow;
+    float holdT;      // czas trzymania spacji
+    bool holdActive;
+    static Texture2D ringTex; // okrąg celności (generowany raz)
 
     public override void OnNetworkSpawn()
     {
@@ -121,31 +128,71 @@ public class Rzutki : Competition
                            Mathf.PerlinNoise(5f, t * 0.8f) - 0.5f) * (2f * aimWander * d);
     }
 
+    // 0 = kółko maksymalnie małe (celny rzut), 1 = największe
+    float Circle01() => Mathf.PingPong(holdT * pulseSpeed * 2f, 1f);
+
     protected override void ClientTick()
     {
         if (State.Value != Phase.Running || myThrown >= dartsPerPlayer) return;
         var cam = OwnCamera();
         if (cam == null) return;
-        bool click = Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+        var kb = Keyboard.current;
+
+        bool released = false;
+        if (kb != null && kb.spaceKey.isPressed) { holdActive = true; holdT += Time.deltaTime; }
+        else if (holdActive) { released = true; holdActive = false; }
+
         bool auto = autoMode && Time.time >= nextAutoThrow;
-        if (!click && !auto) return;
+        if (!released && !auto) return;
         if (auto) nextAutoThrow = Time.time + 1f;
+
         myThrown++;
-        var o = AimOffset();
+        float c = auto ? 0f : Circle01();
+        holdT = 0f;
+        var o = AimOffset() + Random.insideUnitCircle * (maxSpread * c); // rozrzut z kółka
         var ray = cam.ViewportPointToRay(new Vector3(0.5f + o.x, 0.5f + o.y, 0f));
         ThrowRpc(ray.origin, ray.direction);
+    }
+
+    // biały okrąg (obwódka) — generowany raz, rysowany w skali kółka celności
+    static Texture2D Ring()
+    {
+        if (ringTex != null) return ringTex;
+        const int S = 128; const float mid = (S - 1) / 2f;
+        ringTex = new Texture2D(S, S, TextureFormat.RGBA32, false);
+        var px = new Color32[S * S];
+        for (int y = 0; y < S; y++)
+            for (int x = 0; x < S; x++)
+            {
+                float d = Mathf.Sqrt((x - mid) * (x - mid) + (y - mid) * (y - mid)) / mid;
+                px[y * S + x] = d > 0.86f && d < 0.98f
+                    ? new Color32(255, 255, 255, 230) : new Color32(0, 0, 0, 0);
+            }
+        ringTex.SetPixels32(px);
+        ringTex.Apply();
+        return ringTex;
     }
 
     protected override void DrawGame()
     {
         GUI.Label(new Rect(0, 34, Screen.width, 22), LiveText.Value.ToString(), Ui.S(16));
         GUI.Label(new Rect(0, Screen.height * 0.2f, Screen.width, 30),
-            myThrown < dartsPerPlayer ? $"Rzut {myThrown + 1}/{dartsPerPlayer} — celuj w czerwony środek, klik LPM"
-                                      : "Czekasz na resztę...", Ui.S(22));
+            myThrown < dartsPerPlayer
+                ? $"Rzut {myThrown + 1}/{dartsPerPlayer} — celuj myszką, TRZYMAJ SPACJĘ i puść przy MAŁYM kółku"
+                : "Czekasz na resztę...", Ui.S(22));
+        if (myThrown >= dartsPerPlayer) return;
+
         // pływający celownik
         var o = AimOffset();
         float px = (0.5f + o.x) * Screen.width;
         float py = (1f - (0.5f + o.y)) * Screen.height;
         GUI.Label(new Rect(px - 15f, py - 15f, 30f, 30f), "+", Ui.S(30));
+
+        // kółko celności wokół celownika — kurczy się i rośnie póki trzymasz spację
+        if (holdActive)
+        {
+            float r = Mathf.Lerp(20f, Screen.height * 0.14f, Circle01());
+            GUI.DrawTexture(new Rect(px - r, py - r, r * 2f, r * 2f), Ring());
+        }
     }
 }

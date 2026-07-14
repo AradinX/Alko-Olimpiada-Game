@@ -1,0 +1,499 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.5/staging' branch; Version is '6000.5.3f1 (c2eb47b3a2a9) revision 12774215'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) Core' Language: 'pl' Physical Memory: 32424 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-xarad" at "2026-07-12T11:24:17.8784599Z"
+Date: 2026-07-12T11:24:17Z
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.18.1'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-xarad"
+[Licensing::IpcConnector] LicenseClient-xarad channel disconnected successfully.
+[Licensing::IpcConnector] Channel LicenseClient-xarad-6000.5.3 doesn't exist
+[Licensing::Module] Successfully launched the LicensingClient (PId: 143920)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-xarad-6000.5.3" at "2026-07-12T11:24:18.7495737Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 143920, path: "C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Unity.exe
+-batchmode
+-quit
+-projectPath
+C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada
+-executeMethod
+ProjectBootstrap.CenterCharacterModel
+-logFile
+C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\center.log
+Successfully changed project path to: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada
+C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-main-allocator-mimalloc-enabled=0"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+Logging is directed to a specific file, skipping project log.Player connection [141188]  Target information:
+
+Player connection [141188]  * "[IP] 192.168.100.74 [Port] 55504 [Flags] 2 [Guid] 2349940719 [EditorId] 2349940719 [Version] 1048832 [Id] WindowsEditor(7,Adrian) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [141188] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [141188] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              e070676ad5b0433ea31baf2e2dfc70d9
+  Correlation Id:          4bfe04c53d4496528e8bf8f2bb0df430
+  External correlation Id: 6990376256721179379
+  Machine Id:              21G62mCnPenogjNvmLe27qd98KE=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-xarad-6000.5.3" (connect: 0.24s, validation: 0.41s, handshake: 0.00s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-xarad-6000.5.3-notifications" at "2026-07-12T11:24:19.1613994Z"
+[Licensing::Module] Connected to LicensingClient (PId: 143920, launch time: 0.01, total connection time: 0.66s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 7972593181078-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 1.35s
+[Package Manager] Connected to IPC stream "Upm-144108" after 0.3 seconds.
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Artifact Garbage Collection - Removed 1 unused hashed content files
+Initialize engine version: 6000.5.3f1 (c2eb47b3a2a9)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+d3d12: failed to query info queue interface (0x80004002).
+Direct3D:
+    Version:         Direct3D 12 [level 12.2]
+    Renderer:        NVIDIA GeForce RTX 4060 Laptop GPU (ID=0x28e0)
+    Vendor:          NVIDIA
+    VRAM:            7956 MB
+    App VRAM Budget: 7188 MB
+    Driver:          32.0.16.1047
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/BCLExtensions/runtime/netstandard2.1'
+Mono path[2] = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56108
+CodeReloadManager initialized
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.001683 seconds.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.268 seconds
+Domain Reload Profiling: 658ms
+	BeginReloadAssembly (95ms)
+		CreateAndSetChildDomain (7ms)
+	RebuildCommonClasses (3ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (52ms)
+	LoadAllAssembliesAndSetupDomain (225ms)
+		LoadAssemblies (85ms)
+		AnalyzeDomain (156ms)
+			TypeCache.Refresh (155ms)
+				TypeCache.ScanAssembly (144ms)
+	FinalizeReload (271ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (64ms)
+			ProcessInitializeOnLoadAttributes (66ms)
+			ProcessInitializeOnLoadMethodAttributes (82ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 64 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.ai.assistant@2.13.0-pre.2 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ai.assistant@6fee27370e6a)
+    com.unity.ai.inference@2.6.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ai.inference@9a123aee5df7)
+    com.unity.inputsystem@1.19.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.inputsystem@21a28c3a6c83)
+    com.unity.netcode.gameobjects@2.13.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.netcode.gameobjects@0f12e689d980)
+    com.unity.services.authentication@3.7.3 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.authentication@4e591ebe4d6b)
+    com.unity.services.relay@1.1.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.relay@8184f21eb2dd)
+    com.unity.services.vivox@16.11.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.vivox@50a15770bdad)
+    com.unity.services.core@1.18.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.core@3464cb68d709)
+    com.unity.settings-manager@2.1.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.settings-manager@0b8638c5ce86)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.services.qos@1.4.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.qos@03d4b52d4980)
+    com.unity.nuget.mono-cecil@1.11.6 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.burst@1.8.29 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.burst@6bb9aca3ef38)
+    com.unity.dt.app-ui@2.1.7 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.dt.app-ui@b097002a00c2)
+    com.unity.searcher@4.9.4 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.searcher@d45a78918735)
+    com.unity.test-framework.performance@3.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.test-framework.performance@8b56083ec0f0)
+  Built-in packages:
+    com.unity.multiplayer.center@1.0.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.multiplayer.center@b860850997d0)
+    com.unity.render-pipelines.universal@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.render-pipelines.universal@276396f56b3f)
+    com.unity.ugui@2.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ugui@377fd60ad87b)
+    com.unity.modules.accessibility@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.ai@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.physicscore2d@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.physicscore2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vectorgraphics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.transport@6.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.transport@0e7d0f4a8f2e)
+    com.unity.render-pipelines.core@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.render-pipelines.core@0733e3164aa3)
+    com.unity.shadergraph@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.shadergraph@8aa9acb51790)
+    com.unity.render-pipelines.universal-config@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.render-pipelines.universal-config@fdda01c80fe3)
+    com.unity.collections@6.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.collections@a43cabe808ca)
+    com.unity.2d.sprite@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.2d.sprite@053a968eab56)
+    com.unity.mathematics@1.4.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.mathematics@981956d94fb6)
+    com.unity.test-framework@1.7.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.test-framework@1405238725ab)
+    com.unity.ext.nunit@2.1.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ext.nunit@44f7d31723bd)
+[Package Manager] com.unity.services.relay is deprecated: The Relay package is deprecated and will not receive further updates. The SDK is now part of the unified Multiplayer Services package (com.unity.services.multiplayer). Migrate to that package to access ongoing support and improvements.
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.05 seconds
+[ScriptCompilation] Requested script compilation because: AssetDatabase observed changes in script compilation related files
+Refreshing native plugins compatible for Editor in 5.02 ms, found 3 plugins.
+Starting: C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+DisplayProgressbar: Compiling Scripts
+ExitCode: 0 Duration: 2s360ms
+[ 736/1659  0s] WriteResponseFile Library/Bee/artifacts/rsp/4747638433968585886.rsp
+[1257/1659  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[1651/1659  1s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll (+2 others)
+Assets\Scripts\Minigames\Sprint500.cs(112,64): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Scripts\Minigames\Sprint500.cs(112,28): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Scripts\Minigames\Sprint500.cs(136,53): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Scripts\Minigames\Sprint500.cs(136,20): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Scripts\Drunk\DrunkSystem.cs(408,58): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Scripts\Drunk\DrunkSystem.cs(408,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+[1652/1659  0s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+Assets\Editor\ProjectBootstrap.cs(190,66): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(190,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(269,22): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+
+Assets\Editor\ProjectBootstrap.cs(300,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(300,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(304,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(304,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(331,66): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(331,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(360,71): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(360,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(370,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(370,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(389,73): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(389,28): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(408,18): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+[1653/1659  0s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll, with 142 defines and 376 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, Unity.Netcode.Editor.CodeGen.INetworkMessageILPP, Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP, Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP, Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running Unity.Netcode.Editor.CodeGen.INetworkMessageILPP
+
+running Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP
+
+running Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP
+
+running Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1654/1659  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[1655/1659  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+[1656/1659  0s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Assembly-CSharp.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll, with 144 defines and 362 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, Unity.Netcode.Editor.CodeGen.INetworkMessageILPP, Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP, Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP, Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running Unity.Netcode.Editor.CodeGen.INetworkMessageILPP
+
+running Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP
+
+running Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP
+
+running Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1657/1659  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[1658/1659  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+*** Tundra build success (2.31 seconds), 10 items updated, 1659 evaluated
+Assets\Scripts\Minigames\Sprint500.cs(112,64): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Scripts\Minigames\Sprint500.cs(112,28): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Scripts\Minigames\Sprint500.cs(136,53): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Scripts\Minigames\Sprint500.cs(136,20): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Scripts\Drunk\DrunkSystem.cs(408,58): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Scripts\Drunk\DrunkSystem.cs(408,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(190,66): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(190,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(269,22): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Editor\ProjectBootstrap.cs(300,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(300,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(304,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(304,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(331,66): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(331,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(360,71): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(360,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(370,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(370,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(389,73): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(389,28): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(408,18): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+AssetDatabase: script compilation time: 2.748401s
+Begin MonoManager ReloadAssembly
+Refreshing native plugins compatible for Editor in 4.03 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 5.70 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 4.66 ms, found 3 plugins.
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  3.609 seconds
+Domain Reload Profiling: 4674ms
+	BeginReloadAssembly (286ms)
+		DisableScriptedObjects (22ms)
+		CreateAndSetChildDomain (139ms)
+	RebuildCommonClasses (6ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (78ms)
+	LoadAllAssembliesAndSetupDomain (681ms)
+		LoadAssemblies (316ms)
+		AnalyzeDomain (318ms)
+			TypeCache.Refresh (235ms)
+				TypeCache.ScanAssembly (221ms)
+			BuildScriptInfoCaches (75ms)
+			ResolveRequiredComponents (6ms)
+	FinalizeReload (3610ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (93ms)
+			ProcessInitializeOnLoadAttributes (2801ms)
+			ProcessInitializeOnLoadMethodAttributes (521ms)
+			AfterProcessingInitializeOnLoad (5ms)
+		AwakeInstancesAfterBackupRestoration (45ms)
+Starting new worker id: 0 with log in C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada/Logs/AssetImportWorkerHW0.log
+Refreshing native plugins compatible for Editor in 14.39 ms, found 3 plugins.
+Preloading 2 native plugins for Editor in 4.72 ms.
+
+Asset Pipeline Refresh (id=9a9cef775100884408d09cbfe52b1a99): Total: 8.794 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=4247 ms
+		Asset DB Callback time: managed=510 ms, native=89 ms
+		Scripting: domain reloads=1, domain reload time=1129 ms, compile time=2750 ms, other=66 ms
+		Project Asset Count: scripts=1986, non-scripts=4822
+		Asset File Changes: new=0, changed=2, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokePackagesCallback: 54.267ms
+	ApplyChangesToAssetFolders: 0.560ms
+	Scan: 236.381ms
+	Collect global state as custom dependencies: 2.943ms
+	OnSourceAssetsModified: 0.645ms
+	CategorizeScriptCompilationAssets: 45.846ms
+	ProcessAssetsWithTransientArtifactChanges: 75.918ms
+	CategorizeAssets: 62.632ms
+	CompileScripts: 2749.556ms
+	ImportOutOfDateAssets: 3691.082ms (3634.364ms without children)
+		UnloadImportedAssets: 0.651ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.709ms
+		ImportSchedulerStart: 55.326ms
+	PostProcessAllAssets: 512.964ms
+		VCAutoAddAssetPostprocess 1.144ms
+		XRBuildSystem.XRAssetImported 1.022ms
+		MonoPostProcessAllAssets: 510.388ms
+			AssetPostprocessor.OnPostprocessAllAssets 150.160ms
+			NetworkPrefabProcessor.OnPostprocessAllAssets 56.399ms
+			AssetReferenceReimportMonitor.OnPostprocessAllAssets 25.621ms
+			StyleCatalogPostProcessor.OnPostprocessAllAssets 21.023ms
+			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 18.487ms
+			BuilderAssetPostprocessor.OnPostprocessAllAssets 5.417ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 3.393ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 2.498ms
+			AssetChangedListener.OnPostprocessAllAssets 1.927ms
+			GraphRefreshPostprocessor.OnPostprocessAllAssets 1.862ms
+			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 1.841ms
+			ScenarioDriftAssetsTracker.OnPostprocessAllAssets 1.814ms
+			SyncVS.PostprocessSyncProject 1.727ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 1.621ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 1.290ms
+			AssetChangeDetector.OnPostprocessAllAssets 1.048ms
+			MaterialPostprocessor.OnPostprocessAllAssets 1.025ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 0.955ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.943ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.831ms
+			SpriteEditorTexturePostprocessor.OnPostprocessAllAssets 0.779ms
+			InputActionAssetPostprocessor.OnPostprocessAllAssets 0.522ms
+			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.507ms
+			ConfigAssetsTracker.OnPostprocessAllAssets 0.503ms
+			TextAssetPostProcessor.OnPostprocessAllAssets 0.456ms
+			InputActionJsonNameModifierAssetProcessor.OnPostprocessAllAssets 0.412ms
+			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 0.399ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.385ms
+			TMPro_TexturePostProcessor.OnPostprocessAllAssets 0.336ms
+			SkillsProjectAssetPostprocessor.OnPostprocessAllAssets 0.321ms
+			PostProcessor.OnPostprocessAllAssets 0.316ms
+			SampleDependencyImporterPostProcessor.OnPostprocessAllAssets 0.315ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.283ms
+			AssetEvents.OnPostprocessAllAssets 0.266ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.266ms
+			SpeedTreePostProcessor.OnPostprocessAllAssets 0.237ms
+			ProjectSettingsPostprocessor.OnPostprocessAllAssets 0.200ms
+			AudioMixerPostprocessor.OnPostprocessAllAssets 0.192ms
+			AudioContainerPostProcessor.OnPostprocessAllAssets 0.055ms
+	PostAssetChangesProfiler: 34.114ms
+	UnloadStreamsBegin: 2.020ms
+	PersistCurrentRevisions: 0.242ms
+	GenerateScriptTypeHashes: 2.383ms
+	GenerateScriptTypeSerializationHashes: 4.935ms
+	Untracked: 1313.148ms
+
+Application.AssetDatabase Initial Refresh End
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
+Scanning for USB devices : 9.764ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-AlkoOlimpiada
+Unloading 131 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 9309 unused Assets / (29.0 MB). Loaded Objects now: 10438.
+Memory consumption went from 0.55 GB to 0.52 GB.
+Total: 35.304000 ms (FindLiveObjects: 1.266100 ms CreateObjectMapping: 3.372400 ms MarkObjects: 18.204700 ms  DeleteObjects: 12.454500 ms)
+
+Loaded scene 'Library/Unused/872dc354f12d1ce488f6af43945b1dce'
+	Deserialize:            2.990 ms
+	Integration:            63.774 ms
+	Integration of assets:  0.006 ms
+	Thread Wait Time:       0.031 ms
+	Total Operation Time:   66.801 ms
+[Bootstrap] Center: oś była zbita o (0,644, -0,112), Guy teraz (-0.01, -1.10, 0.11)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ProjectBootstrap:CenterCharacterModel () (at Assets/Editor/ProjectBootstrap.cs:817)
+
+(Filename: Assets/Editor/ProjectBootstrap.cs Line: 817)
+
+Importing 'GUID: 6dbafefb66a47cb45b120107b294d12b - Path: Assets/Prefabs/Player.prefab' with importer (PrefabImporter)
+Imported 'GUID: 6dbafefb66a47cb45b120107b294d12b' -> (Import Result ID: '67ff758ece8791ed930f175909c556ac') in 0.021 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=93ebd11e3e3a6fadf0fae850aa1ed783 DependenciesID=670c7cda13ec782e726a96c6c9bb6039 StaticDependenciesID=64de3908e79c718f9805d2c05f5866d7 
+Refreshing native plugins compatible for Editor in 4.49 ms, found 3 plugins.
+Asset Pipeline Refresh (id=52be7e0fb0b3abe489917acd0d895ad5): Total: 0.209 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 0000000000000000b000000000000000 - Path: ProjectSettings/EditorBuildSettings.asset' with importer (LibraryAssetImporter)
+Imported 'GUID: 0000000000000000b000000000000000' -> (Import Result ID: 'ff10dbacff4356c6932456eab9df5cb7') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=4647dd083cfc32cebcd7526e8846440c DependenciesID=15345bb98686c8e462405130794c0956 StaticDependenciesID=529f1a595fc1a279424fdea3dc4c9f01 
+Refreshing native plugins compatible for Editor in 4.09 ms, found 3 plugins.
+Asset Pipeline Refresh (id=0971a808300d7ff48a2559aa7b64979b): Total: 0.071 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Batchmode quit successfully invoked - shutting down!
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input Polling Thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-xarad-6000.5.3-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-xarad-6000.5.3 channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+CodeReloadManager destroyed
+Exiting batchmode successfully now!
+Exiting without the bug reporter. Application will terminate with return code 0

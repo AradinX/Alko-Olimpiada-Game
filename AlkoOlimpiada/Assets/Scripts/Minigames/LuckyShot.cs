@@ -5,143 +5,139 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Lucky Shot (Simon Says, drabinka — GDD 8.7): każda runda to sekwencja 6 strzałek.
-// Po fazie zapamiętywania odliczanie 3-2-1-SHOT i dopiero wtedy wolno wpisywać.
-// Pomyłka albo brak kompletu w czasie = odpadasz. Komplet = chwytasz kieliszek
-// ze stołu i wypijasz (odchył głowy). Po alkoholu strzałki bujają się przy pokazie.
+// Lucky Shot = "MENEL MÓWI" (Simon Says): wszyscy naraz wokół stołu z kieliszkiem.
+// Na ekranie lecą komendy, na reakcję masz ~2 s:
+//  - "MENEL MÓWI: kliknij [K]"      -> musisz kliknąć, inaczej odpadasz
+//  - "Kliknij [K]" (bez prefiksu!)  -> pułapka: klikniesz = odpadasz
+//  - "MENEL MÓWI: NIE klikaj [P]"   -> pułapka: klikniesz = odpadasz
+// Gra trwa do "MENEL MÓWI: SHOT! [F]" — kto pierwszy wciśnie F, wygrywa
+// (żywi ranked po refleksie, odpadli od najpóźniej wyeliminowanego).
 public class LuckyShot : Competition
 {
-    public int seqLen = 6;
-    public int maxRounds = 6;
-    public float showSeconds = 2.5f;
-    public float goCountdown = 3f;  // 3-2-1-SHOT między pokazem a wpisywaniem
-    public float answerSeconds = 8f;
+    public float answerSeconds = 2f;   // okno reakcji na komendę
+    public float gapSeconds = 1.1f;    // przerwa między komendami
+    public float shotSeconds = 3f;     // okno na F po "SHOT!"
+    public int shotAfterMin = 6, shotAfterMax = 9; // po ilu komendach pada SHOT
 
     protected override string AutoFlag => "-autolucky";
 
-    public NetworkVariable<FixedString64Bytes> Seq = new();
-    public NetworkVariable<int> Round = new();
+    public NetworkVariable<int> CmdId = new();
+    public NetworkVariable<FixedString128Bytes> CmdText = new();
+    public NetworkVariable<byte> CmdKey = new();     // indeks w pool
+    public NetworkVariable<bool> CmdShot = new();
+    public NetworkVariable<double> CmdEndsAt = new();
     public NetworkVariable<int> AliveCount = new();
-    public NetworkVariable<double> HideAt = new();
-    public NetworkVariable<double> AnswerAt = new();   // koniec odliczania = start wpisywania
-    public NetworkVariable<double> RoundEndsAt = new();
 
-    static readonly char[] glyphs = { 'U', 'D', 'L', 'R' };
-    static readonly string[] arrows = { "^", "v", "<", ">" };
+    // klawisze nieużywane przez systemy gry (bez V/Q/E/F/R/G i WASD)
+    static readonly (Key key, string name)[] pool =
+    { (Key.K, "K"), (Key.P, "P"), (Key.M, "M"), (Key.O, "O"), (Key.L, "L"),
+      (Key.B, "B"), (Key.N, "N"), (Key.Space, "SPACJA") };
 
     // serwer
     readonly List<ulong> alive = new();
-    readonly List<ulong> eliminated = new(); // najwcześniej odpadli = najgorsi (początek listy)
-    readonly Dictionary<ulong, int> progress = new();
-    readonly Dictionary<ulong, double> okTime = new();
-    readonly HashSet<ulong> failed = new(), doneOk = new();
+    readonly List<ulong> eliminated = new(); // najwcześniej odpadli = początek listy
+    readonly HashSet<ulong> pressedOk = new();
+    readonly Dictionary<ulong, double> shotTime = new();
+    int cmdCount, shotAfter;
+    bool cmdMenel, cmdNegated, judged;
 
     // klient
-    int myProg;
-    bool myOut, myRoundDone;
-    float nextAutoKey;
-    int lastShotBeep = -1; // beepy 3-2-1 + "SHOT" (0)
+    bool myOut, myPressed, autoPlanned;
+    double autoPressAt;
     float drinkAnimT = 99f;   // czas od startu animacji picia (99 = brak)
     Transform myGlass;
     Vector3 glassHome;
-
-    // linia przed stołem z kieliszkami (stół w scenie na z=-0.5)
-    protected override void GetPose(int index, int count, out Vector3 pos, out float yaw)
-    {
-        pos = new Vector3(index * 2f - (count - 1), 0.1f, -1.6f);
-        yaw = 0f;
-    }
 
     protected override void OnRaceStart()
     {
         alive.Clear();
         alive.AddRange(racers);
         eliminated.Clear();
-        StartRound(1);
-    }
-
-    void StartRound(int r)
-    {
-        Round.Value = r;
+        shotTime.Clear();
+        cmdCount = 0;
+        shotAfter = Random.Range(shotAfterMin, shotAfterMax + 1);
         AliveCount.Value = alive.Count;
-        progress.Clear(); okTime.Clear(); failed.Clear(); doneOk.Clear();
-        var s = "";
-        for (int i = 0; i < seqLen; i++)
-            s += glyphs[Random.Range(0, glyphs.Length)];
-        Seq.Value = s;
-        HideAt.Value = Now + showSeconds;
-        AnswerAt.Value = HideAt.Value + goCountdown;
-        RoundEndsAt.Value = AnswerAt.Value + answerSeconds;
-        RoundResetRpc(r);
-        Debug.Log($"[Lucky] runda {r}: {s} ({alive.Count} graczy)");
+        NextCommand();
     }
 
-    [Rpc(SendTo.ClientsAndHost)]
-    void RoundResetRpc(int r)
+    void NextCommand() // serwer
     {
-        myProg = 0;
-        myRoundDone = false;
-        lastShotBeep = -1;
-        if (r == 1) myOut = false;
+        cmdCount++;
+        pressedOk.Clear();
+        judged = false;
+        CmdShot.Value = cmdCount > shotAfter;
+        if (CmdShot.Value)
+        {
+            cmdMenel = true; cmdNegated = false;
+            CmdText.Value = "MENEL MÓWI: SHOT!  wciśnij [F]";
+            CmdEndsAt.Value = Now + shotSeconds;
+        }
+        else
+        {
+            int k = Random.Range(0, pool.Length);
+            CmdKey.Value = (byte)k;
+            float roll = Random.value;
+            cmdMenel = roll < 0.75f;          // 25% pułapka bez prefiksu
+            cmdNegated = cmdMenel && roll < 0.20f; // 20% "NIE klikaj"
+            CmdText.Value = !cmdMenel ? $"Kliknij [{pool[k].name}]"
+                : cmdNegated ? $"MENEL MÓWI: NIE klikaj [{pool[k].name}]"
+                : $"MENEL MÓWI: kliknij [{pool[k].name}]";
+            CmdEndsAt.Value = Now + answerSeconds;
+        }
+        CmdId.Value++;
+        Debug.Log($"[Lucky] #{cmdCount}: {CmdText.Value} ({alive.Count} w grze)");
+    }
+
+    void Eliminate(ulong id, string why) // serwer
+    {
+        alive.Remove(id);
+        eliminated.Add(id);
+        AliveCount.Value = alive.Count;
+        OutRpc(RpcTarget.Single(id, RpcTargetUse.Temp));
+        Debug.Log($"[Lucky] {Olympics.Nick(id)} odpada ({why})");
     }
 
     [Rpc(SendTo.Server)]
-    void KeyRpc(byte g, RpcParams p = default)
+    void PressRpc(int cmdId, RpcParams p = default)
     {
-        if (State.Value != Phase.Running || Now < AnswerAt.Value || Now > RoundEndsAt.Value) return;
+        if (State.Value != Phase.Running || cmdId != CmdId.Value || Now > CmdEndsAt.Value) return;
         ulong id = p.Receive.SenderClientId;
-        if (!alive.Contains(id) || failed.Contains(id) || doneOk.Contains(id)) return;
+        if (!alive.Contains(id)) return;
 
-        int prog = progress.GetValueOrDefault(id);
-        if (Seq.Value[prog] == (byte)glyphs[g])
-        {
-            progress[id] = ++prog;
-            if (prog >= Seq.Value.Length) { doneOk.Add(id); okTime[id] = Now; }
-        }
-        else failed.Add(id);
-        StateRpc(progress.GetValueOrDefault(id),
-            doneOk.Contains(id) || failed.Contains(id), failed.Contains(id),
-            RpcTarget.Single(id, RpcTargetUse.Temp));
-    }
+        if (CmdShot.Value)
+        { if (!shotTime.ContainsKey(id)) shotTime[id] = Now; return; }
 
-    [Rpc(SendTo.SpecifiedInParams)]
-    void StateRpc(int prog, bool roundDone, bool outNow, RpcParams p = default)
-    {
-        myProg = prog;
-        myRoundDone = roundDone;
-        if (outNow) myOut = true;
-        else if (roundDone) StartDrinkAnim(); // komplet = shot!
-    }
-
-    protected override void RunningTick()
-    {
-        if (Round.Value == 0) return;
-        bool allDone = alive.All(a => doneOk.Contains(a) || failed.Contains(a));
-        if (!allDone && Now < RoundEndsAt.Value) return;
-
-        // rozliczenie: bez kompletu = odpadasz; mniejszy postęp = niższe miejsce
-        var outNow = alive.Where(a => !doneOk.Contains(a))
-            .OrderBy(a => progress.GetValueOrDefault(a)).ToList();
-        foreach (var a in outNow)
-        {
-            alive.Remove(a);
-            eliminated.Add(a);
-            OutRpc(RpcTarget.Single(a, RpcTargetUse.Temp));
-        }
-        if (outNow.Count > 0)
-            Debug.Log("[Lucky] odpadli: " + string.Join(", ", outNow.Select(Olympics.Nick)));
-
-        if (alive.Count <= 1 || Round.Value >= maxRounds) Finish(BuildRanking());
-        else StartRound(Round.Value + 1);
+        if (cmdMenel && !cmdNegated) pressedOk.Add(id);   // dobrze
+        else if (!pressedOk.Contains(id))                  // pułapka
+        { pressedOk.Add(id); Eliminate(id, "pułapka: " + CmdText.Value); }
     }
 
     [Rpc(SendTo.SpecifiedInParams)]
     void OutRpc(RpcParams p = default) => myOut = true;
 
+    protected override void RunningTick()
+    {
+        if (cmdCount == 0 || Now < CmdEndsAt.Value)
+        {
+            if (alive.Count <= (racers.Count > 1 ? 1 : 0) && cmdCount > 0 && !CmdShot.Value)
+                Finish(BuildRanking()); // (prawie) wszyscy odpadli przed SHOTEM
+            return;
+        }
+        if (!judged)
+        {
+            judged = true;
+            if (CmdShot.Value) { Finish(BuildRanking()); return; }
+            if (cmdMenel && !cmdNegated) // kto nie kliknął — odpada
+                foreach (var a in alive.Where(a => !pressedOk.Contains(a)).ToList())
+                    Eliminate(a, "zaspał");
+        }
+        if (Now >= CmdEndsAt.Value + gapSeconds) NextCommand();
+    }
+
     List<ulong> BuildRanking()
     {
-        // żywi na górze (szybszy komplet ostatniej rundy wyżej), potem odpadli od końca
-        var top = alive.OrderBy(a => okTime.GetValueOrDefault(a, double.MaxValue));
+        // żywi: najpierw wg refleksu przy SHOT, bez F na końcu żywych; potem odpadli od końca
+        var top = alive.OrderBy(a => shotTime.GetValueOrDefault(a, double.MaxValue));
         return top.Concat(Enumerable.Reverse(eliminated)).ToList();
     }
 
@@ -155,7 +151,6 @@ public class LuckyShot : Competition
         Sfx.Play("gulp");
         if (myGlass == null)
         {
-            // własny kieliszek = najbliższy Shot_i (bootstrap stawia 8 na stole)
             var po = NM.LocalClient?.PlayerObject;
             if (po == null) return;
             myGlass = Enumerable.Range(0, 8)
@@ -172,7 +167,7 @@ public class LuckyShot : Competition
         const float dur = 1.4f;
         if (drinkAnimT >= dur)
         {
-            if (myGlass != null && drinkAnimT < 98f) // odstaw po animacji
+            if (myGlass != null && drinkAnimT < 98f)
             { myGlass.SetPositionAndRotation(glassHome, Quaternion.identity); drinkAnimT = 99f; }
             return;
         }
@@ -180,7 +175,7 @@ public class LuckyShot : Competition
         var cam = OwnCamera();
         if (cam == null) return;
         float k = Mathf.Clamp01(drinkAnimT / dur);
-        float tilt = Mathf.Sin(k * Mathf.PI) * 35f; // odchył głowy i powrót
+        float tilt = Mathf.Sin(k * Mathf.PI) * 35f;
         cam.transform.localRotation *= Quaternion.Euler(-tilt, 0f, 0f);
         if (myGlass != null)
         {
@@ -193,77 +188,62 @@ public class LuckyShot : Competition
 
     protected override void ClientTick()
     {
-        if (State.Value != Phase.Running) return;
-        // beepy odliczania 3-2-1 i "SHOT!" — słyszą też widzowie
-        if (Now >= HideAt.Value && Now < AnswerAt.Value)
-        {
-            int s = Mathf.CeilToInt((float)(AnswerAt.Value - Now));
-            if (s != lastShotBeep) { lastShotBeep = s; Sfx.Play("beep"); }
-        }
-        else if (Now >= AnswerAt.Value && lastShotBeep > 0)
-        { lastShotBeep = 0; Sfx.Play("go"); }
+        if (State.Value != Phase.Running || myOut) return;
+        int id = CmdId.Value;
+        if (myLastCmd != id) { myLastCmd = id; myPressed = false; autoPlanned = false; }
+        if (Now > CmdEndsAt.Value) return;
 
-        if (myOut || myRoundDone) return;
-        if (Now < AnswerAt.Value || Now > RoundEndsAt.Value) return;
         var kb = Keyboard.current;
-        if (kb != null)
+        if (kb != null && !myPressed)
         {
-            if (kb.upArrowKey.wasPressedThisFrame) KeyRpc(0);
-            else if (kb.downArrowKey.wasPressedThisFrame) KeyRpc(1);
-            else if (kb.leftArrowKey.wasPressedThisFrame) KeyRpc(2);
-            else if (kb.rightArrowKey.wasPressedThisFrame) KeyRpc(3);
+            if (CmdShot.Value && kb.fKey.wasPressedThisFrame)
+            { myPressed = true; PressRpc(id); StartDrinkAnim(); }
+            else if (!CmdShot.Value && kb[pool[CmdKey.Value].key].wasPressedThisFrame)
+            { myPressed = true; PressRpc(id); }
         }
-        if (autoMode && Time.time >= nextAutoKey && myProg < Seq.Value.Length)
+
+        if (autoMode)
         {
-            nextAutoKey = Time.time + 0.3f;
-            int g = System.Array.IndexOf(glyphs, (char)Seq.Value[myProg]);
-            // ponytail: auto myli się w 10% — inaczej drabinka w smoke tescie nie ma końca
-            if (Random.value < 0.1f) g = (g + 1) % 4;
-            KeyRpc((byte)g);
+            string t = CmdText.Value.ToString();
+            bool should = CmdShot.Value
+                || (t.StartsWith("MENEL MÓWI") && !t.Contains("NIE klikaj"));
+            if (Random.value < 0.0015f) should = !should; // rzadkie pomyłki — ktoś musi odpaść
+            if (!autoPlanned) { autoPlanned = true; autoPressAt = Now + Random.Range(0.2f, 1.2f); }
+            if (should && !myPressed && Now >= autoPressAt)
+            { myPressed = true; PressRpc(id); if (CmdShot.Value) StartDrinkAnim(); }
         }
     }
+    int myLastCmd;
 
     protected override void DrawGame()
     {
         GUI.Label(new Rect(0, Screen.height * 0.14f, Screen.width, 26),
-            $"RUNDA {Round.Value}  —  w grze: {AliveCount.Value}", Ui.S(20));
-        var center = new Rect(0, Screen.height * 0.3f, Screen.width, 60);
+            $"MENEL MÓWI  —  w grze: {AliveCount.Value}", Ui.S(20));
         if (myOut)
         {
-            GUI.Label(center, "ODPADŁEŚ — oglądasz resztę", Ui.S(28));
+            GUI.Label(new Rect(0, Screen.height * 0.3f, Screen.width, 60),
+                "ODPADŁEŚ — oglądasz resztę", Ui.S(28));
             return;
         }
-        if (Now < HideAt.Value)
-        {
-            GUI.Label(new Rect(0, Screen.height * 0.22f, Screen.width, 30),
-                "ZAPAMIĘTAJ SEKWENCJĘ:", Ui.S(22));
-            DrawWobblySeq();
-            return;
-        }
-        if (Now < AnswerAt.Value) // 3-2-1 zanim wolno wpisywać
-        {
-            GUI.Label(center, Mathf.CeilToInt((float)(AnswerAt.Value - Now)).ToString(), Ui.S(72));
-            return;
-        }
-        if (Now - AnswerAt.Value < 0.8f && !myRoundDone)
-            GUI.Label(new Rect(0, Screen.height * 0.22f, Screen.width, 40), "SHOT!", Ui.S(40));
-        GUI.Label(center, myRoundDone
-            ? "KOMPLET! Na zdrowie — czekasz na resztę..."
-            : $"POWTÓRZ STRZAŁKAMI:  {myProg}/{Seq.Value.Length}", Ui.S(28));
-    }
+        if (Now > CmdEndsAt.Value) return; // przerwa między komendami
 
-    // po alkoholu strzałki pływają — trudniej zapamiętać
-    void DrawWobblySeq()
-    {
+        // komenda pływa po alkoholu — trudniej czytać
         float d = LocalDrunk01();
-        var s = Seq.Value.ToString();
-        float w = 46f, x0 = Screen.width / 2f - s.Length * w / 2f, y = Screen.height * 0.3f;
-        for (int i = 0; i < s.Length; i++)
-        {
-            float ox = (Mathf.PerlinNoise(Time.time * 1.3f, i * 7.3f) - 0.5f) * 70f * d;
-            float oy = (Mathf.PerlinNoise(i * 7.3f, Time.time * 1.1f) - 0.5f) * 50f * d;
-            GUI.Label(new Rect(x0 + i * w + ox, y + oy, w, 60),
-                arrows[System.Array.IndexOf(glyphs, s[i])], Ui.S(48));
-        }
+        float ox = (Mathf.PerlinNoise(Time.time * 1.3f, 3f) - 0.5f) * 90f * d;
+        float oy = (Mathf.PerlinNoise(7f, Time.time * 1.1f) - 0.5f) * 60f * d;
+        GUI.Label(new Rect(ox, Screen.height * 0.28f + oy, Screen.width, 60),
+            CmdText.Value.ToString(), Ui.S(CmdShot.Value ? 44 : 34));
+        if (myPressed)
+            GUI.Label(new Rect(0, Screen.height * 0.42f, Screen.width, 30), "kliknięte!", Ui.S(18));
+
+        // pasek czasu okna reakcji
+        float left = Mathf.Clamp01((float)((CmdEndsAt.Value - Now)
+            / (CmdShot.Value ? shotSeconds : answerSeconds)));
+        var bar = new Rect(Screen.width * 0.3f, Screen.height * 0.52f, Screen.width * 0.4f, 10f);
+        GUI.color = new Color(0f, 0f, 0f, 0.5f);
+        GUI.DrawTexture(bar, Texture2D.whiteTexture);
+        GUI.color = Color.Lerp(Color.red, Color.green, left);
+        GUI.DrawTexture(new Rect(bar.x, bar.y, bar.width * left, bar.height), Texture2D.whiteTexture);
+        GUI.color = Color.white;
     }
 }
