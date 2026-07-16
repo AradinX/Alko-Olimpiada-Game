@@ -1,0 +1,849 @@
+{
+    "Guy-final3-dodattki-bones": {
+        "Version": "1.10.1822.1",
+        "Scene": {
+            "Name": true,
+            "SupportShaderSelect": true
+        },
+        "Export Directory": "C:/Users/xarad/Alko-Olimpiada-Game/Assets/3D/Postać/wersja 2",
+        "Object": {
+            "Guy-final3-dodattki-bones": {
+                "Generation": "AccuRig",
+                "Physics": {
+                    "Collision Shapes": {
+                        "root": {},
+                        "CC_Base_Hip": {},
+                        "CC_Base_Pelvis": {},
+                        "CC_Base_L_Thigh": {},
+                        "CC_Base_L_Calf": {},
+                        "CC_Base_L_Foot": {},
+                        "CC_Base_L_ToeBaseShareBone": {},
+                        "CC_Base_L_ToeBase": {},
+                        "CC_Base_L_PinkyToe1": {},
+                        "CC_Base_L_RingToe1": {},
+                        "CC_Base_L_MidToe1": {},
+                        "CC_Base_L_IndexToe1": {},
+                        "CC_Base_L_BigToe1": {},
+                        "CC_Base_L_CalfTwist01": {},
+                        "CC_Base_L_CalfTwist02": {},
+                        "CC_Base_L_KneeShareBone": {},
+                        "CC_Base_L_ThighTwist01": {},
+                        "CC_Base_L_ThighTwist02": {},
+                        "CC_Base_R_Thigh": {},
+                        "CC_Base_R_ThighTwist01": {},
+                        "CC_Base_R_ThighTwist02": {},
+                        "CC_Base_R_Calf": {},
+                        "CC_Base_R_Foot": {},
+                        "CC_Base_R_ToeBase": {},
+                        "CC_Base_R_PinkyToe1": {},
+                        "CC_Base_R_BigToe1": {},
+                        "CC_Base_R_IndexToe1": {},
+                        "CC_Base_R_MidToe1": {},
+                        "CC_Base_R_RingToe1": {},
+                        "CC_Base_R_ToeBaseShareBone": {},
+                        "CC_Base_R_KneeShareBone": {},
+                        "CC_Base_R_CalfTwist01": {},
+                        "CC_Base_R_CalfTwist02": {},
+                        "CC_Base_Waist": {},
+                        "CC_Base_Spine01": {},
+                        "CC_Base_Spine02": {},
+                        "CC_Base_NeckTwist01": {},
+                        "CC_Base_NeckTwist02": {},
+                        "CC_Base_Head": {},
+                        "CC_Base_FacialBone": {},
+                        "CC_Base_JawRoot": {},
+                        "CC_Base_Tongue01": {},
+                        "CC_Base_Tongue02": {},
+                        "CC_Base_Tongue03": {},
+                        "CC_Base_Teeth02": {},
+                        "CC_Base_R_Eye": {},
+                        "CC_Base_L_Eye": {},
+                        "CC_Base_UpperJaw": {},
+                        "CC_Base_Teeth01": {},
+                        "CC_Base_L_Clavicle": {},
+                        "CC_Base_L_Upperarm": {},
+                        "CC_Base_L_Forearm": {},
+                        "CC_Base_L_ForearmTwist01": {},
+                        "CC_Base_L_ForearmTwist02": {},
+                        "CC_Base_L_ElbowShareBone": {},
+                        "CC_Base_L_Hand": {},
+                        "CC_Base_L_Mid1": {},
+                        "CC_Base_L_Mid2": {},
+                        "CC_Base_L_Mid3": {},
+                        "CC_Base_L_Index1": {},
+                        "CC_Base_L_Index2": {},
+                        "CC_Base_L_Index3": {},
+                        "CC_Base_L_Ring1": {},
+                        "CC_Base_L_Ring2": {},
+                        "CC_Base_L_Ring3": {},
+                        "CC_Base_L_Pinky1": {},
+                        "CC_Base_L_Pinky2": {},
+                        "CC_Base_L_Pinky3": {},
+                        "CC_Base_L_Thumb1": {},
+                        "CC_Base_L_Thumb2": {},
+                        "CC_Base_L_Thumb3": {},
+                        "CC_Base_L_UpperarmTwist01": {},
+                        "CC_Base_L_UpperarmTwist02": {},
+                        "CC_Base_R_Clavicle": {},
+                        "CC_Base_R_Upperarm": {},
+                        "CC_Base_R_UpperarmTwist01": {},
+                        "CC_Base_R_UpperarmTwist02": {},
+                        "CC_Base_R_Forearm": {},
+                        "CC_Base_R_ForearmTwist01": {},
+                        "CC_Base_R_ForearmTwist02": {},
+                        "CC_Base_R_ElbowShareBone": {},
+                        "CC_Base_R_Hand": {},
+                        "CC_Base_R_Mid1": {},
+                        "CC_Base_R_Mid2": {},
+                        "CC_Base_R_Mid3": {},
+                        "CC_Base_R_Ring1": {},
+                        "CC_Base_R_Ring2": {},
+                        "CC_Base_R_Ring3": {},
+                        "CC_Base_R_Thumb1": {},
+                        "CC_Base_R_Thumb2": {},
+                        "CC_Base_R_Thumb3": {},
+                        "CC_Base_R_Index1": {},
+                        "CC_Base_R_Index2": {},
+                        "CC_Base_R_Index3": {},
+                        "CC_Base_R_Pinky1": {},
+                        "CC_Base_R_Pinky2": {},
+                        "CC_Base_R_Pinky3": {},
+                        "CC_Base_R_RibsTwist": {},
+                        "CC_Base_R_Breast": {},
+                        "CC_Base_L_RibsTwist": {},
+                        "CC_Base_L_Breast": {},
+                        "tripo_mesh_1fb15a8b_e833_4799_80cb_c2692d23f125_002": {},
+                        "tripo_mesh_2304081b_0a10_4a98_9448_b516f51fdd4d_001": {},
+                        "tripo_mesh_2948f07b_de3b_4616_a559_874049ebe5fd_001": {},
+                        "tripo_mesh_778a004b_b44b_4f5a_8bd9_7e078e04b38b_002": {},
+                        "tripo_mesh_778a004b_b44b_4f5a_8bd9_7e078e04b38b_003": {},
+                        "tripo_mesh_781fccbd_390a_4e0d_ae7b_dc193de96952_001": {},
+                        "tripo_mesh_8ed0fdbf_7ab3_4bb9_916c_4c29f158191f_001": {},
+                        "tripo_mesh_9768b4b7_3ed7_40cb_9ddb_4435c65f2467_001": {},
+                        "tripo_mesh_aed41164_918c_4a06_a925_b86c9bec5ec2_001": {},
+                        "tripo_mesh_c78ada05_622f_40d0_8087_08b2b845e972_002": {},
+                        "tripo_mesh_c78ada05_622f_40d0_8087_08b2b845e972_003": {},
+                        "tripo_mesh_ce2ee2a1_bb47_4019_9aad_9705bb4ff2c9_001": {},
+                        "tripo_mesh_e3b31c4b_c0ba_4135_a2d4_40ab57ccbba2_002": {},
+                        "tripo_mesh_e3b31c4b_c0ba_4135_a2d4_40ab57ccbba2_003": {},
+                        "tripo_mesh_e76df342_49f8_41b2_8e87_7965c9e0f816_001": {}
+                    }
+                },
+                "ExpressionSet": "4",
+                "Expression": {
+                    "V_None": {
+                        "Bones": {}
+                    },
+                    "V_Open": {
+                        "Bones": {}
+                    },
+                    "V_Explosive": {
+                        "Bones": {}
+                    },
+                    "V_Dental_Lip": {
+                        "Bones": {}
+                    },
+                    "V_Tight_O": {
+                        "Bones": {}
+                    },
+                    "V_Tight": {
+                        "Bones": {}
+                    },
+                    "V_Wide": {
+                        "Bones": {}
+                    },
+                    "V_Affricate": {
+                        "Bones": {}
+                    },
+                    "V_Lip_Open": {
+                        "Bones": {}
+                    },
+                    "V_Tongue_up": {
+                        "Bones": {}
+                    },
+                    "V_Tongue_Raise": {
+                        "Bones": {}
+                    },
+                    "V_Tongue_Out": {
+                        "Bones": {}
+                    },
+                    "V_Tongue_Narrow": {
+                        "Bones": {}
+                    },
+                    "V_Tongue_Lower": {
+                        "Bones": {}
+                    },
+                    "V_Tongue_Curl_U": {
+                        "Bones": {}
+                    },
+                    "V_Tongue_Curl_D": {
+                        "Bones": {}
+                    },
+                    "Brow_Raise_Inner_L": {
+                        "Bones": {}
+                    },
+                    "Brow_Raise_Inner_R": {
+                        "Bones": {}
+                    },
+                    "Brow_Raise_Outer_L": {
+                        "Bones": {}
+                    },
+                    "Brow_Raise_Outer_R": {
+                        "Bones": {}
+                    },
+                    "Brow_Drop_L": {
+                        "Bones": {}
+                    },
+                    "Brow_Drop_R": {
+                        "Bones": {}
+                    },
+                    "Nose_Sneer_L": {
+                        "Bones": {}
+                    },
+                    "Nose_Sneer_R": {
+                        "Bones": {}
+                    },
+                    "Cheek_Raise_L": {
+                        "Bones": {}
+                    },
+                    "Cheek_Raise_R": {
+                        "Bones": {}
+                    },
+                    "Cheek_Puff_L": {
+                        "Bones": {}
+                    },
+                    "Cheek_Puff_R": {
+                        "Bones": {}
+                    },
+                    "Head_Turn_Up": {
+                        "Bones": {}
+                    },
+                    "Head_Turn_Down": {
+                        "Bones": {}
+                    },
+                    "Head_Turn_L": {
+                        "Bones": {}
+                    },
+                    "Head_Turn_R": {
+                        "Bones": {}
+                    },
+                    "Head_Tilt_L": {
+                        "Bones": {}
+                    },
+                    "Head_Tilt_R": {
+                        "Bones": {}
+                    },
+                    "Head_L": {
+                        "Bones": {}
+                    },
+                    "Head_R": {
+                        "Bones": {}
+                    },
+                    "Head_Forward": {
+                        "Bones": {}
+                    },
+                    "Head_Backward": {
+                        "Bones": {}
+                    },
+                    "Jaw_Open": {
+                        "Bones": {}
+                    },
+                    "Jaw_Forward": {
+                        "Bones": {}
+                    },
+                    "Jaw_L": {
+                        "Bones": {}
+                    },
+                    "Jaw_R": {
+                        "Bones": {}
+                    },
+                    "Tongue_Out": {
+                        "Bones": {}
+                    },
+                    "Tongue_Up": {
+                        "Bones": {}
+                    },
+                    "Tongue_Down": {
+                        "Bones": {}
+                    },
+                    "Tongue_Tip_Up": {
+                        "Bones": {}
+                    },
+                    "Tongue_Tip_Down": {
+                        "Bones": {}
+                    },
+                    "Tongue_Narrow": {
+                        "Bones": {}
+                    },
+                    "Tongue_Wide": {
+                        "Bones": {}
+                    },
+                    "Tongue_Roll": {
+                        "Bones": {}
+                    },
+                    "Tongue_L": {
+                        "Bones": {}
+                    },
+                    "Tongue_R": {
+                        "Bones": {}
+                    },
+                    "Tongue_Bulge_L": {
+                        "Bones": {}
+                    },
+                    "Tongue_Bulge_R": {
+                        "Bones": {}
+                    },
+                    "Eye_Blink_L": {
+                        "Bones": {}
+                    },
+                    "Eye_Blink_R": {
+                        "Bones": {}
+                    },
+                    "Eye_Squint_L": {
+                        "Bones": {}
+                    },
+                    "Eye_Squint_R": {
+                        "Bones": {}
+                    },
+                    "Eye_Wide_L": {
+                        "Bones": {}
+                    },
+                    "Eye_Wide_R": {
+                        "Bones": {}
+                    },
+                    "Eye_L_Look_L": {
+                        "Bones": {}
+                    },
+                    "Eye_R_Look_L": {
+                        "Bones": {}
+                    },
+                    "Eye_L_Look_R": {
+                        "Bones": {}
+                    },
+                    "Eye_R_Look_R": {
+                        "Bones": {}
+                    },
+                    "Eye_L_Look_Up": {
+                        "Bones": {}
+                    },
+                    "Eye_R_Look_Up": {
+                        "Bones": {}
+                    },
+                    "Eye_L_Look_Down": {
+                        "Bones": {}
+                    },
+                    "Eye_R_Look_Down": {
+                        "Bones": {}
+                    },
+                    "Mouth_Smile_L": {
+                        "Bones": {}
+                    },
+                    "Mouth_Smile_R": {
+                        "Bones": {}
+                    },
+                    "Mouth_Frown_L": {
+                        "Bones": {}
+                    },
+                    "Mouth_Frown_R": {
+                        "Bones": {}
+                    },
+                    "Mouth_Stretch_L": {
+                        "Bones": {}
+                    },
+                    "Mouth_Stretch_R": {
+                        "Bones": {}
+                    },
+                    "Mouth_Dimple_L": {
+                        "Bones": {}
+                    },
+                    "Mouth_Dimple_R": {
+                        "Bones": {}
+                    },
+                    "Mouth_Press_L": {
+                        "Bones": {}
+                    },
+                    "Mouth_Press_R": {
+                        "Bones": {}
+                    },
+                    "Mouth_Pucker": {
+                        "Bones": {}
+                    },
+                    "Mouth_Funnel": {
+                        "Bones": {}
+                    },
+                    "Mouth_Roll_In_Upper": {
+                        "Bones": {}
+                    },
+                    "Mouth_Roll_In_Lower": {
+                        "Bones": {}
+                    },
+                    "Mouth_L": {
+                        "Bones": {}
+                    },
+                    "Mouth_R": {
+                        "Bones": {}
+                    },
+                    "Mouth_Shrug_Upper": {
+                        "Bones": {}
+                    },
+                    "Mouth_Shrug_Lower": {
+                        "Bones": {}
+                    },
+                    "Mouth_Up_Upper_L": {
+                        "Bones": {}
+                    },
+                    "Mouth_Up_Upper_R": {
+                        "Bones": {}
+                    },
+                    "Mouth_Down_Lower_L": {
+                        "Bones": {}
+                    },
+                    "Mouth_Down_Lower_R": {
+                        "Bones": {}
+                    },
+                    "Mouth_Close": {
+                        "Bones": {}
+                    }
+                },
+                "Constraint": {},
+                "Meshes": {
+                    "tripo_mesh_1fb15a8b_e833_4799_80cb_c2692d23f125_002": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_1fb15a8b_e833_4799_80cb_c2692d23f125_001_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_2304081b_0a10_4a98_9448_b516f51fdd4d_001": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_2304081b_0a10_4a98_9448_b516f51fdd4d_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_2948f07b_de3b_4616_a559_874049ebe5fd_001": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_2948f07b_de3b_4616_a559_874049ebe5fd_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_778a004b_b44b_4f5a_8bd9_7e078e04b38b_002": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_778a004b_b44b_4f5a_8bd9_7e078e04b38b_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_778a004b_b44b_4f5a_8bd9_7e078e04b38b_003": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_778a004b_b44b_4f5a_8bd9_7e078e04b38b_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_781fccbd_390a_4e0d_ae7b_dc193de96952_001": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_781fccbd_390a_4e0d_ae7b_dc193de96952_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_8ed0fdbf_7ab3_4bb9_916c_4c29f158191f_001": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_8ed0fdbf_7ab3_4bb9_916c_4c29f158191f_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_9768b4b7_3ed7_40cb_9ddb_4435c65f2467_001": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_9768b4b7_3ed7_40cb_9ddb_4435c65f2467_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_aed41164_918c_4a06_a925_b86c9bec5ec2_001": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_aed41164_918c_4a06_a925_b86c9bec5ec2_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_c78ada05_622f_40d0_8087_08b2b845e972_002": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_c78ada05_622f_40d0_8087_08b2b845e972_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_c78ada05_622f_40d0_8087_08b2b845e972_003": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_c78ada05_622f_40d0_8087_08b2b845e972_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_ce2ee2a1_bb47_4019_9aad_9705bb4ff2c9_001": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_ce2ee2a1_bb47_4019_9aad_9705bb4ff2c9_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_e3b31c4b_c0ba_4135_a2d4_40ab57ccbba2_002": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_e3b31c4b_c0ba_4135_a2d4_40ab57ccbba2_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_e3b31c4b_c0ba_4135_a2d4_40ab57ccbba2_003": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_e3b31c4b_c0ba_4135_a2d4_40ab57ccbba2_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    },
+                    "tripo_mesh_e76df342_49f8_41b2_8e87_7965c9e0f816_001": {
+                        "SubD Level": 0,
+                        "Materials": {
+                            "tripo_material_e76df342_49f8_41b2_8e87_7965c9e0f816_Pbr": {
+                                "Material Type": "Pbr",
+                                "MultiUV Index": 0,
+                                "Two Side": true,
+                                "Diffuse Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Ambient Color": [
+                                    12.973380088806153,
+                                    12.973380088806153,
+                                    12.973380088806153
+                                ],
+                                "Specular Color": [
+                                    204.0,
+                                    204.0,
+                                    204.0
+                                ],
+                                "Opacity": 1.0,
+                                "Self Illumination": 0.0,
+                                "Textures": {},
+                                "Resource Textures": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
