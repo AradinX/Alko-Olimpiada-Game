@@ -1,0 +1,804 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.5/staging' branch; Version is '6000.5.3f1 (c2eb47b3a2a9) revision 12774215'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) Core' Language: 'pl' Physical Memory: 32424 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-07-16T12:24:24Z
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-xarad" at "2026-07-16T12:24:24.165385Z"
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Unity.exe
+-batchmode
+-nographics
+-quit
+-projectPath
+C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada
+-executeMethod
+ProjectBootstrap.SetupWardrobe
+-logFile
+C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\wardrobe.log
+Successfully changed project path to: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada
+C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-main-allocator-mimalloc-enabled=0"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+Logging is directed to a specific file, skipping project log.Player connection [46380]  Target information:
+
+Player connection [46380]  * "[IP] 192.168.100.74 [Port] 55504 [Flags] 2 [Guid] 2967210691 [EditorId] 2967210691 [Version] 1048832 [Id] WindowsEditor(7,Adrian) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [46380] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [46380] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Licensing::Client] Error: HandshakeResponse reported an error:
+	ResponseCode: 505
+	ResponseStatus: Unsupported protocol version '1.18.1'.
+[Licensing::Module] Error: Failed to handshake to channel: "LicenseClient-xarad"
+[Licensing::IpcConnector] LicenseClient-xarad channel disconnected successfully.
+[Licensing::IpcConnector] Channel LicenseClient-xarad-6000.5.3 doesn't exist
+[Licensing::Module] Successfully launched the LicensingClient (PId: 41656)
+[Package Manager] Connected to IPC stream "Upm-39264" after 0.2 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-xarad-6000.5.3" at "2026-07-16T12:24:25.4142769Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 41656, path: "C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              6b76850960cd4e3a924110c85a6cddd5
+  Correlation Id:          4f1fd17f3a132cb2ab9e2ed26b1c05d8
+  External correlation Id: 5401889460396362428
+  Machine Id:              21G62mCnPenogjNvmLe27qd98KE=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-xarad-6000.5.3" (connect: 0.57s, validation: 0.18s, handshake: 0.07s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-xarad-6000.5.3-notifications" at "2026-07-16T12:24:25.662813Z"
+[Licensing::Module] Connected to LicensingClient (PId: 41656, launch time: 0.01, total connection time: 0.81s)
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 7972593181078-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 1.57s
+[Licensing::Module] Licensing is initialized (took 0.81s).
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Artifact Garbage Collection - Removed 1 unused hashed content files
+Initialize engine version: 6000.5.3f1 (c2eb47b3a2a9)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada/Assets
+Forcing GfxDevice: Null
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/BCLExtensions/runtime/netstandard2.1'
+Mono path[2] = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56264
+CodeReloadManager initialized
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.5.3f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.008015 seconds.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.307 seconds
+Domain Reload Profiling: 743ms
+	BeginReloadAssembly (104ms)
+	RebuildCommonClasses (4ms)
+	RebuildNativeTypeToScriptingClass (18ms)
+	initialDomainReloadingComplete (58ms)
+	LoadAllAssembliesAndSetupDomain (250ms)
+		LoadAssemblies (100ms)
+		AnalyzeDomain (188ms)
+			TypeCache.Refresh (187ms)
+				TypeCache.ScanAssembly (172ms)
+	FinalizeReload (309ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (66ms)
+			ProcessInitializeOnLoadAttributes (76ms)
+			ProcessInitializeOnLoadMethodAttributes (110ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 64 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.ai.assistant@2.13.0-pre.2 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ai.assistant@6fee27370e6a)
+    com.unity.ai.inference@2.6.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ai.inference@9a123aee5df7)
+    com.unity.inputsystem@1.19.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.inputsystem@21a28c3a6c83)
+    com.unity.netcode.gameobjects@2.13.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.netcode.gameobjects@0f12e689d980)
+    com.unity.services.authentication@3.7.3 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.authentication@4e591ebe4d6b)
+    com.unity.services.relay@1.1.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.relay@8184f21eb2dd)
+    com.unity.services.vivox@16.11.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.vivox@50a15770bdad)
+    com.unity.services.core@1.18.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.core@3464cb68d709)
+    com.unity.settings-manager@2.1.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.settings-manager@0b8638c5ce86)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.services.qos@1.4.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.services.qos@03d4b52d4980)
+    com.unity.nuget.mono-cecil@1.11.6 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.burst@1.8.29 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.burst@6bb9aca3ef38)
+    com.unity.dt.app-ui@2.1.7 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.dt.app-ui@b097002a00c2)
+    com.unity.searcher@4.9.4 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.searcher@d45a78918735)
+    com.unity.test-framework.performance@3.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.test-framework.performance@8b56083ec0f0)
+  Built-in packages:
+    com.unity.multiplayer.center@1.0.1 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.multiplayer.center@b860850997d0)
+    com.unity.render-pipelines.universal@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.render-pipelines.universal@276396f56b3f)
+    com.unity.ugui@2.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ugui@377fd60ad87b)
+    com.unity.modules.accessibility@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.ai@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.physicscore2d@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.physicscore2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vectorgraphics@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.vehicles@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.wind@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.transport@6.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.transport@0e7d0f4a8f2e)
+    com.unity.render-pipelines.core@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.render-pipelines.core@0733e3164aa3)
+    com.unity.shadergraph@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.shadergraph@8aa9acb51790)
+    com.unity.render-pipelines.universal-config@17.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.render-pipelines.universal-config@fdda01c80fe3)
+    com.unity.collections@6.5.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.collections@a43cabe808ca)
+    com.unity.2d.sprite@1.0.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.2d.sprite@053a968eab56)
+    com.unity.mathematics@1.4.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.mathematics@981956d94fb6)
+    com.unity.test-framework@1.7.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.test-framework@1405238725ab)
+    com.unity.ext.nunit@2.1.0 (location: C:\Users\xarad\Alko-Olimpiada-Game\AlkoOlimpiada\Library\PackageCache\com.unity.ext.nunit@44f7d31723bd)
+[Package Manager] com.unity.services.relay is deprecated: The Relay package is deprecated and will not receive further updates. The SDK is now part of the unified Multiplayer Services package (com.unity.services.multiplayer). Migrate to that package to access ongoing support and improvements.
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.06 seconds
+[ScriptCompilation] Requested script compilation because: AssetDatabase observed changes in script compilation related files
+Refreshing native plugins compatible for Editor in 49.84 ms, found 3 plugins.
+Starting: C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+DisplayProgressbar: Compiling Scripts
+ExitCode: 4 Duration: 0s240ms
+[ 620/1659  0s] WriteResponseFile Library/Bee/artifacts/rsp/4747638433968585886.rsp
+Rebuilding DAG because FileSignature timestamp changed: Library/Bee/1900b0aE-inputdata.json
+*** Tundra requires additional run (0.22 seconds), 1 items updated, 846 evaluated
+Starting: C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\netcorerun\netcorerun.exe "C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+WorkingDir: C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+ExitCode: 0 Duration: 1s991ms
+Starting: C:\Program Files\Unity\Hub\Editor\6000.5.3f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --dagfilejson="Library\Bee\1900b0aE.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada
+ExitCode: 0 Duration: 3s819ms
+Finished compiling graph: 1663 nodes, 37553 flattened edges (29345 ToBuild, 276 ToUse), maximum node priority 2289
+[ 787/1659  0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.rsp
+[1257/1659  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[1651/1659  1s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll (+2 others)
+Assets\Scripts\Minigames\Sprint500.cs(205,64): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Scripts\Minigames\Sprint500.cs(205,28): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Scripts\Drunk\DrunkSystem.cs(423,58): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Scripts\Drunk\DrunkSystem.cs(423,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+[1652/1659  0s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+Assets\Editor\ProjectBootstrap.cs(190,66): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(190,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(269,22): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+
+Assets\Editor\ProjectBootstrap.cs(300,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(300,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(304,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(304,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(331,66): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(331,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(360,71): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(360,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(370,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(370,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(389,73): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ProjectBootstrap.cs(389,28): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ProjectBootstrap.cs(408,18): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+
+Assets\Editor\ProjectBootstrap.cs(1131,13): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+[1653/1659  0s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll, with 142 defines and 376 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, Unity.Netcode.Editor.CodeGen.INetworkMessageILPP, Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP, Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP, Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running Unity.Netcode.Editor.CodeGen.INetworkMessageILPP
+
+running Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP
+
+running Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP
+
+running Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1654/1659  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[1655/1659  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+[1656/1659  1s] ILPostProcess Library/Bee/artifacts/1900b0aE.dag/post-processed/Assembly-CSharp.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll, with 144 defines and 362 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, Unity.Netcode.Editor.CodeGen.INetworkMessageILPP, Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP, Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP, Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running Unity.Netcode.Editor.CodeGen.INetworkMessageILPP
+
+running Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP
+
+running Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP
+
+running Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1657/1659  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[1658/1659  0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+*** Tundra build success (3.79 seconds), 10 items updated, 1659 evaluated
+Assets\Scripts\Minigames\Sprint500.cs(205,64): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Scripts\Minigames\Sprint500.cs(205,28): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Scripts\Drunk\DrunkSystem.cs(423,58): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Scripts\Drunk\DrunkSystem.cs(423,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(190,66): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(190,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(269,22): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Editor\ProjectBootstrap.cs(300,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(300,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(304,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(304,27): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(331,66): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(331,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(360,71): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(360,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(370,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(370,29): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(389,73): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ProjectBootstrap.cs(389,28): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ProjectBootstrap.cs(408,18): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Editor\ProjectBootstrap.cs(1131,13): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+AssetDatabase: script compilation time: 7.486776s
+Begin MonoManager ReloadAssembly
+Importing 'GUID: f5bec2f1a56f11440970582405541eb5 - Path: Assets/3D/Wardrobe' with importer (DefaultImporter)
+Imported 'GUID: f5bec2f1a56f11440970582405541eb5' -> (Import Result ID: '4a83dd95654910b75165d60652aca1c1') in 0.024 seconds [static dependencies only]. Details - ImportResultOutputID=5033087988e659abdc91a95e4ba4fec8 DependenciesID=4a0e44ab4da0eff10fbe50c2c755d497 StaticDependenciesID=c62d4fe205e39f7759b8a1e240eb8cef 
+Refreshing native plugins compatible for Editor in 3.68 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 3.77 ms, found 3 plugins.
+Refreshing native plugins compatible for Editor in 4.27 ms, found 3 plugins.
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+[Licensing::Client] Error: Code 404 while processing request (status: Found 0 entitlement groups and 0 free entitlements matching requested entitlement ids)
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  3.818 seconds
+Domain Reload Profiling: 4993ms
+	BeginReloadAssembly (267ms)
+		DisableScriptedObjects (19ms)
+		CreateAndSetChildDomain (135ms)
+	RebuildCommonClasses (6ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (63ms)
+	LoadAllAssembliesAndSetupDomain (825ms)
+		LoadAssemblies (498ms)
+		AnalyzeDomain (289ms)
+			TypeCache.Refresh (219ms)
+				TypeCache.ScanAssembly (206ms)
+			BuildScriptInfoCaches (64ms)
+			ResolveRequiredComponents (5ms)
+	FinalizeReload (3820ms)
+		SetupLoadedEditorAssemblies (0ms)
+			BeforeProcessingInitializeOnLoad (99ms)
+			ProcessInitializeOnLoadAttributes (2759ms)
+			ProcessInitializeOnLoadMethodAttributes (767ms)
+			AfterProcessingInitializeOnLoad (5ms)
+		AwakeInstancesAfterBackupRestoration (31ms)
+Importing 'GUID: 70f28f70c76c9d1458147e144ccf58af - Path: Assets/3D/Wardrobe/Laur.png' with importer (TextureImporter)
+Imported 'GUID: 70f28f70c76c9d1458147e144ccf58af' -> (Import Result ID: '2557d446a6512b4d60b1d194d019d0d3') in 0.159 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=98b476f06061db9f860c038974bf00e9 DependenciesID=960114035b36586cb1d7da2c3d9af497 StaticDependenciesID=57950a26694c0d0bc5128d28c674e439 
+Importing 'GUID: 82edccb9cd4c13f4bacf497d7a2dace1 - Path: Assets/3D/Wardrobe/Niewolnik.png' with importer (TextureImporter)
+Imported 'GUID: 82edccb9cd4c13f4bacf497d7a2dace1' -> (Import Result ID: 'c53815919f32a1b2d2de7b11c696cc97') in 0.125 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=01a694fbb0408b942aad0f8551c5a9c4 DependenciesID=895bfd5413828c44944cbb939a353b28 StaticDependenciesID=29a4969585fc66e4c56cca86f95228dd 
+Importing 'GUID: 0760c669f23fd2a42857134b2238d7b5 - Path: Assets/3D/Wardrobe/AsterixUbranie.png' with importer (TextureImporter)
+Imported 'GUID: 0760c669f23fd2a42857134b2238d7b5' -> (Import Result ID: '961e8cae293c7755f5ad1d9a0958dd8f') in 0.117 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=f78791867fa8faea28cb697c9c2c68b6 DependenciesID=846b8e558ca6bb0caeea3cd59b1fade4 StaticDependenciesID=a5046b262d4e1bd3de2fe036d6d5c7c7 
+Importing 'GUID: 5836b301dce3b094aa73420f784e08fe - Path: Assets/3D/Wardrobe/Body.png' with importer (TextureImporter)
+Imported 'GUID: 5836b301dce3b094aa73420f784e08fe' -> (Import Result ID: 'c016ca76e0879c3a3be97d67ffaccbd6') in 0.124 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=1e5bbce14890af0e38e5bb21c2808810 DependenciesID=d09ec82f103a4323adc80fd495527340 StaticDependenciesID=dbc04f6e60a882013fa296bca9cd6e17 
+Importing 'GUID: 584628f7ff262284094be795839f66c9 - Path: Assets/3D/Wardrobe/Szata.png' with importer (TextureImporter)
+Imported 'GUID: 584628f7ff262284094be795839f66c9' -> (Import Result ID: '58d881f8cf15ac5e0a4291fa5f45019c') in 0.108 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=202f21f1b711f633124643ee349e0b28 DependenciesID=7892361784df49dc04559241585a86a3 StaticDependenciesID=b4ad4d6b262e37916e1bd61a2ea8667e 
+Importing 'GUID: 2a3da7897606bb943a3d5e63a5b0f848 - Path: Assets/3D/Wardrobe/Sparta.png' with importer (TextureImporter)
+Imported 'GUID: 2a3da7897606bb943a3d5e63a5b0f848' -> (Import Result ID: '1b9006f1eff453d1f34fff76fdbf41ed') in 0.110 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=4cff5e00fe602e92215fed2c46fb44ae DependenciesID=e9b6ffb3c2bf95117b7375fd9b9f67c8 StaticDependenciesID=45f0eb4e766688951f62b85f16ddb593 
+Importing 'GUID: 9ab8e774227ff5149bd9b1ecdee52ed2 - Path: Assets/3D/Wardrobe/Cezar.png' with importer (TextureImporter)
+Imported 'GUID: 9ab8e774227ff5149bd9b1ecdee52ed2' -> (Import Result ID: 'c50c00a6698bd369b99d970846beef6a') in 0.126 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a871a52e5f9f805616e765e69e58b477 DependenciesID=0092a46f80021e1adec61fd347db77d7 StaticDependenciesID=33c35cb236a11182a62963bfed8bfa2d 
+Importing 'GUID: 7b4c1a6213371a543850407a5c99aed1 - Path: Assets/3D/Wardrobe/Buty.png' with importer (TextureImporter)
+Imported 'GUID: 7b4c1a6213371a543850407a5c99aed1' -> (Import Result ID: 'aa6f3e3ecf578b9325ffe2f44d428abb') in 0.102 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=8301a7bb93341d9f3cec0b33d85e65f3 DependenciesID=337c384a45020812b59290c078635bac StaticDependenciesID=be2eb5ebaa9178f204bc8fd7b69110a6 
+Importing 'GUID: 2c2cc4094f47cf94ca90b4bfd73dfc17 - Path: Assets/3D/Wardrobe/Zbroja.png' with importer (TextureImporter)
+Imported 'GUID: 2c2cc4094f47cf94ca90b4bfd73dfc17' -> (Import Result ID: 'd6d85737e61ef6504a87534652bd915b') in 0.124 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=5ec0ebe9a28b0214a5a8903124eb2d2f DependenciesID=da549219a8bd7500527699598db3e51f StaticDependenciesID=4d228f320187f10977649437a948d708 
+Importing 'GUID: fcff1be17cc5ada48b3a098f0b3efaf1 - Path: Assets/3D/Wardrobe/Asterix.png' with importer (TextureImporter)
+Imported 'GUID: fcff1be17cc5ada48b3a098f0b3efaf1' -> (Import Result ID: 'fd7b9f52c47e02df0f9238fecec964d4') in 0.103 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=bea7e4aa91a2f3cc920f8d26f4615c20 DependenciesID=322751d72b79c6d2a286dba756512c45 StaticDependenciesID=322da0d79a112d8e69a236a04cb37336 
+Importing 'GUID: ed880c683ebd0304786f894ed6f837a0 - Path: Assets/3D/Wardrobe/AsterixCzapka.png' with importer (TextureImporter)
+Imported 'GUID: ed880c683ebd0304786f894ed6f837a0' -> (Import Result ID: '90b9f85268d64cafd37cf231389e955a') in 0.077 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=f83aedb80238a9397ba0600b98179477 DependenciesID=d5a85a02a34a1da7adf49382a469bd42 StaticDependenciesID=8e57262ef3807ba2d6f436581efbc346 
+Importing 'GUID: be81f24c11515c3449b5f9cc5755d2b2 - Path: Assets/3D/Wardrobe/WieniecOliwny.png' with importer (TextureImporter)
+Imported 'GUID: be81f24c11515c3449b5f9cc5755d2b2' -> (Import Result ID: '28e2ae0896f6690c249655e6cfe652ae') in 0.093 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=c1d83b4e041b48abdee62a909fec2b02 DependenciesID=67809d13492c0f2ecf845841da469441 StaticDependenciesID=a12b1f49af0931b06a74b9b9f412c74f 
+Importing 'GUID: 36819b991a4695e428335a6b3663dab7 - Path: Assets/3D/GuyWardrobe.fbx' with importer (FBXImporter)
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.02 seconds
+Keyframe reduction: Ratio: 100.000000%;
+Keyframe reduction: Ratio: 100.000000%;
+Imported 'GUID: 36819b991a4695e428335a6b3663dab7' -> (Import Result ID: 'df2fcbe612470d5edecd9545f6d30c4c') in 0.413 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=830e9e258ca18ccb106785d013886cfe DependenciesID=caca6f3a8c628dc1db7a881f006edab0 StaticDependenciesID=a73394cf2203035ceb1aaca17c8e5f28 
+Importing 'GUID: 0916348d8e14b584babc50bc225a5f4f - Path: Assets/3D/Guy.fbx' with importer (FBXImporter)
+Imported 'GUID: 0916348d8e14b584babc50bc225a5f4f' -> (Import Result ID: 'b037826ed2a5109d19f78b92876eb392') in 0.037 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=8a6c77ce77baaed9d78239d1ccfaa944 DependenciesID=ebff82e6017ee44a4d5105aa00d10586 StaticDependenciesID=62de244e5fffbfcdc197f59bf31a4960 
+Importing 'GUID: 1142bbad8b9e8c44c83a9775ff120d37 - Path: Packages/com.unity.render-pipelines.core/Tests/Editor/UnifiedRayTracing/TraceRays.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "TraceRays.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 1142bbad8b9e8c44c83a9775ff120d37' -> (Import Result ID: '69464d18946302b3acee8c4dffed0a0a') in 0.045 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=e3f02d6a95fade61709ce612291bf670 DependenciesID=4c1f1555a1193b6f957ef25e81d4b0a2 StaticDependenciesID=83382896bf2194e2afb7a814a9f914cd 
+Importing 'GUID: d19f4f8a13b6edb48b986a47ec96402e - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/LightmapShadowMaskIntegration.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "LightmapShadowMaskIntegration.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: d19f4f8a13b6edb48b986a47ec96402e' -> (Import Result ID: 'a181645c0a64c672e8ace1c9d674728d') in 0.105 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=90c743cd793f8cb854109d2f9672d034 DependenciesID=e4f3ce2bd69daf6acb5de8e2798a216a StaticDependenciesID=14c19d6e640993fbe77b1f068828bf12 
+Importing 'GUID: 737a1597422c12547a8714d76a9406ec - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/LightmapGBufferDebug.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "LightmapGBufferDebug.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 737a1597422c12547a8714d76a9406ec' -> (Import Result ID: 'c008d31e27cd8529b1e16afabbc98657') in 0.014 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=a7248921070b0521abf2a13da75699e4 DependenciesID=962052acdd7938acc2aea07532bef0e8 StaticDependenciesID=8d11f009385b3a4cea3b53c3339efefb 
+Importing 'GUID: f32463968f29423cad25aee15a14b9f1 - Path: Packages/com.unity.render-pipelines.core/Runtime/Lighting/SurfaceCache/PunctualLightSampling.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "PunctualLightSampling.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: f32463968f29423cad25aee15a14b9f1' -> (Import Result ID: '15e3d0a3babd23aa1ea6f6e720d02059') in 0.030 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=5970767c81d21bdee7206221f1aca1cc DependenciesID=114ad2a50c56c13563e52d7f4e619522 StaticDependenciesID=fae2d39a41418b21bab2b70cd0d272f0 
+Importing 'GUID: 1451d029813b192429211be28181beab - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/LightmapNormalIntegration.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "LightmapNormalIntegration.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 1451d029813b192429211be28181beab' -> (Import Result ID: '08a8ffc5838111d1d16bef3bcd72229d') in 0.013 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=655598ba58cb107cbf20c1c9252d0e02 DependenciesID=46a314011e10007c324266779fa5494b StaticDependenciesID=6695b2a8ac591a9580bdd3907887ec37 
+Importing 'GUID: 94a070d33e408384bafc1dea4a565df9 - Path: Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/RenderingLayerMask/TraceRenderingLayerMask.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "TraceRenderingLayerMask.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 94a070d33e408384bafc1dea4a565df9' -> (Import Result ID: 'b816f6dfe4e2f82292a4497d5b2dd508') in 0.012 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=ce92b4d7726745b4653a537d66587198 DependenciesID=a5f7019412194f99d1fdda9ada4a4051 StaticDependenciesID=76c56abbfe1dea1698b482e1c311a1b3 
+Importing 'GUID: 94a39d12848d8d64ca962a72b74e7c50 - Path: Packages/com.unity.render-pipelines.core/Runtime/Lighting/SurfaceCache/Estimation.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "Estimation.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 94a39d12848d8d64ca962a72b74e7c50' -> (Import Result ID: 'a338a0ad17f6a70f15c839ec0f83f96e') in 0.014 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=73267742913a4df438f8db46bdf098e5 DependenciesID=a3c152ddee353d421aa87b89ec0f81d4 StaticDependenciesID=3d83c90598d39b20511fc2d468edef81 
+Importing 'GUID: 6513c3b892e933c4f8d00c19d5c47532 - Path: Packages/com.unity.render-pipelines.core/Tests/Editor/UnifiedRayTracing/TraceTransparentRays.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "TraceTransparentRays.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 6513c3b892e933c4f8d00c19d5c47532' -> (Import Result ID: 'b24c0b81abf50f28d1c9124c343c751b') in 0.008 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=adb5cd4621a0b1cd7dca5d40de4f1b7c DependenciesID=ff1b6feff62b8262a454080ed4882598 StaticDependenciesID=8372fb0bb36e1468fa9601c49a86d0e6 
+Importing 'GUID: 7624adbeb148b5c48ab5ab660cc2602a - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/LightmapIndirectIntegration.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "LightmapIndirectIntegration.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 7624adbeb148b5c48ab5ab660cc2602a' -> (Import Result ID: '68cca8038f1ab2e87f09ea58c208a309') in 0.015 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=83933badb5d1d280b5f8da34ecbfb786 DependenciesID=c2532a312b9858789d2a390930883c16 StaticDependenciesID=67a45332e0f51102f9bb9c93a750d036 
+Importing 'GUID: e9f4de6d1e07fb94f9a60d35b618f724 - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/LightmapGBufferIntegration.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "LightmapGBufferIntegration.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: e9f4de6d1e07fb94f9a60d35b618f724' -> (Import Result ID: 'c28c991270325b801089d0e6c23860ea') in 0.013 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=49c97efcd6d18dfa305174eff3e90d8f DependenciesID=ea4e4c4fda3465f4bb36013d7d380955 StaticDependenciesID=8b26c93a6e3373b36ba430a420b17d9a 
+Importing 'GUID: 5a2a534753fbdb44e96c3c78b5a6999d - Path: Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/DynamicGI/DynamicGISkyOcclusion.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "DynamicGISkyOcclusion.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 5a2a534753fbdb44e96c3c78b5a6999d' -> (Import Result ID: '7f3d7564e102b4bb66faba09b71babc4') in 0.014 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=36cb02e3b4cb4bd3ffed3b174f9bda8c DependenciesID=e04ce20508e65a6c73ea85c1ef28780a StaticDependenciesID=41b936436a30154af8a3b61f441fd564 
+Importing 'GUID: 5bbebdef5916845478fcef13fa10d89f - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/LightmapDirectIntegration.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "LightmapDirectIntegration.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 5bbebdef5916845478fcef13fa10d89f' -> (Import Result ID: 'adccc4d50eb72a7b104e72913eff0892') in 0.015 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=35c4c6c7d5c1cc2ed4ba306bd1c19f0e DependenciesID=405f78d90460c9d7ff41ad004e824173 StaticDependenciesID=49e7ce722dcdec23942b360d8297bad5 
+Importing 'GUID: fbc59f55df2416344b008dc23753cae2 - Path: Packages/com.unity.render-pipelines.core/Tests/Editor/UnifiedRayTracing/TraceRaysAndFetchAttributes.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "TraceRaysAndFetchAttributes.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: fbc59f55df2416344b008dc23753cae2' -> (Import Result ID: '0b0fae787995d6190b3a4c271bd85e81') in 0.009 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=642c8be78014c1f886e36892b17eea59 DependenciesID=35c660b31008f9a55b659a4c41cef03e StaticDependenciesID=8530ce6573ae9a6cd0b7e3b83f0a29ad 
+Importing 'GUID: 1c410815c01ce1d4d82c645c0cd45747 - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/LightmapAOIntegration.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "LightmapAOIntegration.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 1c410815c01ce1d4d82c645c0cd45747' -> (Import Result ID: 'ad2951fe46e9809ea564ae7ae6ebb939') in 0.016 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=db47c4179a7b4cc003158c4fe36c90d1 DependenciesID=ff94278fa72a23e3cd5b516af425935f StaticDependenciesID=750dfd3ce8976c275bbe79cdc0d3127f 
+Importing 'GUID: 2c32233d92a2d0745930664c087c5c9a - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/ProbeIntegrationValidity.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "ProbeIntegrationValidity.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 2c32233d92a2d0745930664c087c5c9a' -> (Import Result ID: 'b5e48a7414601219967e739ca2a3a7e7') in 0.011 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=40e4fad9bb3d5f09925ac7ec200ebb63 DependenciesID=fafe6f5dfae9cc3adc04f6f8c4aac69d StaticDependenciesID=29b4a31e24ae88c796e0b3135dc8eb9b 
+Importing 'GUID: ace95ac84e213794891b4bd7c9b3c158 - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/LightmapValidityIntegration.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "LightmapValidityIntegration.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: ace95ac84e213794891b4bd7c9b3c158' -> (Import Result ID: '4f439373fee29365f576ccb580ea840c') in 0.012 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=6fbe91d8723fb7fbcd7119b48ccad949 DependenciesID=c1b8b43bb73da9a2a63acee4497a63ff StaticDependenciesID=ba52e4c5fecd98843b40eedfc4866f08 
+Importing 'GUID: 5ecdabd800f05984696f22ba95284516 - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/ProbeIntegrationIndirect.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "ProbeIntegrationIndirect.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 5ecdabd800f05984696f22ba95284516' -> (Import Result ID: '151eafd39135381ca2aee1c8f8c1dc23') in 0.015 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=dc7bb30c2afb847d4eb6bfd54db1372f DependenciesID=8f371c424ecdf16e8ea33678c7514224 StaticDependenciesID=e2c127f94ccdcb83ca23463fb1f2a2e5 
+Importing 'GUID: 6e0b547bab30a804c8123974120d583f - Path: Packages/com.unity.render-pipelines.core/Tests/Runtime/PathTracing/PathIteratorTest.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "PathIteratorTest.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 6e0b547bab30a804c8123974120d583f' -> (Import Result ID: 'b9cc99518977ef163d339d4c27862393') in 0.014 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=eed6d52c69688774bf0e189a28c2b76d DependenciesID=6685afc59c1403e2b75c2d955fa08f25 StaticDependenciesID=109768bf87f2aa9106ce5a61082f1a11 
+Importing 'GUID: de3013e16d99f2746ab1735ec06a660b - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/ProbeIntegrationOcclusion.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "ProbeIntegrationOcclusion.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: de3013e16d99f2746ab1735ec06a660b' -> (Import Result ID: '25287b6d9a009b3fab6dc52052ff2c25') in 0.014 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=08c2dd618e52142bd3211e1531703ec1 DependenciesID=092096888296803792ea9aebd9391cb6 StaticDependenciesID=b27c26bc9001d433eb4742192dec8cdb 
+Importing 'GUID: 1f9bfe60b4ad75943a5281839c1a4e5c - Path: Packages/com.unity.render-pipelines.core/Runtime/PathTracing/Shaders/ProbeIntegrationDirect.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "ProbeIntegrationDirect.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: 1f9bfe60b4ad75943a5281839c1a4e5c' -> (Import Result ID: '58a8d0ed36e0f882dbbfc36347b202ed') in 0.017 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=647eb340d824c892aa133f0da7799639 DependenciesID=6299eea882471305892bc4a213e2d838 StaticDependenciesID=9976b23c91526db98b62402ee2637b09 
+Importing 'GUID: ff2cbab5da58bf04d82c5f34037ed123 - Path: Packages/com.unity.render-pipelines.core/Editor/Lighting/ProbeVolume/VirtualOffset/TraceVirtualOffset.urtshader' with importer (ScriptedImporter : Unity.Rendering.LightTransport.Editor:UnityEditor.Rendering.UnifiedRayTracing:UnifiedRTShaderImporter)
+
+Compiling Ray Tracing Shader "TraceVirtualOffset.urtshader", keywords = <no keywords>
+    finished in 0.00 seconds. Local cache hits 1, remote cache hits 0, compiled 0 platform variants
+Imported 'GUID: ff2cbab5da58bf04d82c5f34037ed123' -> (Import Result ID: '34044a683ebb05bce912222a69a87c7e') in 0.012 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=c18c6b7b5611c76b97d9344ef4c2145e DependenciesID=07bae693423b0044a1cf82e6a184a5e3 StaticDependenciesID=bb01cef5f5bbfce7bb5614b4f3a2af7b 
+Importing 'GUID: 6dbafefb66a47cb45b120107b294d12b - Path: Assets/Prefabs/Player.prefab' with importer (PrefabImporter)
+Imported 'GUID: 6dbafefb66a47cb45b120107b294d12b' -> (Import Result ID: '44f0f03c5069bf456a40835daca6843f') in 0.045 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=ba047cbcf16618ad945e4033b1af5344 DependenciesID=4aadfad5ae4ad6490479697988908a4e StaticDependenciesID=aed4b56b2007cc39e54b372a04620b13 
+Starting new worker id: 0 with log in C:/Users/xarad/Alko-Olimpiada-Game/AlkoOlimpiada/Logs/AssetImportWorkerHW0.log
+Refreshing native plugins compatible for Editor in 4.22 ms, found 3 plugins.
+
+Asset Pipeline Refresh (id=6149908c7c9709f469038c5adb1da6d9): Total: 17.406 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	(Values over 0.05ms)
+	Summary:
+		Imports: total=37 (actual=37, local cache=0, cache server=0)
+		Asset DB Process Time: managed=26 ms, native=7902 ms
+		Asset DB Callback time: managed=426 ms, native=271 ms
+		Scripting: domain reloads=1, domain reload time=1231 ms, compile time=7488 ms, other=59 ms
+		Project Asset Count: scripts=1987, non-scripts=4838
+		Asset File Changes: new=16, changed=18, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokePackagesCallback: 69.432ms
+	ApplyChangesToAssetFolders: 0.497ms
+	Scan: 198.410ms
+	Collect global state as custom dependencies: 3.383ms
+	OnSourceAssetsModified: 0.615ms
+	CategorizeScriptCompilationAssets: 118.748ms
+	ProcessAssetsWithTransientArtifactChanges: 67.396ms
+	CategorizeAssets: 78.566ms
+	CompileScripts: 7488.117ms
+	ImportOutOfDateAssets: 6237.002ms (3848.064ms without children)
+		ImportManagerImport: 2328.031ms (4.177ms without children)
+			UpdateCategorizedAssets: 1.159ms
+		UnloadImportedAssets: 0.920ms
+		ReloadImportedAssets: 5.084ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.780ms
+		ImportSchedulerStart: 59.166ms
+	PostProcessAllAssets: 620.791ms
+		ComputeShaderImportPostprocess 116.156ms
+		RaytracingShaderImportPostprocess 70.391ms
+		XRBuildSystem.XRAssetImported 1.002ms
+		VersionControlSettings.HiddenFilePostprocess 0.829ms
+		PostProcessCallbackCreateDeferredMaterials 0.078ms
+		ShaderAssetModifiedCallback 0.077ms
+		MonoPostProcessAllAssets: 424.663ms
+			AssetPostprocessor.OnPostprocessAllAssets 121.513ms
+			NetworkPrefabProcessor.OnPostprocessAllAssets 33.267ms
+			StyleCatalogPostProcessor.OnPostprocessAllAssets 25.257ms
+			SpriteSlicePostprocessor.OnPostprocessAllAssets 23.176ms
+			AssetReferenceReimportMonitor.OnPostprocessAllAssets 21.506ms
+			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 9.758ms
+			BuilderAssetPostprocessor.OnPostprocessAllAssets 4.834ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 1.723ms
+			GraphRefreshPostprocessor.OnPostprocessAllAssets 1.448ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 1.436ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 1.397ms
+			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 1.339ms
+			TextAssetPostProcessor.OnPostprocessAllAssets 1.304ms
+			AssetChangedListener.OnPostprocessAllAssets 1.160ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.972ms
+			SyncVS.PostprocessSyncProject 0.940ms
+			AssetChangeDetector.OnPostprocessAllAssets 0.939ms
+			MaterialPostprocessor.OnPostprocessAllAssets 0.802ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 0.683ms
+			InputActionAssetPostprocessor.OnPostprocessAllAssets 0.506ms
+			SpriteEditorTexturePostprocessor.OnPostprocessAllAssets 0.479ms
+			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 0.468ms
+			InputActionJsonNameModifierAssetProcessor.OnPostprocessAllAssets 0.415ms
+			PostProcessor.OnPostprocessAllAssets 0.343ms
+			SkillsProjectAssetPostprocessor.OnPostprocessAllAssets 0.318ms
+			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.276ms
+			AudioMixerPostprocessor.OnPostprocessAllAssets 0.269ms
+			ModelAssetProcessor.OnPostprocessAllAssets 0.257ms
+			SampleDependencyImporterPostProcessor.OnPostprocessAllAssets 0.251ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.236ms
+			TMPro_TexturePostProcessor.OnPostprocessAllAssets 0.202ms
+			AssetEvents.OnPostprocessAllAssets 0.183ms
+			ConfigAssetsTracker.OnPostprocessAllAssets 0.156ms
+			ProjectSettingsPostprocessor.OnPostprocessAllAssets 0.151ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.142ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.122ms
+			SpeedTreePostProcessor.OnPostprocessAllAssets 0.119ms
+			ScenarioDriftAssetsTracker.OnPostprocessAllAssets 0.092ms
+			AudioContainerPostProcessor.OnPostprocessAllAssets 0.063ms
+	PostAssetChangesProfiler: 8.277ms
+	UnloadStreamsBegin: 1.917ms
+	PersistCurrentRevisions: 0.394ms
+	GenerateScriptTypeHashes: 9.170ms
+	GenerateScriptTypeSerializationHashes: 31.120ms
+	Untracked: 2496.123ms
+
+Application.AssetDatabase Initial Refresh End
+Shader Hidden/ChartRasterizerHardware is not supported: GPU does not support conservative rasterization
+Shader Hidden/ChartRasterizerHardware is not supported: GPU does not support conservative rasterization
+Scanning for USB devices : 4.328ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-AlkoOlimpiada
+Unloading 163 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 9628 unused Assets / (14.7 MB). Loaded Objects now: 10654.
+Memory consumption went from 0.60 GB to 0.59 GB.
+Total: 22.175600 ms (FindLiveObjects: 0.542100 ms CreateObjectMapping: 2.459900 ms MarkObjects: 13.523900 ms  DeleteObjects: 5.647400 ms)
+
+Loaded scene 'Library/Unused/5e948569ec04d974bbf31dd56b8a3186'
+	Deserialize:            0.757 ms
+	Integration:            33.207 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.010 ms
+	Total Operation Time:   33.975 ms
+Importing 'GUID: 2c96c8342bb7955429f5f7570660fd07 - Path: Assets/3D/Wardrobe/BodyMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 2c96c8342bb7955429f5f7570660fd07' -> (Import Result ID: '4d4f4696abc13df2994f2192e3f4673e') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=ab74e368720e41a5efacc71e04813912 DependenciesID=1b4aa871964063503fef9208004946e5 StaticDependenciesID=f1781c5de73ee2eb14e5139c455d226b 
+Refreshing native plugins compatible for Editor in 4.10 ms, found 3 plugins.
+Asset Pipeline Refresh (id=25216f0eb51482042835ef3d2810d8b9): Total: 0.144 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 86b532c299db95c4590b73a84dfa8fcc - Path: Assets/3D/Wardrobe/ZbrojaMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 86b532c299db95c4590b73a84dfa8fcc' -> (Import Result ID: '44459e6896d8a184ab96a3379741b2ac') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=c31a983c6527f8426c08a3530eb82c00 DependenciesID=76379568bc3ca420852524195ba8eaa4 StaticDependenciesID=c1a1be2bd4f22eb048b7b4f2d9258875 
+Refreshing native plugins compatible for Editor in 4.07 ms, found 3 plugins.
+Asset Pipeline Refresh (id=85585f81dff889b42855c6a2f853aaac): Total: 0.085 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 4d1c7b993db44a14f89b0b0e18378080 - Path: Assets/3D/Wardrobe/SzataMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 4d1c7b993db44a14f89b0b0e18378080' -> (Import Result ID: 'be24ed9cf5622f175b3f213db2ab4950') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=9a07776b22e43242a13e80cab79da445 DependenciesID=6017d31123368b44b0c99930681a160d StaticDependenciesID=962875e83b32d8aac46636087a417be9 
+Worker ready: AssetImportWorkerHW0 0
+Refreshing native plugins compatible for Editor in 6.50 ms, found 3 plugins.
+Asset Pipeline Refresh (id=ef5c0bb21cc445c489915820735b999a): Total: 0.086 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 63b3539db89c0e1408dbf658fd5ca5ef - Path: Assets/3D/Wardrobe/CezarMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 63b3539db89c0e1408dbf658fd5ca5ef' -> (Import Result ID: '0e2312e64101b9fea5b14df9f1ff15d6') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=55da54c6cca9c1d09330f5058c86e032 DependenciesID=1f16ecc56303bfa7f07eb476434c708c StaticDependenciesID=f7cc27aa169d3ce84ea37eac5c370eae 
+Refreshing native plugins compatible for Editor in 4.73 ms, found 3 plugins.
+Asset Pipeline Refresh (id=1be42542cca73954cb68821501732206): Total: 0.086 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 6c9b8faf0378bdf4a84646a7802e347c - Path: Assets/3D/Wardrobe/SpartaMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 6c9b8faf0378bdf4a84646a7802e347c' -> (Import Result ID: 'b4d4ed77cd22ec2a74bb4c8c850ea675') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=8e8fe8347de2f8929472ae04aa6f97b6 DependenciesID=29424b47f0a519068b565d292c2683f2 StaticDependenciesID=4cb4e71e1c61b75d1cbbb815dbe48b42 
+Refreshing native plugins compatible for Editor in 5.46 ms, found 3 plugins.
+Asset Pipeline Refresh (id=012ac4b2d6c58904ab6544ff8552c7d0): Total: 0.100 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 45c20690be5adab4aa05d4b2e90cc7ea - Path: Assets/3D/Wardrobe/LaurMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 45c20690be5adab4aa05d4b2e90cc7ea' -> (Import Result ID: 'ffa971f95ac0bb48bd897e03569afb4b') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=1fe0ecd9614473448f9705c833c95eba DependenciesID=4ff3f2a63af10f430e840fc4412628e2 StaticDependenciesID=74ea1cbf431d02243f405f231619d424 
+Refreshing native plugins compatible for Editor in 4.59 ms, found 3 plugins.
+Asset Pipeline Refresh (id=b1c9dd758d8868e4aae1313cba1eb1db): Total: 0.085 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 18d5f2913675c6b4f8559e1668665687 - Path: Assets/3D/Wardrobe/WieniecOliwnyMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 18d5f2913675c6b4f8559e1668665687' -> (Import Result ID: '38226008a02336476f815f8cae9a5e32') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=a098a0cca66424ff98c4a050d38cebb7 DependenciesID=3bbc6b1a0b572293027ff746861c7b41 StaticDependenciesID=09bfb7744d007c4fc9239ebcb1bbb4cf 
+Refreshing native plugins compatible for Editor in 9.27 ms, found 3 plugins.
+Asset Pipeline Refresh (id=643597fe9112dc646bd59d01c39feda4): Total: 0.107 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 8a80ad2722660c042a264578b78cb644 - Path: Assets/3D/Wardrobe/AsterixMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 8a80ad2722660c042a264578b78cb644' -> (Import Result ID: '2fad27d8d2a8f60c5b09efae1a15dd1d') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=ae2baa9d8b60c0d3497ca4ee15e0217e DependenciesID=cba41fb75f91dd9be91222802df8fbbe StaticDependenciesID=95fa0df43666aa7ae38cf3ff52d4e697 
+Refreshing native plugins compatible for Editor in 4.58 ms, found 3 plugins.
+Asset Pipeline Refresh (id=e91210a1cf7d0cf41a5923f9e96f520b): Total: 0.087 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 76582a5ea93d097438463d229aa33bf5 - Path: Assets/3D/Wardrobe/AsterixUbranieMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 76582a5ea93d097438463d229aa33bf5' -> (Import Result ID: '18868b43e6649a20159132ec3cdad120') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=aa4b27140528357bd7480619cb396212 DependenciesID=cbb8ce12606452575cd337b6212d2744 StaticDependenciesID=d8ea011f6581d2e4cc34adc9928eb86e 
+Refreshing native plugins compatible for Editor in 4.02 ms, found 3 plugins.
+Asset Pipeline Refresh (id=1303450e87765764cbbe730d98147f1b): Total: 0.084 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: e3793cfc06e2f794c89b4aa2fd6d23af - Path: Assets/3D/Wardrobe/AsterixCzapkaMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: e3793cfc06e2f794c89b4aa2fd6d23af' -> (Import Result ID: '0bee3646d911ae702354eac63a5fbac1') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=4ec6319e1aaf658ccf4e2428fb790efa DependenciesID=6d20a6c18113b2cb8811fd5c91679eb8 StaticDependenciesID=b823d14d17ab11fac49ddbc0eb1b8554 
+Refreshing native plugins compatible for Editor in 4.43 ms, found 3 plugins.
+Asset Pipeline Refresh (id=b65f522359e827048809f63bc58284f7): Total: 0.085 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 4daaa5b4eb3a6294a98b640f438e86c3 - Path: Assets/3D/Wardrobe/NiewolnikMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 4daaa5b4eb3a6294a98b640f438e86c3' -> (Import Result ID: '6155f4962517bf277c3bf2eaece9e3fa') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=ec3f428223c818106847a4053ca7f028 DependenciesID=52633e26b6a528a2379bab4c272c6169 StaticDependenciesID=d7d583cfec0fafb4c4e4009d59eb237d 
+Refreshing native plugins compatible for Editor in 4.13 ms, found 3 plugins.
+Asset Pipeline Refresh (id=7942167933814f741ae9e35303379e00): Total: 0.083 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 6b308917175a16941ba9763cca26fe25 - Path: Assets/3D/Wardrobe/ButyMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 6b308917175a16941ba9763cca26fe25' -> (Import Result ID: '80d2519b6caef717946591b85b87c38a') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=bb7d442afd78fcfbd8bc4ed54a1d7574 DependenciesID=72ab82f6d22d71166d39a260c8cf7924 StaticDependenciesID=302690dc962bc176d5aab4e8f8cae154 
+Refreshing native plugins compatible for Editor in 3.97 ms, found 3 plugins.
+Asset Pipeline Refresh (id=5a55f4728dabd1e47b0f43e605fa27e8): Total: 0.091 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[Bootstrap] GuyWardrobe: body=(0.96, 1.09, 0.89), scale=1,6556, ciuchów=14
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ProjectBootstrap:SetupWardrobe () (at Assets/Editor/ProjectBootstrap.cs:1121)
+
+(Filename: Assets/Editor/ProjectBootstrap.cs Line: 1121)
+
+Importing 'GUID: 6dbafefb66a47cb45b120107b294d12b - Path: Assets/Prefabs/Player.prefab' with importer (PrefabImporter)
+Imported 'GUID: 6dbafefb66a47cb45b120107b294d12b' -> (Import Result ID: '84ce72087d57805eda22730fc8ecc3b2') in 0.006 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=755becd33a8da67fd6f66758fd394a9a DependenciesID=377448295492fd84101c529828f76f77 StaticDependenciesID=814872d971d57a784d267323691620ba 
+Refreshing native plugins compatible for Editor in 4.19 ms, found 3 plugins.
+Asset Pipeline Refresh (id=f9a2190e36ba53944bfde9fd550fb490): Total: 0.095 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Loaded scene 'Library/Unused/3cdcca9dcb6d6f348b1105fde6852afc'
+	Deserialize:            0.346 ms
+	Integration:            0.287 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       43.690 ms
+	Total Operation Time:   44.325 ms
+Importing 'GUID: 1bbdbaad81f29ce429912a707aed4765 - Path: Assets/Prefabs/Beer.prefab' with importer (PrefabImporter)
+Imported 'GUID: 1bbdbaad81f29ce429912a707aed4765' -> (Import Result ID: 'e9d1e966dc565cfbeec6f65ee2bb4c54') in 0.004 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=78c85aecf3d7d21bc01dbf3986a500b5 DependenciesID=cc8ba205ef01efd0f42bcc91d741a04d StaticDependenciesID=234ef681b4a358fd665c5b7ab8de1c7c 
+Refreshing native plugins compatible for Editor in 5.14 ms, found 3 plugins.
+Asset Pipeline Refresh (id=d61c0d66933e94e4ca6a185d0466522a): Total: 0.092 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Loaded scene 'Library/Unused/5e2fbdd0a14ec4a4f82c01845bd279dd'
+	Deserialize:            0.801 ms
+	Integration:            0.919 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       0.015 ms
+	Total Operation Time:   1.737 ms
+[Bootstrap] HandBottle: bounds=(0.09, 0.30, 0.09)
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ProjectBootstrap:SetupBottleAssets () (at Assets/Editor/ProjectBootstrap.cs:934)
+ProjectBootstrap:SetupWardrobe () (at Assets/Editor/ProjectBootstrap.cs:1127)
+
+(Filename: Assets/Editor/ProjectBootstrap.cs Line: 934)
+
+Importing 'GUID: 6dbafefb66a47cb45b120107b294d12b - Path: Assets/Prefabs/Player.prefab' with importer (PrefabImporter)
+Imported 'GUID: 6dbafefb66a47cb45b120107b294d12b' -> (Import Result ID: '3f75bdac23ff5fe0195281452e180aff') in 0.006 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=16f659f94d11778928cc556c393cecc3 DependenciesID=04e3a362c3a7d6c6ae0c6d46a2012c8c StaticDependenciesID=c02fac657ca56f5679bfdc7eec699247 
+Refreshing native plugins compatible for Editor in 4.02 ms, found 3 plugins.
+Asset Pipeline Refresh (id=862f39fe5788de44290a621ed265cdb3): Total: 0.102 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 0000000000000000b000000000000000 - Path: ProjectSettings/EditorBuildSettings.asset' with importer (LibraryAssetImporter)
+Imported 'GUID: 0000000000000000b000000000000000' -> (Import Result ID: 'ff10dbacff4356c6932456eab9df5cb7') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=4647dd083cfc32cebcd7526e8846440c DependenciesID=15345bb98686c8e462405130794c0956 StaticDependenciesID=529f1a595fc1a279424fdea3dc4c9f01 
+Importing 'GUID: 63b3539db89c0e1408dbf658fd5ca5ef - Path: Assets/3D/Wardrobe/CezarMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 63b3539db89c0e1408dbf658fd5ca5ef' -> (Import Result ID: 'de696b66764e2382c54768d43b89f159') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=55da54c6cca9c1d09330f5058c86e032 DependenciesID=4e845a8c27b84611462c5b681671de6a StaticDependenciesID=e7dd8ff16e2ad3a42233f447bcc616dd 
+Importing 'GUID: e3793cfc06e2f794c89b4aa2fd6d23af - Path: Assets/3D/Wardrobe/AsterixCzapkaMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: e3793cfc06e2f794c89b4aa2fd6d23af' -> (Import Result ID: '382f29420040978635b9e4d828be1122') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=4ec6319e1aaf658ccf4e2428fb790efa DependenciesID=c49fc1a9cbe8f53bb334a62ae699bacc StaticDependenciesID=6b46dcc13e5c27457b8da3f64c6a59de 
+Importing 'GUID: 45c20690be5adab4aa05d4b2e90cc7ea - Path: Assets/3D/Wardrobe/LaurMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 45c20690be5adab4aa05d4b2e90cc7ea' -> (Import Result ID: '8441965a61bffc5573e22edb4248d52b') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=1fe0ecd9614473448f9705c833c95eba DependenciesID=3311514f26ef00ee1acc5e255d299157 StaticDependenciesID=cad8c3ca178329dff482b66255578952 
+Importing 'GUID: 76582a5ea93d097438463d229aa33bf5 - Path: Assets/3D/Wardrobe/AsterixUbranieMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 76582a5ea93d097438463d229aa33bf5' -> (Import Result ID: '5da22f0dcab311635bc355daf5b2ec0b') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=aa4b27140528357bd7480619cb396212 DependenciesID=b8934c3c791866cc46307ec6e8357026 StaticDependenciesID=f61d0ece4b0504ec8c675f301889fcf5 
+Importing 'GUID: 86b532c299db95c4590b73a84dfa8fcc - Path: Assets/3D/Wardrobe/ZbrojaMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 86b532c299db95c4590b73a84dfa8fcc' -> (Import Result ID: '6150c8aa39edcb7b9bf9b77ba1990707') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=c31a983c6527f8426c08a3530eb82c00 DependenciesID=1df60528171d3a9060d37a5897e1049c StaticDependenciesID=cc639e6b8622a6f0c89f9451cfa4ee3d 
+Importing 'GUID: 18d5f2913675c6b4f8559e1668665687 - Path: Assets/3D/Wardrobe/WieniecOliwnyMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 18d5f2913675c6b4f8559e1668665687' -> (Import Result ID: 'c7f1f74a3fb91fd5b347403b708dc5f6') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=a098a0cca66424ff98c4a050d38cebb7 DependenciesID=3beb21d98eea2a8f162dee9b2695a80e StaticDependenciesID=26fa8baf359e12dd0badd9227298b8ca 
+Importing 'GUID: 8a80ad2722660c042a264578b78cb644 - Path: Assets/3D/Wardrobe/AsterixMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 8a80ad2722660c042a264578b78cb644' -> (Import Result ID: '58d831ea09ffb6b5ec0c52fc5b4980df') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=ae2baa9d8b60c0d3497ca4ee15e0217e DependenciesID=3c379c4fdef986de433e21cf0181c250 StaticDependenciesID=2d0d06f0d44e0370bd85ef83f096d6e0 
+Importing 'GUID: 6b308917175a16941ba9763cca26fe25 - Path: Assets/3D/Wardrobe/ButyMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 6b308917175a16941ba9763cca26fe25' -> (Import Result ID: '2b891aef8e30503a4115fab4939b38c2') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=bb7d442afd78fcfbd8bc4ed54a1d7574 DependenciesID=56461ba38c69d655a05e682ae7b7a20f StaticDependenciesID=1f7c5bbe5707a9ea33761ad67313bbe6 
+Importing 'GUID: 2c96c8342bb7955429f5f7570660fd07 - Path: Assets/3D/Wardrobe/BodyMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 2c96c8342bb7955429f5f7570660fd07' -> (Import Result ID: 'c2273343f99d445ae984217bf9a3e759') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=ab74e368720e41a5efacc71e04813912 DependenciesID=f4b522b7a82b40139851b622fd8bc0aa StaticDependenciesID=93e8f6c36ea14dcd01c24ff70f5dbeb5 
+Importing 'GUID: 6c9b8faf0378bdf4a84646a7802e347c - Path: Assets/3D/Wardrobe/SpartaMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 6c9b8faf0378bdf4a84646a7802e347c' -> (Import Result ID: '8892a212b7aa79b577ae6db40bfd9c09') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=8e8fe8347de2f8929472ae04aa6f97b6 DependenciesID=c5935ae34d1e55c9d3c8558ac98bfcd7 StaticDependenciesID=9fb9c1d77cd3d90b1fb79b211d92696f 
+Importing 'GUID: 4daaa5b4eb3a6294a98b640f438e86c3 - Path: Assets/3D/Wardrobe/NiewolnikMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 4daaa5b4eb3a6294a98b640f438e86c3' -> (Import Result ID: '4b0f364ebe5f99e43723b33de380a8b9') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=ec3f428223c818106847a4053ca7f028 DependenciesID=8f0c9329563763c6e380bc5526df2a15 StaticDependenciesID=9c630ca4bf2f87190adcd5e2b3a6c476 
+Importing 'GUID: 4d1c7b993db44a14f89b0b0e18378080 - Path: Assets/3D/Wardrobe/SzataMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 4d1c7b993db44a14f89b0b0e18378080' -> (Import Result ID: '880b02ff9551dcae669fc899b4db4493') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=9a07776b22e43242a13e80cab79da445 DependenciesID=8c27df51ffcca9e6d465e550c70855c1 StaticDependenciesID=b80aa3585a5794c53042ede59703fc1a 
+Refreshing native plugins compatible for Editor in 5.77 ms, found 3 plugins.
+Asset Pipeline Refresh (id=d31ee99cf4d93a9458b7e7974495a625): Total: 0.106 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[Bootstrap] SetupBottleAssets OK
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ProjectBootstrap:SetupBottleAssets () (at Assets/Editor/ProjectBootstrap.cs:939)
+ProjectBootstrap:SetupWardrobe () (at Assets/Editor/ProjectBootstrap.cs:1127)
+
+(Filename: Assets/Editor/ProjectBootstrap.cs Line: 939)
+
+Opening scene 'Assets/Scenes/Hub.unity'
+Unloading 24 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Assets/Scenes/Hub.unity'
+	Deserialize:            63.304 ms
+	Integration:            173.198 ms
+	Integration of assets:  0.013 ms
+	Thread Wait Time:       0.012 ms
+	Total Operation Time:   236.527 ms
+Unloading 275 unused Assets / (4.0 MB). Loaded Objects now: 11240.
+Memory consumption went from 0.60 GB to 0.60 GB.
+Total: 13.837400 ms (FindLiveObjects: 0.422600 ms CreateObjectMapping: 1.065900 ms MarkObjects: 12.199900 ms  DeleteObjects: 0.148300 ms)
+
+Importing 'GUID: 72874584f4e15fc40bbb107d8a7eea60 - Path: Assets/Prefabs/SzatniaMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 72874584f4e15fc40bbb107d8a7eea60' -> (Import Result ID: '4cab49372033623238cc4c86008d5a92') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=b08f8bf66e9b304bd9c46612e82da7ba DependenciesID=40f80eb325afd8ede60948aa84ac132a StaticDependenciesID=5a5077ef1470926c20088a1d9b50710e 
+Refreshing native plugins compatible for Editor in 4.01 ms, found 3 plugins.
+Asset Pipeline Refresh (id=45b21aaacd387d744a84c70dc01c4531): Total: 0.116 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: 72874584f4e15fc40bbb107d8a7eea60 - Path: Assets/Prefabs/SzatniaMat.mat' with importer (NativeFormatImporter)
+Imported 'GUID: 72874584f4e15fc40bbb107d8a7eea60' -> (Import Result ID: 'f2886d1b5d3de539ced950f813b19c04') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=b08f8bf66e9b304bd9c46612e82da7ba DependenciesID=59fd6086a6455c42d2e1caa01355b581 StaticDependenciesID=6b97f5463b5989d38467a4d796acaf6f 
+Refreshing native plugins compatible for Editor in 3.76 ms, found 3 plugins.
+Asset Pipeline Refresh (id=610051c471b52b949ae87e42606a175e): Total: 0.087 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Importing 'GUID: e96fb7e4235b8604aa6ea925c4a23906 - Path: Assets/Scenes/Hub.unity' with importer (DefaultImporter)
+Imported 'GUID: e96fb7e4235b8604aa6ea925c4a23906' -> (Import Result ID: '93fe9b34de68d058c476517f5bcc754b') in 0.002 seconds [static dependencies only]. Details - ImportResultOutputID=cd4d1104ace835ee2bdcd5250734ba7e DependenciesID=12914a552e35dac7e84c49f4b8ca6dfb StaticDependenciesID=ed852561fe360700ee67255645b14d39 
+Refreshing native plugins compatible for Editor in 4.17 ms, found 3 plugins.
+Asset Pipeline Refresh (id=7bbb7cdc3ccf3ba4e8bb08856d952e3a): Total: 0.084 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[Bootstrap] SetupWardrobe OK
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+ProjectBootstrap:SetupWardrobe () (at Assets/Editor/ProjectBootstrap.cs:1158)
+
+(Filename: Assets/Editor/ProjectBootstrap.cs Line: 1158)
+
+Batchmode quit successfully invoked - shutting down!
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input Polling Thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-xarad-6000.5.3-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-xarad-6000.5.3 channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+CodeReloadManager destroyed
+Exiting batchmode successfully now!
+Exiting without the bug reporter. Application will terminate with return code 0

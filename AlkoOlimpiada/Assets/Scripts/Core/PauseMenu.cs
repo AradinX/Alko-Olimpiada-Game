@@ -26,6 +26,7 @@ public class PauseMenu : MonoBehaviour
     {
         var nm = NetworkManager.Singleton;
         if (nm == null || !nm.IsClient || Cursor.lockState == CursorLockMode.Locked) return;
+        if (WardrobeShop.Open) return; // kursor odblokowała szatnia, nie ESC
 
         GUILayout.BeginArea(new Rect(Screen.width / 2f - 150f, Screen.height / 2f - 110f,
             300f, 220f), GUI.skin.box);
