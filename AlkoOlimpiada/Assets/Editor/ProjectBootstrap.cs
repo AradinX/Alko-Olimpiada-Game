@@ -1003,6 +1003,310 @@ public static class ProjectBootstrap
         EditorApplication.Exit(0);
     }
 
+    // Prototyp 9: model z garderobą (Assets/3D/GuyWardrobe.fbx = Guy-final3-dodattki-bones)
+    // — goła postać + 12 ciuchów przełączanych w Szatni na hubie. Nazwy węzłów FBX to
+    // GUID-y tripo; mapowanie na czytelne nazwy zdjęte z Guy-final3-dodatki.blend
+    // (parowanie po GUID + liczbie wierzchołków). Tekstury: Assets/3D/Wardrobe/*.png.
+    // Idempotentne.
+    public static void SetupWardrobe()
+    {
+        var model = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/GuyWardrobe.fbx");
+        if (model == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/GuyWardrobe.fbx"); EditorApplication.Exit(1); return; }
+
+        (string node, int item, string tex)[] map =
+        {
+            ("tripo_mesh_ce2ee2a1_bb47_4019_9aad_9705bb4ff2c9_001", -1, "Body"), // goła postać
+            ("tripo_mesh_9768b4b7_3ed7_40cb_9ddb_4435c65f2467_001",  0, "Zbroja"),
+            ("tripo_mesh_1fb15a8b_e833_4799_80cb_c2692d23f125_002",  1, "Szata"),
+            ("tripo_mesh_8ed0fdbf_7ab3_4bb9_916c_4c29f158191f_001",  2, "Cezar"),
+            ("tripo_mesh_781fccbd_390a_4e0d_ae7b_dc193de96952_001",  3, "Sparta"),
+            ("tripo_mesh_2948f07b_de3b_4616_a559_874049ebe5fd_001",  4, "Laur"),
+            ("tripo_mesh_e76df342_49f8_41b2_8e87_7965c9e0f816_001",  5, "WieniecOliwny"),
+            ("tripo_mesh_aed41164_918c_4a06_a925_b86c9bec5ec2_001",  6, "Asterix"),
+            ("tripo_mesh_e3b31c4b_c0ba_4135_a2d4_40ab57ccbba2_002",  7, "AsterixUbranie"), // koszulka
+            ("tripo_mesh_e3b31c4b_c0ba_4135_a2d4_40ab57ccbba2_003",  8, "AsterixUbranie"), // spodnie
+            ("tripo_mesh_2304081b_0a10_4a98_9448_b516f51fdd4d_001",  9, "AsterixCzapka"),
+            ("tripo_mesh_778a004b_b44b_4f5a_8bd9_7e078e04b38b_002", 10, "Niewolnik"), // góra
+            ("tripo_mesh_778a004b_b44b_4f5a_8bd9_7e078e04b38b_003", 10, "Niewolnik"), // dół
+            ("tripo_mesh_c78ada05_622f_40d0_8087_08b2b845e972_002", 11, "Buty"), // lewy
+            ("tripo_mesh_c78ada05_622f_40d0_8087_08b2b845e972_003", 11, "Buty"), // prawy
+        };
+        string[] itemNames = { "Zbroja", "Szata", "Cezar", "Sparta", "Laur", "Wieniec oliwny",
+            "Asterix", "Koszulka Asterixa", "Spodnie Asterixa", "Czapka Asterixa",
+            "Strój niewolnika", "Buty" };
+        // sloty: 0=Głowa 1=Strój 2=Spodnie 3=Pas 4=Buty — jedna rzecz na slot (PlayerOutfit.Toggle)
+        int[] itemSlots = { 1, 1, 1, 0, 0, 0, 3, 1, 2, 0, 1, 4 };
+
+        var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
+        var body = player.transform.Find("Body");
+        foreach (var n in new[] { "Torso", "Head", "ArmL", "ArmR", "LegL", "LegR", "Guy" })
+        {
+            var t = body.Find(n);
+            if (t != null) Object.DestroyImmediate(t.gameObject);
+        }
+
+        var inst = (GameObject)PrefabUtility.InstantiatePrefab(model, body);
+        inst.name = "Guy";
+        inst.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+        // URP Lit z albedo per ciuch; Cull Off — cienkie ubrania widoczne od środka
+        Material Mat(string tex)
+        {
+            string path = $"Assets/3D/Wardrobe/{tex}Mat.mat";
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (m == null)
+            {
+                var t = AssetDatabase.LoadAssetAtPath<Texture2D>($"Assets/3D/Wardrobe/{tex}.png");
+                if (t == null) Debug.LogError($"[Bootstrap] Brak tekstury Assets/3D/Wardrobe/{tex}.png");
+                m = new Material(Shader.Find("Universal Render Pipeline/Lit")) { mainTexture = t };
+                m.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Off);
+                AssetDatabase.CreateAsset(m, path);
+            }
+            return m;
+        }
+
+        var rs = inst.GetComponentsInChildren<Renderer>(true);
+        Renderer bodyR = null;
+        var pieces = new System.Collections.Generic.List<GameObject>();
+        var pieceItem = new System.Collections.Generic.List<int>();
+        foreach (var (node, item, tex) in map)
+        {
+            var r = rs.FirstOrDefault(x => x.name == node);
+            if (r == null)
+            {
+                Debug.LogError("[Bootstrap] Brak mesha " + node);
+                PrefabUtility.UnloadPrefabContents(player);
+                EditorApplication.Exit(1);
+                return;
+            }
+            r.sharedMaterial = Mat(tex);
+            if (item < 0) bodyR = r;
+            else { pieces.Add(r.gameObject); pieceItem.Add(item); }
+        }
+
+        // skala i pozycja po samym "body" — ciuchy (hełmy!) wystają ponad głowę
+        // i liczone razem zaniżyłyby wzrost postaci
+        var b0 = bodyR.bounds;
+        inst.transform.localScale = Vector3.one * (1.8f / b0.size.y);
+        var b1 = bodyR.bounds;
+        float skin = player.GetComponent<CharacterController>().skinWidth;
+        inst.transform.localPosition = new Vector3(-b1.center.x, -b1.min.y - skin, -b1.center.z);
+
+        // FBX z AccuRig przychodzi w T-pozie — opuść ramiona (na zewnątrz tułowia,
+        // znak strony liczony z pozycji barku, nie zgadywany z osi)
+        Transform Deep(Transform root, string name)
+        {
+            foreach (var t in root.GetComponentsInChildren<Transform>(true))
+                if (t.name == name) return t;
+            return null;
+        }
+        foreach (var side in new[] { "L", "R" })
+        {
+            Transform up = Deep(inst.transform, $"CC_Base_{side}_Upperarm");
+            Transform hand = Deep(inst.transform, $"CC_Base_{side}_Hand");
+            if (up == null || hand == null)
+            { Debug.LogWarning($"[Bootstrap] Brak kości ramienia {side}"); continue; }
+            Vector3 cur = hand.position - up.position;
+            if (cur.normalized.y < -0.85f) continue; // już opuszczone (rerun)
+            float ox = Mathf.Sign(up.position.x - body.position.x);
+            Vector3 want = new Vector3(ox * 0.25f, -1f, 0f).normalized;
+            up.rotation = Quaternion.FromToRotation(cur.normalized, want) * up.rotation;
+        }
+
+        var outfit = player.GetComponent<PlayerOutfit>();
+        if (outfit == null) outfit = player.AddComponent<PlayerOutfit>();
+        outfit.itemNames = itemNames;
+        outfit.itemSlot = itemSlots;
+        outfit.pieces = pieces.ToArray();
+        outfit.pieceItem = pieceItem.ToArray();
+        foreach (var p in pieces) p.SetActive(false); // domyślnie goły
+
+        Debug.Log($"[Bootstrap] GuyWardrobe: body={b0.size}, scale={inst.transform.localScale.x:F4}, ciuchów={pieces.Count}");
+        PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
+        PrefabUtility.UnloadPrefabContents(player);
+
+        // butelka w dłoni od nowa — stara referencja FollowBone.bone umarła razem
+        // ze starym modelem, a nowy rig ma świeżą kość CC_Base_R_Hand
+        SetupBottleAssets();
+
+        // budka Szatni na hubie (z dala od stanowisk konkurencji)
+        var scene = EditorSceneManager.OpenScene("Assets/Scenes/Hub.unity");
+        if (Object.FindFirstObjectByType<WardrobeShop>() == null)
+        {
+            var stall = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            stall.name = "Szatnia";
+            stall.transform.position = new Vector3(-6f, 1f, -26f);
+            stall.transform.localScale = new Vector3(3f, 2f, 1.5f);
+            var sm = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+            { color = new Color(0.55f, 0.35f, 0.75f) };
+            AssetDatabase.CreateAsset(sm, "Assets/Prefabs/SzatniaMat.mat");
+            stall.GetComponent<Renderer>().sharedMaterial = sm;
+            stall.AddComponent<WardrobeShop>();
+
+            var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(
+                "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset");
+            var lbl = new GameObject("Label_Szatnia");
+            lbl.transform.position = stall.transform.position + Vector3.up * 2.2f;
+            var tmp = lbl.AddComponent<TextMeshPro>();
+            if (font != null) tmp.font = font;
+            tmp.text = "SZATNIA";
+            tmp.fontSize = 10;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.rectTransform.sizeDelta = new Vector2(12f, 1.6f);
+            lbl.AddComponent<Billboard>();
+        }
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[Bootstrap] SetupWardrobe OK");
+    }
+
+    // Wyspa Michałka jako podłoże huba: mesh z wypieczonym reliefem (Assets/3D/Wyspa.fbx
+    // — bake displacementu i koloru z "Wyspa_michałka .blend", patrz scripts w scratchpadzie
+    // sesji; shader był proceduralny, więc zwykły eksport dałby płaską płytę). Teren ma
+    // ~18 m wzniesienia: dno morza ląduje na y=-2.2 (pod wodą i pod progiem respawnu -1.5),
+    // a wszystko co stało na płaskiej podłodze (stanowiska, pickupy, kolumny, szatnia,
+    // szyldy) jest doklejane do powierzchni raycastem na stałych ofsetach. Idempotentne.
+    public static void SetupIslandHub()
+    {
+        var model = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Wyspa.fbx");
+        if (model == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/Wyspa.fbx"); EditorApplication.Exit(1); return; }
+
+        var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/3D/WyspaMat.mat");
+        if (mat == null)
+        {
+            mat = new Material(Shader.Find("Universal Render Pipeline/Lit"))
+            { mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/3D/WyspaAlbedo.png") };
+            AssetDatabase.CreateAsset(mat, "Assets/3D/WyspaMat.mat");
+        }
+
+        var scene = EditorSceneManager.OpenScene("Assets/Scenes/Hub.unity");
+        var old = GameObject.Find("Island");
+        if (old != null) Object.DestroyImmediate(old);
+
+        var island = (GameObject)PrefabUtility.InstantiatePrefab(model);
+        island.name = "Island";
+        island.transform.position = new Vector3(0f, -2.2f, 0f); // płaskie dno pod wodą (-0.8)
+        foreach (var r in island.GetComponentsInChildren<Renderer>()) r.sharedMaterial = mat;
+        MeshCollider col = null;
+        foreach (var mf in island.GetComponentsInChildren<MeshFilter>())
+            col = mf.gameObject.AddComponent<MeshCollider>();
+        Physics.SyncTransforms();
+
+        float H(float x, float z) =>
+            col.Raycast(new Ray(new Vector3(x, 500f, z), Vector3.down), out var hit, 1000f)
+                ? hit.point.y : 0f;
+
+        // stały ofset nad terenem per typ obiektu (idempotentnie — bez dziedziczenia po starym y)
+        float Off(GameObject go) =>
+            go.GetComponent<CompetitionStation>() != null ? 0.25f
+            : go.name == "Szatnia" ? 1f
+            : go.name == "Label_Szatnia" ? 3.2f
+            : go.name.StartsWith("Label_") ? 3.45f
+            : go.name.StartsWith("Column_") ? 2f
+            : go.name == "TempleBlock" ? 1.5f
+            : 0f; // pickupy stoją na ziemi
+
+        foreach (var go in scene.GetRootGameObjects())
+        {
+            bool snap = go.GetComponent<CompetitionStation>() != null
+                || go.GetComponent<BeerPickup>() != null || go.GetComponent<PillPickup>() != null
+                || go.GetComponent<CigarettePickup>() != null || go.GetComponent<SnackPickup>() != null
+                || go.name == "Szatnia" || go.name == "TempleBlock"
+                || go.name.StartsWith("Label_") || go.name.StartsWith("Column_");
+            if (!snap) continue;
+            var p = go.transform.position;
+            go.transform.position = new Vector3(p.x, H(p.x, p.z) + Off(go), p.z);
+        }
+
+        EditorSceneManager.MarkSceneDirty(scene);
+        EditorSceneManager.SaveScene(scene);
+        AssetDatabase.SaveAssets();
+        Debug.Log($"[Bootstrap] SetupIslandHub OK: środek={H(0f, 0f):F2}, spawn={H(0f, -5f):F2}, "
+            + $"stacja(0,18)={H(0f, 18f):F2}, stacja(26,13)={H(26f, 13f):F2}, szatnia={H(-6f, -26f):F2}");
+    }
+
+    // Podgląd huba z lotu ptaka do PNG — weryfikacja terenu bez odpalania gry.
+    // Wymaga -batchmode BEZ -nographics.
+    public static void RenderHubPreview()
+    {
+        EditorSceneManager.OpenScene("Assets/Scenes/Hub.unity");
+        var camGO = new GameObject("HubPreviewCam");
+        var cam = camGO.AddComponent<Camera>();
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = new Color(0.4f, 0.6f, 0.85f);
+        cam.farClipPlane = 2000f;
+        var rt = new RenderTexture(1280, 960, 24);
+        cam.targetTexture = rt;
+        void Shot(Vector3 pos, Vector3 look, string file)
+        {
+            camGO.transform.position = pos;
+            camGO.transform.LookAt(look);
+            cam.Render();
+            cam.Render();
+            RenderTexture.active = rt;
+            var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+            tex.Apply();
+            File.WriteAllBytes(file, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            Debug.Log("[Bootstrap] Podgląd: " + file);
+        }
+        Shot(new Vector3(0f, 120f, -220f), new Vector3(0f, 10f, 0f), "hub_far.png");
+        Shot(new Vector3(0f, 45f, -70f), new Vector3(0f, 14f, 0f), "hub_near.png");
+        Shot(new Vector3(-20f, 25f, -40f), new Vector3(-6f, 15f, -26f), "hub_szatnia.png");
+        EditorApplication.Exit(0);
+    }
+
+    // Podgląd garderoby do PNG: goły / wszystko naraz / zestaw Asterixa.
+    // Wymaga -batchmode BEZ -nographics.
+    public static void RenderWardrobePreview()
+    {
+        EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Player.prefab");
+        var player = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+        GameObject.CreatePrimitive(PrimitiveType.Plane);
+        GameObject.Find("Directional Light").transform.rotation = Quaternion.Euler(40f, 190f, 0f);
+
+        var camGO = new GameObject("PreviewCam");
+        var cam = camGO.AddComponent<Camera>();
+        cam.clearFlags = CameraClearFlags.SolidColor;
+        cam.backgroundColor = new Color(0.3f, 0.5f, 0.7f);
+        var rt = new RenderTexture(768, 1024, 24);
+        cam.targetTexture = rt;
+
+        var outfit = player.GetComponent<PlayerOutfit>();
+        void Dress(params int[] items)
+        {
+            for (int i = 0; i < outfit.pieces.Length; i++)
+                outfit.pieces[i].SetActive(System.Array.IndexOf(items, outfit.pieceItem[i]) >= 0);
+        }
+        void Shot(Vector3 pos, string file)
+        {
+            camGO.transform.position = pos;
+            camGO.transform.LookAt(new Vector3(0f, 1f, 0f));
+            cam.Render();
+            cam.Render();
+            RenderTexture.active = rt;
+            var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+            tex.Apply();
+            File.WriteAllBytes(file, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            Debug.Log("[Bootstrap] Podgląd: " + file);
+        }
+        Dress(); // goły (domyślny stan i tak ma wszystko zgaszone)
+        Shot(new Vector3(0f, 1.2f, 3.2f), "preview_naked.png");
+        Shot(new Vector3(3.2f, 1.2f, 0f), "preview_naked_side.png");
+        Dress(0, 3, 11); // zbroja + hełm sparty + buty
+        Shot(new Vector3(0f, 1.2f, 3.2f), "preview_warrior.png");
+        Dress(6, 7, 8, 9); // pełny Asterix
+        Shot(new Vector3(0f, 1.2f, 3.2f), "preview_asterix.png");
+        Dress(1, 4); // szata + laur
+        Shot(new Vector3(0f, 1.2f, 3.2f), "preview_cezar.png");
+        EditorApplication.Exit(0);
+    }
+
     public static void Build()
     {
         var report = BuildPipeline.BuildPlayer(

@@ -53,11 +53,15 @@ public class PlayerController : NetworkBehaviour
         Cursor.lockState = CursorLockMode.None;
     }
 
-    // rozstaw spawnów na hubie, żeby gracze nie stali w sobie
+    // rozstaw spawnów na hubie, żeby gracze nie stali w sobie;
+    // wysokość z raycastu — hub to teraz teren z reliefem, nie płaska podłoga
     void Place()
     {
         cc.enabled = false;
-        transform.position = new Vector3((OwnerClientId % 8) * 2f - 4f, 0.1f, -5f);
+        var p = new Vector3((OwnerClientId % 8) * 2f - 4f, 0.1f, -5f);
+        if (Physics.Raycast(p + Vector3.up * 200f, Vector3.down, out var hit, 400f))
+            p.y = hit.point.y + 0.1f;
+        transform.position = p;
         cc.enabled = true;
     }
 
