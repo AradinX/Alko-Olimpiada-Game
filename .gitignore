@@ -45,3 +45,7 @@ desktop.ini
 # Unity license artefakty (nie commitować)
 *.alf
 *.ulf
+
+# Backupy Blendera i archiwa zrodlowe tekstur
+*.blend1
+*.blend.zip
