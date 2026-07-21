@@ -44,7 +44,8 @@ public class DrunkSystem : NetworkBehaviour
     public NetworkVariable<bool> Down = new();       // powalony pchnięciem; wstawanie automatyczne
     public NetworkVariable<int> Beers = new();       // piwo w ręce (max 1)
     public NetworkVariable<double> DrinkUntil = new(); // serwerowy koniec animacji picia
-    public NetworkVariable<bool> HeldSpecial = new(); // trzymane piwo jest złote
+    public NetworkVariable<SpecialBeer> HeldSpecial = new(); // typ piwa w ręce
+    public NetworkVariable<bool> Shield = new();             // Tarcza Ateny na następną grę
     public NetworkVariable<int> Pills = new();       // ekwipunek pigułek
     // klątwy jako maska bitowa — efekty się kumulują:
     // 1=do góry nogami 2=lowres 4=zoom 8=mały obraz (ekran)
@@ -251,20 +252,45 @@ public class DrunkSystem : NetworkBehaviour
     }
 
     // picie przymusowe w konkurencji: pasek pełny = wymioty (spadek do 60/podłogi), nie Zgon
-    public void AddCompetitionDrink(float amount)
+    // Zwraca true, gdy przepełnienie wywołało wymioty.
+    public bool AddCompetitionDrink(float amount)
     {
-        if (Drunk.Value + amount >= 100f) Drunk.Value = Mathf.Max(Floor.Value, 60f);
-        else AddPermanent(amount);
+        if (Drunk.Value + amount < 100f)
+        {
+            AddPermanent(amount);
+            return false;
+        }
+
+        if (Shield.Value)
+        {
+            Shield.Value = false;
+            Drunk.Value = 99f;
+            MsgOwner("TARCZA ATENY zablokowała wymioty");
+            return false;
+        }
+
+        Drunk.Value = Mathf.Max(Floor.Value, 60f);
+        return true;
     }
 
-    public void PickUpBeer(bool spiked, bool special)
+    static string SpecialEffect(SpecialBeer type) => type switch
+    {
+        SpecialBeer.DoublePoints => "punkty x2 w następnej konkurencji",
+        SpecialBeer.Spartan => "x3 za 1. miejsce, 0 pkt za pozostałe",
+        SpecialBeer.Nike => "+2 pkt za podium",
+        SpecialBeer.Nemesis => "pokonaj lidera i ukradnij mu 2 pkt",
+        SpecialBeer.Shield => "blokuje następną klątwę albo wymioty",
+        SpecialBeer.Tyche => "po grze losuje od -1 do +4 pkt",
+        _ => ""
+    };
+
+    public void PickUpBeer(bool spiked, SpecialBeer special)
     {
         Beers.Value++;
         HeldSpecial.Value = special;
         if (spiked) spikedBeers++;
-        if (special)
-            MsgOwner("PIWO SPECJALNE w ręce: [F] = x2 punkty w następnej konkurencji"
-                     + " + losowa klątwa ekranu, [G] wyrzuć");
+        if (special != SpecialBeer.None)
+            MsgOwner($"PIWO {BeerPickup.SpecialName(special)}: {SpecialEffect(special)}. [F] wypij, [G] wyrzuć");
     }
 
     static byte RandomCurseBit() => (byte)(1 << Random.Range(0, 8));
@@ -319,18 +345,43 @@ public class DrunkSystem : NetworkBehaviour
         if (PassedOut.Value || Beers.Value <= 0)
         { DrinkUntil.Value = 0; yield break; }
         Beers.Value--;
-        bool special = HeldSpecial.Value;
-        HeldSpecial.Value = false;
+        SpecialBeer special = HeldSpecial.Value;
+        HeldSpecial.Value = SpecialBeer.None;
         bool spiked = spikedBeers > 0;
         if (spiked) spikedBeers--;
 
-        if (special) // x2 punkty + klątwa na następną konkurencję (kumuluje się)
+        if (special != SpecialBeer.None)
         {
-            Olympics.SetMultiplier(OwnerClientId, 2);
-            Curse.Value |= RandomCurseBit();
-            MsgOwner("PIWO SPECJALNE wypite: punkty x2 w następnej konkurencji + klątwa ekranu");
+            Olympics.SetBeerBonus(OwnerClientId, special);
+            if (special == SpecialBeer.Shield)
+            {
+                if (Curse.Value != 0 || InstantCurse.Value != 0)
+                {
+                    Curse.Value = 0;
+                    InstantCurse.Value = 0;
+                    CurseUntil.Value = 0;
+                    Shield.Value = false;
+                    MsgOwner("TARCZA ATENY zablokowała klątwę");
+                }
+                else
+                {
+                    Shield.Value = true;
+                    MsgOwner("TARCZA ATENY gotowa na następną klątwę albo wymioty");
+                }
+            }
+            else
+            {
+                Curse.Value |= RandomCurseBit();
+                MsgOwner($"Wypito {BeerPickup.SpecialName(special)}: {SpecialEffect(special)} + klątwa");
+            }
         }
         float amount = beerStrength;
+        if (spiked && Shield.Value)
+        {
+            Shield.Value = false;
+            spiked = false;
+            MsgOwner("TARCZA ATENY zablokowała pigułkę");
+        }
         if (spiked) // pigułka: efekt od razu, BEZ komunikatu — ofiara ma się domyślić
         {
             int effect = Random.Range(0, 5);
@@ -362,7 +413,7 @@ public class DrunkSystem : NetworkBehaviour
             bp.Special.Value = HeldSpecial.Value; // nadpisz losowanie z OnNetworkSpawn
             bp.SetSpiked(spikedBeers > 0);
         }
-        HeldSpecial.Value = false;
+        HeldSpecial.Value = SpecialBeer.None;
         spikedBeers = 0;
         MsgOwner("Wyrzuciłeś piwo");
         Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wyrzucił piwo");
@@ -636,7 +687,7 @@ public class DrunkSystem : NetworkBehaviour
 
         // ekwipunek pod paskiem
         string beerLine = Beers.Value <= 0 ? "Piwo: brak"
-            : (HeldSpecial.Value ? "Piwo: SPECJALNE" : "Piwo: zwykłe") + "  [F] pij  [G] wyrzuć";
+            : (HeldSpecial.Value != SpecialBeer.None ? $"Piwo: {BeerPickup.SpecialName(HeldSpecial.Value)}" : "Piwo: zwykłe") + "  [F] pij  [G] wyrzuć";
         GUI.Label(new Rect(Screen.width - 250f, back.yMax + 6f, 240f, 56f),
             beerLine + $"\nPigułki: {Pills.Value}" + (Pills.Value > 0 ? "  [Q] dosyp" : "")
             + (Steady.Value ? "\nSzlug: pewna ręka w nast. konkurencji" : ""),
@@ -662,8 +713,8 @@ public class DrunkSystem : NetworkBehaviour
         {
             string hint = Beers.Value >= maxBeers
                 ? "Masz już piwo w ręce — wypij [F] albo wyrzuć [G]"
-                : nearBeer.Special.Value
-                    ? "[E] PIWO SPECJALNE — x2 punkty + klątwa ekranu w następnej grze"
+                : nearBeer.Special.Value != SpecialBeer.None
+                    ? $"[E] PIWO {BeerPickup.SpecialName(nearBeer.Special.Value)} — {SpecialEffect(nearBeer.Special.Value)}"
                     : "[E] Podnieś piwo";
             if (Pills.Value > 0) hint += "   [Q] Dosyp pigułkę";
             GUI.Label(center, hint, style);

@@ -19,6 +19,7 @@ public class VoteManager : NetworkBehaviour
     public float launchDelay = 2.5f;
 
     public NetworkVariable<FixedString512Bytes> Scoreboard = new();
+    public NetworkVariable<FixedString512Bytes> BetsLine = new();
     public NetworkVariable<FixedString512Bytes> VotesLine = new();
     public NetworkVariable<FixedString512Bytes> StatusText = new();
     public NetworkVariable<FixedString512Bytes> PlayedRaw = new();
@@ -29,6 +30,7 @@ public class VoteManager : NetworkBehaviour
     readonly Dictionary<ulong, string> votes = new(); // serwer
     double drawAt = -1, launchAt = -1;
     string winner;
+    int betCursor = -1;
 
     bool Finished => played.Count >= scenes.Length;
     double Now => NetworkManager.ServerTime.Time;
@@ -38,6 +40,7 @@ public class VoteManager : NetworkBehaviour
         Instance = this;
         if (!IsServer) return;
         Scoreboard.Value = Olympics.Text();
+        BetsLine.Value = Olympics.BetsText();
         PlayedRaw.Value = string.Join(";", played);
         if (Finished)
         {
@@ -84,8 +87,37 @@ public class VoteManager : NetworkBehaviour
         PlayedRaw.Value = "";
         FinalText.Value = "";
         Scoreboard.Value = "";
+        BetsLine.Value = Olympics.BetsText();
         UpdateLine();
         Debug.Log("[Vote] nowa olimpiada");
+    }
+
+    [Rpc(SendTo.Server)]
+    void BetRpc(ulong target, RpcParams rpcParams = default)
+    {
+        if (!VotingOpen) return;
+        ulong bettor = rpcParams.Receive.SenderClientId;
+        if (target != Olympics.NoBet && !NetworkManager.ConnectedClientsIds.Contains(target)) return;
+
+        Olympics.TrySetBet(bettor, target, out string message);
+        if (NetworkManager.ConnectedClients.TryGetValue(bettor, out var client)
+            && client.PlayerObject != null)
+            client.PlayerObject.GetComponent<DrunkSystem>().MsgOwner(message);
+        Scoreboard.Value = Olympics.Text();
+        BetsLine.Value = Olympics.BetsText();
+    }
+
+    void CycleBet()
+    {
+        var ids = FindObjectsByType<DrunkSystem>(FindObjectsSortMode.None)
+            .Where(drunk => drunk.IsSpawned)
+            .Select(drunk => drunk.OwnerClientId)
+            .Distinct()
+            .OrderBy(id => id)
+            .ToList();
+        if (ids.Count == 0) return;
+        betCursor = (betCursor + 1) % (ids.Count + 1);
+        BetRpc(betCursor == ids.Count ? Olympics.NoBet : ids[betCursor]);
     }
 
     void UpdateLine()
@@ -119,6 +151,10 @@ public class VoteManager : NetworkBehaviour
                     UnityEngine.SceneManagement.LoadSceneMode.Single);
             }
         }
+        if (NetworkManager.IsClient && VotingOpen
+            && Keyboard.current != null && Keyboard.current.tabKey.wasPressedThisFrame)
+            CycleBet();
+
         // po podsumowaniu każdy może wystartować nową olimpiadę
         if (NetworkManager.IsClient && FinalText.Value.Length > 0
             && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
@@ -138,6 +174,8 @@ public class VoteManager : NetworkBehaviour
         }
         if (VotesLine.Value.Length > 0)
             GUI.Label(new Rect(0, 34, Screen.width, 22), VotesLine.Value.ToString(), Ui.S(14));
+        if (BetsLine.Value.Length > 0)
+            GUI.Label(new Rect(0, 58, Screen.width, 22), BetsLine.Value.ToString(), Ui.S(14));
         if (StatusText.Value.Length > 0)
             GUI.Label(new Rect(0, Screen.height * 0.3f, Screen.width, 60),
                 StatusText.Value.ToString(), Ui.S(36));

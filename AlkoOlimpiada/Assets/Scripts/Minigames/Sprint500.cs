@@ -123,16 +123,14 @@ public class Sprint500 : Competition
 
         var ds = c.PlayerObject.GetComponent<DrunkSystem>();
 
-        // pasek pełny w konkurencji = wymioty zamiast Zgonu (GDD sekcja 6)
-        if (ds.Drunk.Value + drunkPerSip >= 100f)
+        // wspólne API obsługuje Tarczę Ateny i wymioty po przepełnieniu
+        if (ds.AddCompetitionDrink(drunkPerSip))
         {
-            ds.Drunk.Value = Mathf.Max(ds.Floor.Value, 60f);
             vomitUntil[id] = Now + vomitSeconds;
             VomitRpc(RpcTarget.Single(id, RpcTargetUse.Temp));
             Debug.Log($"[Sprint] {Olympics.Nick(id)} rzyga");
             return;
         }
-        ds.AddPermanent(drunkPerSip); // chlanie w konkurencji zostaje na stałe
 
         float sip = sipBase * (1f - sipDrunkPenalty * ds.Handicap01()); // papieros łagodzi karę
         progress[id] = progress.GetValueOrDefault(id) + sip;

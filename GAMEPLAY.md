@@ -44,9 +44,9 @@ jak inny gracz ma cię na widoku (25 m, w kadrze, bez przeszkód) —
 | Co | Klawisz | Efekt |
 |---|---|---|
 | **Piwo** | [E] podnieś, [F] pij, [G] wyrzuć | +12 upojenia; max 1 w ręce (widać butelkę w dłoni) |
-| **Piwo SPECJALNE** (~25%) | jak wyżej | **×2 punkty w następnej konkurencji** + losowa klątwa ekranu na tę konkurencję |
-| **Pigułka** | [E] podnieś, **[Q] dosyp do piwa** | ofiara nic nie widzi; efekt: mocny kop (+35) albo klątwa ekranu na 40 s |
-| **Papieros** | [E] zapal | **pewna ręka**: utrudnienia z alkoholu ×0.5 w następnej konkurencji; koszt: +upojenie NA STAŁE |
+| **Piwo SPECJALNE** (2 na przerwę) | jak wyżej | losuje: **x2, Spartańskie, Nike, Nemezis, Tarcza Ateny albo Tyche** |
+| **Pigułka** (2 na przerwę) | [E] podnieś, **[Q] dosyp do piwa** | ofiara nic nie widzi; efekt: mocny kop (+35) albo klątwa ekranu na 40 s |
+| **Papieros** (2 na przerwę) | [E] zapal | **pewna ręka**: utrudnienia z alkoholu ×0.5 w następnej konkurencji; koszt: +upojenie NA STAŁE |
 | **Kurczak** (przekąska) | [E] zjedz | trzeźwiejesz do podłogi |
 
 Klątwy ekranu (kumulują się): obraz do góry nogami, lowres, zoom, mały obraz,
@@ -107,8 +107,13 @@ w ciemno. Blef i szczęście.
 ## Punktacja olimpiady
 
 Medale za konkurencję: **5 / 3 / 2 / 1** pkt (1. / 2. / 3. / reszta).
-Piwo specjalne mnoży ×2 (zużywa się). Kara za przyłapane rzyganie: -2 pkt.
-Tablica wyników nad świątynią + [Tab].
+Specjalne piwo daje jeden efekt: x2; Spartańskie (x3 tylko za 1. miejsce, inaczej 0);
+Nike (+2 za podium); Nemezis (kradnie 2 pkt liderowi, jeśli go pokonasz);
+Tarcza Ateny (blokuje klątwę albo wymioty); Tyche (losuje -1..+4 pkt).
+Kara za przyłapane rzyganie: -2 pkt. Tablica wyników jest stale widoczna.
+
+**Zakłady:** w hubie [Tab] przełącza typowanego zwycięzcę. Stawka 1 pkt;
+trafiony zakład wypłaca 2 pkt. Po pierwszej konkurencji, bo wcześniej nie masz punktów.
 
 ## Sterowanie — ściąga
 
@@ -123,5 +128,5 @@ Tablica wyników nad świątynią + [Tab].
 | T | głosuj przy stanowisku |
 | PPM | pchnięcie |
 | 1-6 | emotki |
-| Tab | tablica wyników |
+| Tab | zmień/anuluj zakład na zwycięzcę następnej konkurencji |
 | Esc | menu (czułość, suwak bujania, wyjście) |
