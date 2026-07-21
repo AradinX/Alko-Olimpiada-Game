@@ -29,7 +29,7 @@ public abstract class Competition : NetworkBehaviour
 
     public NetworkVariable<Phase> State = new();
     public NetworkVariable<double> PhaseEndsAt = new();
-    public NetworkVariable<FixedString512Bytes> ResultsText = new();
+    public NetworkVariable<FixedString4096Bytes> ResultsText = new();
     public NetworkVariable<FixedString512Bytes> ScoreboardText = new();
 
     protected readonly List<ulong> racers = new(); // serwer
@@ -128,7 +128,7 @@ public abstract class Competition : NetworkBehaviour
                 if (naturalDrunkGain > 0)
                     foreach (var r in racers)
                         if (NM.ConnectedClients.TryGetValue(r, out var rc) && rc.PlayerObject != null)
-                            rc.PlayerObject.GetComponent<DrunkSystem>().AddPermanent(naturalDrunkGain);
+                            rc.PlayerObject.GetComponent<DrunkSystem>().AddCompetitionDrink(naturalDrunkGain);
                 OnRaceStart();
                 Debug.Log($"[{GetType().Name}] START, {racers.Count} graczy");
                 break;
@@ -153,6 +153,7 @@ public abstract class Competition : NetworkBehaviour
                 var d = c.PlayerObject.GetComponent<DrunkSystem>();
                 d.Curse.Value = 0;    // klątwa z piwa specjalnego zużyta
                 d.Steady.Value = false; // pewna ręka z papierosa zużyta
+                d.Shield.Value = false; // niewykorzystana Tarcza wygasa po konkurencji
             }
         ScoreboardText.Value = Olympics.Award(ranking, out var results);
         ResultsText.Value = results;
