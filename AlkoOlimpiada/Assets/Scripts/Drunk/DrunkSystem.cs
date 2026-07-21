@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,6 +10,7 @@ using UnityEngine.Rendering.Universal;
 // pigułki [Q], dobrowolne rzyganie [V] (kara za przyłapanie), klątwy z piw specjalnych.
 public class DrunkSystem : NetworkBehaviour
 {
+    public const float DrinkSeconds = 1.4f;
     public float decayPerSecond = 0.2f;      // pkt 2: trzeźwiejesz wolniej
     public float reviveRange = 3f;
     public float reviveTo = 50f;
@@ -41,6 +43,7 @@ public class DrunkSystem : NetworkBehaviour
     public NetworkVariable<bool> Vomiting = new();
     public NetworkVariable<bool> Down = new();       // powalony pchnięciem; wstawanie automatyczne
     public NetworkVariable<int> Beers = new();       // piwo w ręce (max 1)
+    public NetworkVariable<double> DrinkUntil = new(); // serwerowy koniec animacji picia
     public NetworkVariable<bool> HeldSpecial = new(); // trzymane piwo jest złote
     public NetworkVariable<int> Pills = new();       // ekwipunek pigułek
     // klątwy jako maska bitowa — efekty się kumulują:
@@ -59,6 +62,16 @@ public class DrunkSystem : NetworkBehaviour
     // upadek jest szybki, wstawanie powolne — im bardziej pijany, tym dłużej
     public float DownPose { get; private set; }
     public bool Downed => Down.Value || DownPose > 0.05f;
+    public bool IsDrinking => IsSpawned && DrinkUntil.Value > NetworkManager.ServerTime.Time;
+    public float DrinkPose
+    {
+        get
+        {
+            if (!IsDrinking) return 0f;
+            float k = 1f - (float)((DrinkUntil.Value - NetworkManager.ServerTime.Time) / DrinkSeconds);
+            return Mathf.Sin(Mathf.Clamp01(k) * Mathf.PI);
+        }
+    }
     public float GetUpSeconds => 0.6f + 2f * (Drunk.Value / 100f);
     double getUpAt; // serwer: koniec fazy leżenia
 
@@ -73,7 +86,11 @@ public class DrunkSystem : NetworkBehaviour
     }
 
     Transform body;
+    Vector3 bodyHome; // poza spoczynkowa Body z prefabu (patrz PlayerLimbs.bodyHome)
     Transform handBottle; // butelka w ręce, widoczna gdy Beers > 0
+    Transform povBottle;  // lokalny model pod kamerą, bez problemów z near plane
+    Transform povArm;
+    Vector3 povGripLocal;
     Camera cam;
     LensDistortion lens; ChromaticAberration chroma; Vignette vig; // post-process upojenia
     DrunkSystem reviveTarget; // pobliski leżący gracz (tylko u właściciela)
@@ -92,6 +109,7 @@ public class DrunkSystem : NetworkBehaviour
     void Awake()
     {
         body = transform.Find("Body");
+        bodyHome = body.localPosition;
         handBottle = transform.Find("HandBottle");
         if (handBottle == null) // butelka podpięta pod kość dłoni modelu
             foreach (var t in GetComponentsInChildren<Transform>(true))
@@ -107,8 +125,9 @@ public class DrunkSystem : NetworkBehaviour
         PassedOut.OnValueChanged += (_, v) => Sfx.Play(v ? "zgon" : "slap", transform.position);
         Vomiting.OnValueChanged += (_, v) => { if (v) Sfx.Play("vomit", transform.position); };
         UpdateBodyPose();
-        Beers.OnValueChanged += (_, v) => { if (handBottle) handBottle.gameObject.SetActive(v > 0); };
-        if (handBottle) handBottle.gameObject.SetActive(Beers.Value > 0);
+        if (IsOwner) SetupPovBottle();
+        Beers.OnValueChanged += (_, v) => SetBottleVisible(v > 0);
+        SetBottleVisible(Beers.Value > 0);
         if (IsOwner) SetupPost();
 
         // ponytail: headless smoke test pętli Zgon->cucenie->wyrzucenie piwa (-autodrink)
@@ -123,6 +142,53 @@ public class DrunkSystem : NetworkBehaviour
         if (IsServer && System.Array.IndexOf(
                 System.Environment.GetCommandLineArgs(), "-autoknock") >= 0)
             Invoke(nameof(KnockDown), 3f);
+    }
+
+    void SetupPovBottle()
+    {
+        if (handBottle == null) return;
+        povBottle = Instantiate(handBottle.gameObject, cam.transform, false).transform;
+        povBottle.name = "PovBottle";
+        var follow = povBottle.GetComponent<FollowBone>();
+        if (follow != null)
+        {
+            povGripLocal = follow.gripLocal;
+            follow.enabled = false;
+            Destroy(follow);
+        }
+        povArm = transform.Find("PovRealArm");
+        if (povArm != null) povArm.SetParent(cam.transform, false);
+        cam.nearClipPlane = 0.03f;
+    }
+
+    void SetBottleVisible(bool visible)
+    {
+        if (handBottle != null)
+        {
+            handBottle.gameObject.SetActive(visible);
+            if (IsOwner)
+                foreach (var r in handBottle.GetComponentsInChildren<Renderer>(true)) r.enabled = false;
+        }
+        if (povBottle != null) povBottle.gameObject.SetActive(visible);
+        if (povArm != null) povArm.gameObject.SetActive(visible);
+    }
+
+    void UpdatePovBottle()
+    {
+        if (povBottle == null) return;
+        float k = DrinkPose;
+        povBottle.localPosition = Vector3.Lerp(
+            new Vector3(0.22f, -0.27f, 0.55f), new Vector3(0.08f, -0.05f, 0.65f), k);
+        povBottle.localRotation = Quaternion.Slerp(
+            Quaternion.Euler(-90f, 0f, 8f), Quaternion.Euler(-135f, 0f, -5f), k);
+
+        Vector3 grip = cam.transform.InverseTransformPoint(povBottle.TransformPoint(povGripLocal));
+        if (povArm != null)
+        {
+            povArm.localPosition = grip + new Vector3(0.04f, 0f, 0.02f);
+            povArm.localRotation = Quaternion.Slerp(
+                Quaternion.Euler(0f, 0f, 180f), Quaternion.Euler(-10f, 0f, 175f), k);
+        }
     }
 
     // pijacki post-process (GDD 10): profil budowany w kodzie — zero assetów w scenach
@@ -149,7 +215,7 @@ public class DrunkSystem : NetworkBehaviour
     {
         float pitch = PassedOut.Value ? 90f : Vomiting.Value ? 40f : 0f;
         body.localRotation = Quaternion.Euler(pitch, 0f, 0f);
-        body.localPosition = new Vector3(0f, PassedOut.Value ? 0.5f : 1f, 0f);
+        body.localPosition = PassedOut.Value ? bodyHome + Vector3.down * 0.5f : bodyHome;
     }
 
     // ---------- serwerowe API ----------
@@ -242,7 +308,16 @@ public class DrunkSystem : NetworkBehaviour
     [Rpc(SendTo.Server)]
     public void DrinkBeerRpc()
     {
-        if (PassedOut.Value || Beers.Value <= 0) return;
+        if (PassedOut.Value || Beers.Value <= 0 || IsDrinking) return;
+        DrinkUntil.Value = NetworkManager.ServerTime.Time + DrinkSeconds;
+        StartCoroutine(FinishDrink());
+    }
+
+    IEnumerator FinishDrink()
+    {
+        yield return new WaitForSeconds(DrinkSeconds);
+        if (PassedOut.Value || Beers.Value <= 0)
+        { DrinkUntil.Value = 0; yield break; }
         Beers.Value--;
         bool special = HeldSpecial.Value;
         HeldSpecial.Value = false;
@@ -268,12 +343,13 @@ public class DrunkSystem : NetworkBehaviour
             Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wypił piwo z pigułką (efekt {effect})");
         }
         AddDrink(amount);
+        DrinkUntil.Value = 0;
     }
 
     [Rpc(SendTo.Server)]
     public void DiscardBeerRpc()
     {
-        if (PassedOut.Value || Beers.Value <= 0) return;
+        if (PassedOut.Value || Beers.Value <= 0 || IsDrinking) return;
         Beers.Value--;
         // butelka ląduje na ziemi przed graczem — zachowuje specjalność i pigułkę
         if (beerPrefab != null)
@@ -438,9 +514,11 @@ public class DrunkSystem : NetworkBehaviour
         if (kb.qKey.wasPressedThisFrame && Pills.Value > 0
             && nearBeer != null && nearBeer.Available.Value)
             nearBeer.SpikeRpc();
-        if (kb.fKey.wasPressedThisFrame && Beers.Value > 0 && !Competition.InputLocked)
+        if (kb.fKey.wasPressedThisFrame && Beers.Value > 0 && !IsDrinking
+            && !Competition.InputLocked)
         { Sfx.Play("gulp"); DrinkBeerRpc(); }
-        if (kb.gKey.wasPressedThisFrame && Beers.Value > 0 && !Competition.InputLocked)
+        if (kb.gKey.wasPressedThisFrame && Beers.Value > 0 && !IsDrinking
+            && !Competition.InputLocked)
             DiscardBeerRpc();
     }
 
@@ -469,6 +547,7 @@ public class DrunkSystem : NetworkBehaviour
     void LateUpdate()
     {
         if (!IsOwner) return;
+        UpdatePovBottle();
 
         // klątwy ekranowe — maska bitowa, efekty się kumulują
         byte active = ActiveCurses();
@@ -489,6 +568,8 @@ public class DrunkSystem : NetworkBehaviour
             cam.transform.localEulerAngles = new Vector3(65f, 0f, Mathf.Sin(Time.time * 6f) * 4f);
             return;
         }
+        if (IsDrinking)
+            cam.transform.localRotation *= Quaternion.Euler(-10f * DrinkPose, 0f, 0f);
         float t = Mathf.InverseLerp(Stages[0].min, 100f, Drunk.Value); // "Szumi" otwiera bujanie
 
         // post-process rośnie z upojeniem; soczewka powoli faluje (GDD: obraz faluje)

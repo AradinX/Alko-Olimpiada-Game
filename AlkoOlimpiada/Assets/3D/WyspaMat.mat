@@ -17,32 +17,31 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses: []
-  m_LockedProperties:
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _SplatTex:
-        m_Texture: {fileID: 2800000, guid: c314b97f4c7440029b2a7754f2ce9b63, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _SandTex:
-        m_Texture: {fileID: 2800000, guid: d5b2f06c6c4c46a1966c7325502e5e7b, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _GrassTex:
-        m_Texture: {fileID: 2800000, guid: e3da77e960d441a3a6743343d14a3127, type: 3}
+        m_Texture: {fileID: 2800000, guid: 75bbf137667f03d44a14f6bfe439cfe7, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _RockTex:
-        m_Texture: {fileID: 2800000, guid: 4029e0d201c74eeaac06b4cfd82a8180, type: 3}
+        m_Texture: {fileID: 2800000, guid: 3c5081af0b5af1a41befc5d4c9030061, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SandTex:
+        m_Texture: {fileID: 2800000, guid: 70a5b591aace50c4ba1d1cd57670a028, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SplatTex:
+        m_Texture: {fileID: 2800000, guid: 1a4124f6efa79d54c8e23b0f665df881, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Tiling: 0.5
+    - _Tiling: 0.125
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

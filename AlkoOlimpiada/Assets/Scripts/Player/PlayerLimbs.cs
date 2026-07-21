@@ -15,7 +15,11 @@ public class PlayerLimbs : NetworkBehaviour
     public float stepPerMeter = 5f;    // fazy chodu na metr drogi (częstotliwość kroków)
     public float swingDeg = 60f;       // maksymalny wymach nóg przy chodzie
     public float armSwingScale = 0.8f; // wymach rąk jako ułamek wymachu nóg
-    public float armOutDeg = 35f;      // stałe odchylenie rąk od tułowia (żeby nie wchodziły w brzuch)
+    public float headCamDist = 0.45f;  // ile kamera odjeżdża nad kość głowy przy pozach
+                                       // ruszających Body; bryła głowy ma promień 0.376
+    public float armOutDeg = 0f;       // DODATKOWE odchylenie rąk od tułowia ponad pozę modelu
+                                       // (sama poza to już 27 st.); rządzi wartość z Player.prefab,
+                                       // ta tu jest tylko dla nowych instancji
 
     // Kończyna przyjmuje obroty w osiach Body (jak stare klocki) i przelicza je
     // na lokalną przestrzeń kości. Pozą spoczynkową jest DOKŁADNIE to, co widać
@@ -45,9 +49,14 @@ public class PlayerLimbs : NetworkBehaviour
     static readonly string[] emoteNames =
     { "", "machanie", "leżenie", "fikołek", "salut", "taniec", "wskazanie" };
 
-    Transform body, head, cam;
+    Transform body, head, cam, handR;
+    FollowBone bottleFollow;
     Limb armL, armR, legL, legR;
-    Vector3 camHome; // domyślna pozycja kamery (przy oku)
+    Quaternion handRHome;
+    Vector3 camHome;  // domyślna pozycja kamery (przy oku)
+    Vector3 bodyHome; // poza spoczynkowa Body Z PREFABU — nie wpisywać na sztywno,
+                      // bo to od niej zależy, czy stopy modelu stoją na ziemi
+    const float LyingDrop = 0.65f; // o tyle Body zjeżdża przy leżeniu (płasko na ziemi)
     DrunkSystem drunk;
     PlayerController pc;
     Vector3 lastPos;
@@ -57,6 +66,7 @@ public class PlayerLimbs : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         body = transform.Find("Body");
+        bodyHome = body.localPosition;
         // kości modelu (Guy.fbx), a gdy ich nie ma — klockowe pivoty
         Transform Bone(string cc, string blocky) { var b = Deep(body, cc); return b != null ? b : body.Find(blocky); }
         armL = new Limb(Bone("CC_Base_L_Upperarm", "ArmL"), body);
@@ -64,6 +74,10 @@ public class PlayerLimbs : NetworkBehaviour
         legL = new Limb(Bone("CC_Base_L_Thigh", "LegL"), body);
         legR = new Limb(Bone("CC_Base_R_Thigh", "LegR"), body);
         head = Bone("CC_Base_Head", "Head");
+        handR = Deep(body, "CC_Base_R_Hand");
+        if (handR != null) handRHome = handR.localRotation;
+        var bottle = Deep(transform, "HandBottle");
+        if (bottle != null) bottleFollow = bottle.GetComponent<FollowBone>();
         drunk = GetComponent<DrunkSystem>();
         lastPos = transform.position;
         if (IsOwner)
@@ -84,15 +98,19 @@ public class PlayerLimbs : NetworkBehaviour
     bool DrunkPose => drunk != null && (drunk.PassedOut.Value || drunk.Vomiting.Value);
 
     // każda poza rąk dostaje odchylenie na zewnątrz — model ma szeroki tułów
-    // i choreografia strojona na klockach wchodziła w brzuch
-    void SetArmL(Quaternion q) => armL.Set(q * Quaternion.Euler(0f, 0f, armOutDeg));
-    void SetArmR(Quaternion q) => armR.Set(q * Quaternion.Euler(0f, 0f, -armOutDeg));
+    // i choreografia strojona na klockach wchodziła w brzuch.
+    // Znak: dla rigu CC_Base_* obrót wokół Z Body DODATNI dociska rękę do tułowia,
+    // więc odchylenie na zewnątrz to minus dla lewej i plus dla prawej. Mierzone na
+    // kości Upperarm->Forearm: armOutDeg 0 = 27 st. od tułowia, każdy +1 to +1 st.
+    void SetArmL(Quaternion q) => armL.Set(q * Quaternion.Euler(0f, 0f, -armOutDeg));
+    void SetArmR(Quaternion q) => armR.Set(q * Quaternion.Euler(0f, 0f, armOutDeg));
 
     void ResetPose()
     {
         if (cam != null) cam.localPosition = camHome; // kamera wraca do oka
+        if (handR != null) handR.localRotation = handRHome;
         if (DrunkPose) return; // Zgon/rzyganie ustawia Body po swojemu — nie ruszaj
-        body.SetLocalPositionAndRotation(new Vector3(0f, 1f, 0f), Quaternion.identity);
+        body.SetLocalPositionAndRotation(bodyHome, Quaternion.identity);
         SetArmL(Quaternion.identity); SetArmR(Quaternion.identity);
         legL.Set(Quaternion.identity); legR.Set(Quaternion.identity);
     }
@@ -114,7 +132,9 @@ public class PlayerLimbs : NetworkBehaviour
         if (!IsOwner || cam == null || DrunkPose) return;
         bool lying = Emote.Value == 2 || (drunk != null && drunk.DownPose > 0f);
         if (!lying && Emote.Value is not (3 or 5)) return;
-        cam.position = head.position + (head.position - body.position).normalized * 0.22f;
+        // Offset obraca się razem z Body, więc POV faktycznie podąża za fikołkiem,
+        // zamiast stać w miejscu i tylko obracać obraz.
+        cam.position = head.position + body.up * headCamDist;
         cam.localRotation = body.localRotation;
     }
 
@@ -145,16 +165,18 @@ public class PlayerLimbs : NetworkBehaviour
         if (dp > 0f && !DrunkPose)
         {
             if (IsOwner && Emote.Value != 0) Emote.Value = 0;
-            body.SetLocalPositionAndRotation(new Vector3(0f, Mathf.Lerp(1f, 0.35f, dp), 0f),
+            body.SetLocalPositionAndRotation(bodyHome + Vector3.down * (LyingDrop * dp),
                 Quaternion.Euler(-88f * dp, 0f, 0f));
-            SetArmL(Quaternion.Euler(0f, 0f, 55f * dp));
-            SetArmR(Quaternion.Euler(0f, 0f, -55f * dp));
+            SetArmL(Quaternion.identity);
+            SetArmR(Quaternion.identity);
             legL.Set(Quaternion.identity); legR.Set(Quaternion.identity);
             downDirty = true;
             return;
         }
         if (downDirty) { downDirty = false; ResetPose(); } // wstał — kamera i Body do domu
 
+        bool holdingBeer = drunk != null && drunk.Beers.Value > 0;
+        if (holdingBeer && IsOwner && Emote.Value != 0) Emote.Value = 0;
         if (Emote.Value != 0 && !DrunkPose)
         {
             emoteT += Time.deltaTime;
@@ -168,7 +190,23 @@ public class PlayerLimbs : NetworkBehaviour
         legL.Set(Quaternion.Euler(a, 0f, 0f));
         legR.Set(Quaternion.Euler(-a, 0f, 0f));
         SetArmL(Quaternion.Euler(-a * armSwingScale, 0f, 0f));
-        SetArmR(Quaternion.Euler(a * armSwingScale, 0f, 0f));
+        if (holdingBeer) ApplyBeerPose(drunk.DrinkPose);
+        else SetArmR(Quaternion.Euler(a * armSwingScale, 0f, 0f));
+    }
+
+    void ApplyBeerPose(float drink)
+    {
+        SetArmR(Quaternion.Slerp(
+            Quaternion.Euler(-80f, -40f, -25f),
+            Quaternion.Euler(-110f, 0f, -75f), drink));
+        if (bottleFollow == null || handR == null) return;
+
+        Vector3 grip = handR.position + handR.rotation * bottleFollow.posOffset;
+        Vector3 mouth = head.position + transform.forward * 0.12f - transform.up * 0.06f;
+        Vector3 bottleUp = Vector3.Slerp(transform.up, (mouth - grip).normalized, drink);
+        Quaternion upright = transform.rotation * Quaternion.Euler(-90f, 0f, 0f);
+        Quaternion wanted = Quaternion.FromToRotation(transform.up, bottleUp) * upright;
+        bottleFollow.rotOffset = Quaternion.Inverse(handR.rotation) * wanted;
     }
 
     void OwnerInput(float speed)
@@ -191,20 +229,25 @@ public class PlayerLimbs : NetworkBehaviour
     {
         switch (e)
         {
-            case 1: // machanie prawą ręką nad głową
-                SetArmR(Quaternion.Euler(-150f + Mathf.Sin(t * 8f) * 25f, 0f, -15f));
+            case 1: // machanie prawą ręką obok głowy
+                // Obrót MUSI iść po Z (płaszczyzna czołowa) — po X ręka szła do przodu
+                // przed klatę zamiast w górę. Zmierzone na kości Hand: Z~120 (efektywnie,
+                // z armOutDeg) daje dłoń x=+0.15 y=+0.29, ok. 0.45 m od głowy.
+                SetArmR(Quaternion.Euler(0f, 0f, 110f + Mathf.Sin(t * 8f) * 15f));
+                if (handR != null)
+                    handR.localRotation = handRHome * Quaternion.Euler(0f, -90f, 0f);
                 break;
-            case 2: // leżenie na plecach, ręce rozłożone
-                body.SetLocalPositionAndRotation(new Vector3(0f, 0.35f, 0f),
+            case 2: // leżenie na plecach, ręce jak w pozycji stojącej
+                body.SetLocalPositionAndRotation(bodyHome + Vector3.down * LyingDrop,
                     Quaternion.Euler(-88f, 0f, 0f));
-                SetArmL(Quaternion.Euler(0f, 0f, 55f));
-                SetArmR(Quaternion.Euler(0f, 0f, -55f));
+                SetArmL(Quaternion.identity);
+                SetArmR(Quaternion.identity);
                 break;
             case 3: // fikołek w tył z podskokiem
             {
                 float k = Mathf.Clamp01(t / 1.6f);
                 body.SetLocalPositionAndRotation(
-                    new Vector3(0f, 1f + Mathf.Sin(k * Mathf.PI) * 0.6f, 0f),
+                    bodyHome + Vector3.up * (Mathf.Sin(k * Mathf.PI) * 0.6f),
                     Quaternion.Euler(-360f * k, 0f, 0f));
                 break;
             }
@@ -217,7 +260,7 @@ public class PlayerLimbs : NetworkBehaviour
             {
                 float s = Mathf.Sin(t * 7f);
                 body.SetLocalPositionAndRotation(
-                    new Vector3(0f, 1f + Mathf.Abs(s) * 0.09f, 0f),
+                    bodyHome + Vector3.up * (Mathf.Abs(s) * 0.09f),
                     Quaternion.Euler(0f, s * 18f, 0f));
                 SetArmL(Quaternion.Euler(-90f + s * 70f, 0f, 20f));
                 SetArmR(Quaternion.Euler(-90f - s * 70f, 0f, -20f));

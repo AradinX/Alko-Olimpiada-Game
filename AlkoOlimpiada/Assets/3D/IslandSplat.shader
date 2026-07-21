@@ -4,9 +4,9 @@ Shader "Custom/IslandSplat"
     {
         _SplatTex ("Splat (R=sand fac, G=rock fac)", 2D) = "black" {}
         _SandTex ("Sand", 2D) = "white" {}
-        _GrassTex ("Grass", 2D) = "white" {}
+        _GrassTex ("Grass (base)", 2D) = "white" {}
         _RockTex ("Rock", 2D) = "white" {}
-        _Tiling ("World Tiling (repeats per meter)", Float) = 0.5
+        _Tiling ("World Tiling (repeats per meter)", Float) = 0.125
     }
     SubShader
     {
@@ -62,13 +62,15 @@ Shader "Custom/IslandSplat"
 
             half4 frag(Varyings i) : SV_Target
             {
-                // splat: R = sand->top factor, G = grass->rock factor (same mix as Blender material)
+                // maska zapieczona z materialu Terrain_Splat (Wyspa-Test.blend):
+                // R = fSand (nizina), G = fRock (szczyty + strome zbocza).
+                // Kolejnosc mieszania 1:1 jak w Blenderze: sand na bazie, rock na wierzchu.
                 half2 m = SAMPLE_TEXTURE2D(_SplatTex, sampler_SplatTex, i.uv).rg;
                 float2 tuv = i.positionWS.xz * _Tiling;
                 half3 sand  = SAMPLE_TEXTURE2D(_SandTex,  sampler_SandTex,  tuv).rgb;
                 half3 grass = SAMPLE_TEXTURE2D(_GrassTex, sampler_GrassTex, tuv).rgb;
                 half3 rock  = SAMPLE_TEXTURE2D(_RockTex,  sampler_RockTex,  tuv).rgb;
-                half3 albedo = lerp(sand, lerp(grass, rock, m.g), m.r);
+                half3 albedo = lerp(lerp(grass, sand, m.r), rock, m.g);
 
                 float3 N = normalize(i.normalWS);
                 float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);

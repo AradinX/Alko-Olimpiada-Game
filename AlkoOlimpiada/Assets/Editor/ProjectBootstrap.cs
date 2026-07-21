@@ -905,13 +905,15 @@ public static class ProjectBootstrap
 
         // --- Player.prefab: butelka w dłoni (kość CC_Base_R_Hand) ---
         var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
-        Transform oldHb = null, hand = null;
+        Transform oldHb = null, oldPov = null, hand = null;
         foreach (var t in player.GetComponentsInChildren<Transform>(true))
         {
             if (t.name == "HandBottle") oldHb = t;
+            if (t.name == "PovRealArm") oldPov = t;
             if (t.name == "CC_Base_R_Hand") hand = t;
         }
         if (oldHb != null) Object.DestroyImmediate(oldHb.gameObject);
+        if (oldPov != null) Object.DestroyImmediate(oldPov.gameObject);
         if (hand == null)
         {
             Debug.LogError("[Bootstrap] Brak kości CC_Base_R_Hand w prefabie gracza");
@@ -923,14 +925,69 @@ public static class ProjectBootstrap
         var hb = Spawn(player.transform, 0.3f); // 30 cm butelka w garści
         hb.name = "HandBottle";
         var hbB = BoundsOf(hb);
-        // dłoń trzyma za szyjkę (punkt 1/3 od góry), lekko przed dłonią
+        // dłoń trzyma za szyjkę (punkt 1/3 od góry), między kciukiem i palcem wskazującym
         Vector3 grip = hbB.center + Vector3.up * (hbB.size.y / 6f);
-        Vector3 wantPos = hand.position + player.transform.forward * 0.08f;
+        Vector3 gripLocal = hb.transform.InverseTransformPoint(grip);
+        Vector3 wantPos = hand.TransformPoint(new Vector3(0f, 0.04f, 0.065f));
         hb.transform.position += wantPos - grip;
         var fb = hb.AddComponent<FollowBone>();
         fb.bone = hand;
-        fb.posOffset = Quaternion.Inverse(hand.rotation) * (hb.transform.position - hand.position);
+        fb.posOffset = Quaternion.Inverse(hand.rotation) * (wantPos - hand.position);
+        fb.gripLocal = gripLocal;
         fb.rotOffset = Quaternion.Inverse(hand.rotation) * hb.transform.rotation;
+
+        // POV używa prawdziwej siatki prawej ręki z BodyMat, nie brył zastępczych.
+        var skin = player.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+            .First(r => r.sharedMaterial != null && r.sharedMaterial.name == "BodyMat");
+        var baked = new Mesh();
+        skin.BakeMesh(baked);
+        var weights = skin.sharedMesh.boneWeights;
+        var rightBones = new System.Collections.Generic.HashSet<int>();
+        for (int i = 0; i < skin.bones.Length; i++)
+        {
+            string n = skin.bones[i].name;
+            if (n.Contains("_R_Hand") || n.Contains("_R_Thumb") || n.Contains("_R_Index") || n.Contains("_R_Mid") ||
+                n.Contains("_R_Ring") || n.Contains("_R_Pinky")) rightBones.Add(i);
+        }
+        float RightWeight(BoneWeight w) =>
+            (rightBones.Contains(w.boneIndex0) ? w.weight0 : 0f) +
+            (rightBones.Contains(w.boneIndex1) ? w.weight1 : 0f) +
+            (rightBones.Contains(w.boneIndex2) ? w.weight2 : 0f) +
+            (rightBones.Contains(w.boneIndex3) ? w.weight3 : 0f);
+        var sourceTriangles = baked.triangles;
+        var armTriangles = new System.Collections.Generic.List<int>();
+        for (int i = 0; i < sourceTriangles.Length; i += 3)
+            if (RightWeight(weights[sourceTriangles[i]]) > 0.35f &&
+                RightWeight(weights[sourceTriangles[i + 1]]) > 0.35f &&
+                RightWeight(weights[sourceTriangles[i + 2]]) > 0.35f)
+                armTriangles.AddRange(new[] { sourceTriangles[i], sourceTriangles[i + 1], sourceTriangles[i + 2] });
+
+        Vector3 pivot = player.transform.InverseTransformPoint(wantPos);
+        var vertices = baked.vertices;
+        for (int i = 0; i < vertices.Length; i++)
+            // BakeMesh uwzględnia skalę rigu, więc dokładamy już tylko obrót i pozycję renderera.
+            vertices[i] = player.transform.InverseTransformPoint(
+                skin.transform.position + skin.transform.rotation * vertices[i]) - pivot;
+        var armMesh = new Mesh { name = "PovRightArm", indexFormat = baked.indexFormat };
+        armMesh.vertices = vertices;
+        armMesh.uv = baked.uv;
+        armMesh.SetTriangles(armTriangles, 0);
+        armMesh.RecalculateNormals();
+        armMesh.RecalculateTangents();
+        armMesh.RecalculateBounds();
+        const string armPath = "Assets/Prefabs/PovRightArm.asset";
+        AssetDatabase.DeleteAsset(armPath);
+        AssetDatabase.CreateAsset(armMesh, armPath);
+        var armAsset = armMesh;
+        Object.DestroyImmediate(baked);
+
+        var pov = new GameObject("PovRealArm");
+        pov.transform.SetParent(player.transform, false);
+        pov.AddComponent<MeshFilter>().sharedMesh = armAsset;
+        var povRenderer = pov.AddComponent<MeshRenderer>();
+        povRenderer.sharedMaterial = skin.sharedMaterial;
+        povRenderer.shadowCastingMode = ShadowCastingMode.Off;
+        pov.SetActive(false);
         Debug.Log($"[Bootstrap] HandBottle: bounds={BoundsOf(hb).size}");
         hb.SetActive(false); // DrunkSystem włącza, gdy Beers > 0
         PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
@@ -1161,22 +1218,69 @@ public static class ProjectBootstrap
         Debug.Log("[Bootstrap] SetupWardrobe OK");
     }
 
-    // Wyspa Michałka jako podłoże huba: mesh z wypieczonym reliefem (Assets/3D/Wyspa.fbx
-    // — bake displacementu i koloru z "Wyspa_michałka .blend", patrz scripts w scratchpadzie
-    // sesji; shader był proceduralny, więc zwykły eksport dałby płaską płytę). Teren ma
-    // ~18 m wzniesienia: dno morza ląduje na y=-2.2 (pod wodą i pod progiem respawnu -1.5),
-    // a wszystko co stało na płaskiej podłodze (stanowiska, pickupy, kolumny, szatnia,
-    // szyldy) jest doklejane do powierzchni raycastem na stałych ofsetach. Idempotentne.
+    // --- pokrętła falowania terenu (kręć tutaj) ---------------------------------------
+    // Amplituda w metrach, długość fali w metrach. Pierwsza oktawa to łagodne pagórki,
+    // druga dokłada drobniejszy detal. Zero amplitudy = teren prosto z Blendera.
+    const float WaveAmp1 = 0.85f, WaveLen1 = 22f;
+    const float WaveAmp2 = 0.30f, WaveLen2 = 7f;
+    // Maska splatu jest zapieczona pod ORYGINALNE wysokości, więc falowanie wygaszamy
+    // poniżej płaskowyżu: przy Z<0.95 (tam gdzie zaczyna się piach) amplituda = 0,
+    // dzięki czemu linia brzegowa i plaża zostają dokładnie tam, gdzie je wypiekliśmy.
+    const float TaperFrom = 0.95f, TaperTo = 1.70f;
+
+    // Dokłada pofalowanie do płaskiego terenu z Blendera i zapisuje wynik jako osobny
+    // mesh (meshu z FBX nie da się nadpisać). Deterministyczne — ten sam wynik za każdym
+    // razem, więc SetupIslandHub zostaje idempotentne.
+    static Mesh MakeWavyTerrain(Mesh src)
+    {
+        var verts = src.vertices;           // mesh jest Z-up (obrót siedzi na transformie)
+        for (int i = 0; i < verts.Length; i++)
+        {
+            var v = verts[i];
+            float taper = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(TaperFrom, TaperTo, v.z));
+            if (taper <= 0f) continue;
+            float n1 = Mathf.PerlinNoise(v.x / WaveLen1 + 131.7f, v.y / WaveLen1 + 57.3f) - 0.5f;
+            float n2 = Mathf.PerlinNoise(v.x / WaveLen2 + 911.1f, v.y / WaveLen2 + 407.9f) - 0.5f;
+            verts[i].z = v.z + taper * (n1 * 2f * WaveAmp1 + n2 * 2f * WaveAmp2);
+        }
+
+        var m = Object.Instantiate(src);
+        m.name = "Island_Terrain_Wavy";
+        m.vertices = verts;
+        m.RecalculateNormals();
+        m.RecalculateBounds();
+
+        const string path = "Assets/3D/WyspaTestWavy.asset";
+        AssetDatabase.DeleteAsset(path);
+        AssetDatabase.CreateAsset(m, path);
+        return AssetDatabase.LoadAssetAtPath<Mesh>(path);
+    }
+
+    // Podłoże huba: Assets/3D/WyspaTest.fbx — eksport obiektu Island_Terrain z
+    // Assets/3D/Wyspa-Test.blend (poza projektem). Blenderowy materiał jest proceduralny
+    // i mesh nie ma UV, więc eksport dokleja planarne UV z góry pod maskę WyspaTestSplat.
+    // Teren to 120 x 120 m: płaskowyż na Z~2.37, brzeg opada do Z~-0.8. Siada na y=-1.0,
+    // bo maska piachu z Blendera nasyca się poniżej Z 0.45 i gaśnie przy 0.95 — przy tym
+    // ofsecie plaża wypada na y -0.8..-0.05, czyli dokładnie nad taflą wody (-0.8), a dno
+    // schodzi pod próg respawnu (-1.5). Spawn gracza i tak leci raycastem (PlayerController).
+    // Wszystko co stoi na ziemi (stanowiska, pickupy, kolumny, szatnia, szyldy) jest
+    // doklejane do powierzchni raycastem na stałych ofsetach. Idempotentne.
     public static void SetupIslandHub()
     {
-        var model = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Wyspa.fbx");
-        if (model == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/Wyspa.fbx"); EditorApplication.Exit(1); return; }
+        var model = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/WyspaTest.fbx");
+        if (model == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/WyspaTest.fbx"); EditorApplication.Exit(1); return; }
 
+        // Materiał terenu: splat 1:1 z materiałem Terrain_Splat z Blendera.
+        // Maska (R=piach, G=skała) jest zapieczona Cyclesem, tekstury wyciągnięte z blenda.
         var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/3D/WyspaMat.mat");
         if (mat == null)
         {
-            mat = new Material(Shader.Find("Universal Render Pipeline/Lit"))
-            { mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/3D/WyspaAlbedo.png") };
+            mat = new Material(Shader.Find("Custom/IslandSplat"));
+            mat.SetTexture("_SplatTex", AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/3D/WyspaTestSplat.png"));
+            mat.SetTexture("_GrassTex", AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/3D/WyspaTestGrass.jpg"));
+            mat.SetTexture("_RockTex",  AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/3D/WyspaTestRock.jpg"));
+            mat.SetTexture("_SandTex",  AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/3D/WyspaTestSand.jpg"));
+            mat.SetFloat("_Tiling", 0.125f); // = Mapping scale w Blenderze
             AssetDatabase.CreateAsset(mat, "Assets/3D/WyspaMat.mat");
         }
 
@@ -1186,16 +1290,38 @@ public static class ProjectBootstrap
 
         var island = (GameObject)PrefabUtility.InstantiatePrefab(model);
         island.name = "Island";
-        island.transform.position = new Vector3(0f, -2.2f, 0f); // płaskie dno pod wodą (-0.8)
+        island.transform.position = new Vector3(0f, -1.0f, 0f); // linia brzegowa na poziomie wody
         foreach (var r in island.GetComponentsInChildren<Renderer>()) r.sharedMaterial = mat;
+
+        var wavy = MakeWavyTerrain(island.GetComponentInChildren<MeshFilter>().sharedMesh);
         MeshCollider col = null;
         foreach (var mf in island.GetComponentsInChildren<MeshFilter>())
+        {
+            mf.sharedMesh = wavy;
             col = mf.gameObject.AddComponent<MeshCollider>();
+            col.sharedMesh = wavy;
+        }
         Physics.SyncTransforms();
 
         float H(float x, float z) =>
             col.Raycast(new Ray(new Vector3(x, 500f, z), Vector3.down), out var hit, 1000f)
                 ? hit.point.y : 0f;
+
+        // Teren jest pofalowany, więc sam środek nie wystarcza — płyta stanowiska wjeżdżałaby
+        // rogiem w zbocze. Bierzemy najwyższy punkt pod całym obrysem obiektu (3x3 próbki);
+        // dla drobiazgów typu pickup obrys jest mały i wychodzi to samo co próbka środkowa.
+        float HUnder(GameObject go)
+        {
+            var p = go.transform.position;
+            var rend = go.GetComponentInChildren<Renderer>();
+            if (rend == null) return H(p.x, p.z);
+            var e = rend.bounds.extents;
+            float best = float.MinValue;
+            for (int i = -1; i <= 1; i++)
+                for (int j = -1; j <= 1; j++)
+                    best = Mathf.Max(best, H(p.x + i * e.x * 0.95f, p.z + j * e.z * 0.95f));
+            return best;
+        }
 
         // stały ofset nad terenem per typ obiektu (idempotentnie — bez dziedziczenia po starym y)
         float Off(GameObject go) =>
@@ -1216,7 +1342,7 @@ public static class ProjectBootstrap
                 || go.name.StartsWith("Label_") || go.name.StartsWith("Column_");
             if (!snap) continue;
             var p = go.transform.position;
-            go.transform.position = new Vector3(p.x, H(p.x, p.z) + Off(go), p.z);
+            go.transform.position = new Vector3(p.x, HUnder(go) + Off(go), p.z);
         }
 
         EditorSceneManager.MarkSceneDirty(scene);
