@@ -6,14 +6,15 @@ using UnityEngine;
 public class FollowBone : MonoBehaviour
 {
     public Transform bone;
-    public Vector3 posOffset;
+    public Vector3 posOffset; // punkt chwytu względem kości
+    public Vector3 gripLocal; // punkt chwytu w modelu butelki
     public Quaternion rotOffset = Quaternion.identity;
 
     void LateUpdate()
     {
         if (bone == null) return;
-        transform.SetPositionAndRotation(
-            bone.position + bone.rotation * posOffset,
-            bone.rotation * rotOffset);
+        transform.SetPositionAndRotation(Vector3.zero, bone.rotation * rotOffset);
+        transform.position = bone.position + bone.rotation * posOffset
+            - transform.TransformVector(gripLocal);
     }
 }
