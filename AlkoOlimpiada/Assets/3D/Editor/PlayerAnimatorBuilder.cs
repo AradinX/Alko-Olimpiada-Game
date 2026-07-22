@@ -90,6 +90,7 @@ public static class PlayerAnimatorBuilder
 
         var anim = guy.GetComponent<Animator>();
         if (anim == null) anim = guy.gameObject.AddComponent<Animator>();
+        player.GetComponent<PlayerLimbs>().beerIdleClip = Clip("BeerIdle");
         // Animator pochodzi ze zagnieżdżonego FBX. Unity 6 zapisuje zwykłe
         // przypisanie do YAML, ale po imporcie prefabu gubi m_Controller.
         var serialized = new SerializedObject(anim);

@@ -12,6 +12,7 @@ using UnityEngine.InputSystem;
 // przez NetworkTransform) też chodzą, bez dodatkowej replikacji.
 public class PlayerLimbs : NetworkBehaviour
 {
+    public AnimationClip beerIdleClip; // prawa ręka i palce, edytowalne w Guy-final5.blend
     public float moveThreshold = 0.3f; // od jakiej prędkości (m/s) Animator wchodzi w chód
     public float groundOffset = 0.074f; // poza AccuRig stawia stopy niżej niż poza bind
                                         // z prefabu — o tyle podnosimy model, żeby nie
@@ -44,6 +45,12 @@ public class PlayerLimbs : NetworkBehaviour
             Quaternion m = Quaternion.Inverse(t.parent.rotation) * body.rotation;
             t.localRotation = m * q * Quaternion.Inverse(m) * bind;
         }
+        public void Blend(Quaternion q, float k)
+        {
+            Quaternion m = Quaternion.Inverse(t.parent.rotation) * body.rotation;
+            Quaternion target = m * q * Quaternion.Inverse(m) * bind;
+            t.localRotation = Quaternion.Slerp(t.localRotation, target, k);
+        }
     }
 
     // 0 = brak; 1 machanie, 2 leżenie, 3 fikołek, 4 salut, 5 taniec (klip), 6 wskazanie
@@ -61,7 +68,7 @@ public class PlayerLimbs : NetworkBehaviour
     Animator anim;
     FollowBone bottleFollow;
     Limb armL, armR, legL, legR;
-    Quaternion handRHome;
+    Quaternion handRHome, bottleRotHome;
     Vector3 camHome;  // domyślna pozycja kamery (przy oku)
     Vector3 bodyHome; // poza spoczynkowa Body Z PREFABU — nie wpisywać na sztywno,
                       // bo to od niej zależy, czy stopy modelu stoją na ziemi
@@ -96,6 +103,7 @@ public class PlayerLimbs : NetworkBehaviour
         if (handR != null) handRHome = handR.localRotation;
         var bottle = Deep(transform, "HandBottle");
         if (bottle != null) bottleFollow = bottle.GetComponent<FollowBone>();
+        if (bottleFollow != null) bottleRotHome = bottleFollow.rotOffset;
         drunk = GetComponent<DrunkSystem>();
         lastPos = transform.position;
         if (IsOwner)
@@ -203,8 +211,13 @@ public class PlayerLimbs : NetworkBehaviour
             OwnerCamera(Emote.Value is 2 or 3 or DanceEmote);
             return;
         }
-        // bez emotki: chód/idle rysuje Animator, my dokładamy tylko rękę z butelką
-        if (holdingBeer) ApplyBeerPose(drunk.DrinkPose);
+        // Klip zawiera tylko prawą rękę i palce, więc nogi nadal rysuje locomotion.
+        if (holdingBeer)
+        {
+            if (beerIdleClip != null && anim != null)
+                beerIdleClip.SampleAnimation(anim.gameObject, 0f);
+            ApplyBeerPose(drunk.DrinkPose);
+        }
     }
 
     // kamera przypięta do głowy przy pozach ruszających Body (leżenie/fikołek/taniec)
@@ -222,9 +235,8 @@ public class PlayerLimbs : NetworkBehaviour
 
     void ApplyBeerPose(float drink)
     {
-        SetArmR(Quaternion.Slerp(
-            Quaternion.Euler(-80f, -40f, -25f),
-            Quaternion.Euler(-110f, 0f, -75f), drink));
+        // Stanie bierze pozę BeerIdle z Blendera; ten blend podnosi ją tylko do ust.
+        armR.Blend(Quaternion.Euler(-110f, 0f, -75f), drink);
         if (bottleFollow == null || handR == null) return;
 
         Vector3 grip = handR.position + handR.rotation * bottleFollow.posOffset;
@@ -232,7 +244,8 @@ public class PlayerLimbs : NetworkBehaviour
         Vector3 bottleUp = Vector3.Slerp(transform.up, (mouth - grip).normalized, drink);
         Quaternion upright = transform.rotation * Quaternion.Euler(-90f, 0f, 0f);
         Quaternion wanted = Quaternion.FromToRotation(transform.up, bottleUp) * upright;
-        bottleFollow.rotOffset = Quaternion.Inverse(handR.rotation) * wanted;
+        bottleFollow.rotOffset = Quaternion.Slerp(bottleRotHome,
+            Quaternion.Inverse(handR.rotation) * wanted, drink);
     }
 
     static float EmoteDur(byte e) => e switch

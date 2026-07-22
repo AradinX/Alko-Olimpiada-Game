@@ -8,6 +8,8 @@ using UnityEngine;
 // w PlayerPrefs, żeby strój przeżył restart gry.
 public class PlayerOutfit : NetworkBehaviour
 {
+    const int FaceSlot = 5;
+
     public string[] itemNames;   // pozycje w szatni (bit maski = indeks itemu)
     public int[] itemSlot;       // slot itemu (Głowa/Strój/Spodnie/Pas/Buty) — jedna rzecz na slot
     public GameObject[] pieces;  // meshe ubrań w modelu (Body/Guy)
@@ -26,7 +28,12 @@ public class PlayerOutfit : NetworkBehaviour
             var seen = new System.Collections.Generic.HashSet<int>();
             for (int i = 0; i < itemNames.Length; i++)
                 if ((m & (1u << i)) != 0 && !seen.Add(Slot(i))) m &= ~(1u << i);
+            if (!seen.Contains(FaceSlot))
+                for (int i = 0; i < itemNames.Length; i++)
+                    if (Slot(i) == FaceSlot) { m |= 1u << i; break; }
+
             Mask.Value = m;
+            PlayerPrefs.SetInt("outfit", (int)m);
         }
         Apply(Mask.Value);
 
@@ -52,6 +59,7 @@ public class PlayerOutfit : NetworkBehaviour
     // wołane tylko u właściciela (WardrobeShop); założenie zdejmuje resztę z tego slotu
     public void Toggle(int item)
     {
+        if (Slot(item) == FaceSlot && Worn(item)) return; // twarz jest obowiazkowa
         uint m = Mask.Value ^ (1u << item);
         if ((m & (1u << item)) != 0)
             for (int i = 0; i < itemNames.Length; i++)

@@ -13,7 +13,16 @@ class CharacterClipImporter : AssetPostprocessor
 {
     const string Model = "Assets/3D/GuyWardrobe.fbx";
     const string ClipPrefix = "Assets/3D/GuyWardrobe@";
-    static readonly string[] Looping = { "Idle", "Jog", "Sprint", "Dance" };
+    static readonly string[] Looping = { "Idle", "Jog", "Sprint", "Dance", "BeerIdle" };
+    static readonly string[] BeerBones =
+    {
+        "CC_Base_R_Clavicle", "CC_Base_R_Upperarm", "CC_Base_R_Forearm", "CC_Base_R_Hand",
+        "CC_Base_R_Thumb1", "CC_Base_R_Thumb2", "CC_Base_R_Thumb3",
+        "CC_Base_R_Index1", "CC_Base_R_Index2", "CC_Base_R_Index3",
+        "CC_Base_R_Mid1", "CC_Base_R_Mid2", "CC_Base_R_Mid3",
+        "CC_Base_R_Ring1", "CC_Base_R_Ring2", "CC_Base_R_Ring3",
+        "CC_Base_R_Pinky1", "CC_Base_R_Pinky2", "CC_Base_R_Pinky3"
+    };
 
     // PODBIJ przy każdej zmianie reguł poniżej — bez tego Unity nie reimportuje
     // plików, które już raz przeszły import, i nowe ustawienia po prostu nie wejdą
@@ -26,14 +35,18 @@ class CharacterClipImporter : AssetPostprocessor
     void OnPostprocessAnimation(GameObject root, AnimationClip clip)
     {
         if (!assetPath.StartsWith(ClipPrefix)) return;
+        bool beer = ClipName(assetPath) == "BeerIdle";
         int cut = 0;
         foreach (var b in AnimationUtility.GetCurveBindings(clip))
-            if (string.IsNullOrEmpty(b.path))
+            if (string.IsNullOrEmpty(b.path) || (beer && !BeerBones.Contains(b.path.Split('/').Last())))
             {
                 AnimationUtility.SetEditorCurve(clip, b, null);
                 cut++;
             }
-        if (cut > 0) Debug.Log($"[Klipy] {clip.name}: usunięto {cut} krzywych roota");
+        if (beer) Debug.Assert(AnimationUtility.GetCurveBindings(clip)
+                .All(b => BeerBones.Contains(b.path.Split('/').Last())),
+            "[Klipy] BeerIdle nadpisuje kości poza prawą ręką");
+        if (cut > 0) Debug.Log($"[Klipy] {clip.name}: usunięto {cut} zbędnych krzywych");
     }
 
     static string ClipName(string path) =>

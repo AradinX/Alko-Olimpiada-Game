@@ -857,6 +857,8 @@ public static class ProjectBootstrap
     {
         var model = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Butelka.fbx");
         if (model == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/Butelka.fbx"); EditorApplication.Exit(1); return; }
+        var povHandModel = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/POV/PovHand.glb");
+        if (povHandModel == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/POV/PovHand.glb"); return; }
 
         var mat = AssetDatabase.LoadAssetAtPath<Material>("Assets/3D/ButelkaMat.mat");
         if (mat == null)
@@ -936,57 +938,12 @@ public static class ProjectBootstrap
         fb.gripLocal = gripLocal;
         fb.rotOffset = Quaternion.Inverse(hand.rotation) * hb.transform.rotation;
 
-        // POV używa prawdziwej siatki prawej ręki z BodyMat, nie brył zastępczych.
-        var skin = player.GetComponentsInChildren<SkinnedMeshRenderer>(true)
-            .First(r => r.sharedMaterial != null && r.sharedMaterial.name == "BodyMat");
-        var baked = new Mesh();
-        skin.BakeMesh(baked);
-        var weights = skin.sharedMesh.boneWeights;
-        var rightBones = new System.Collections.Generic.HashSet<int>();
-        for (int i = 0; i < skin.bones.Length; i++)
-        {
-            string n = skin.bones[i].name;
-            if (n.Contains("_R_Hand") || n.Contains("_R_Thumb") || n.Contains("_R_Index") || n.Contains("_R_Mid") ||
-                n.Contains("_R_Ring") || n.Contains("_R_Pinky")) rightBones.Add(i);
-        }
-        float RightWeight(BoneWeight w) =>
-            (rightBones.Contains(w.boneIndex0) ? w.weight0 : 0f) +
-            (rightBones.Contains(w.boneIndex1) ? w.weight1 : 0f) +
-            (rightBones.Contains(w.boneIndex2) ? w.weight2 : 0f) +
-            (rightBones.Contains(w.boneIndex3) ? w.weight3 : 0f);
-        var sourceTriangles = baked.triangles;
-        var armTriangles = new System.Collections.Generic.List<int>();
-        for (int i = 0; i < sourceTriangles.Length; i += 3)
-            if (RightWeight(weights[sourceTriangles[i]]) > 0.35f &&
-                RightWeight(weights[sourceTriangles[i + 1]]) > 0.35f &&
-                RightWeight(weights[sourceTriangles[i + 2]]) > 0.35f)
-                armTriangles.AddRange(new[] { sourceTriangles[i], sourceTriangles[i + 1], sourceTriangles[i + 2] });
-
-        Vector3 pivot = player.transform.InverseTransformPoint(wantPos);
-        var vertices = baked.vertices;
-        for (int i = 0; i < vertices.Length; i++)
-            // BakeMesh uwzględnia skalę rigu, więc dokładamy już tylko obrót i pozycję renderera.
-            vertices[i] = player.transform.InverseTransformPoint(
-                skin.transform.position + skin.transform.rotation * vertices[i]) - pivot;
-        var armMesh = new Mesh { name = "PovRightArm", indexFormat = baked.indexFormat };
-        armMesh.vertices = vertices;
-        armMesh.uv = baked.uv;
-        armMesh.SetTriangles(armTriangles, 0);
-        armMesh.RecalculateNormals();
-        armMesh.RecalculateTangents();
-        armMesh.RecalculateBounds();
-        const string armPath = "Assets/Prefabs/PovRightArm.asset";
-        AssetDatabase.DeleteAsset(armPath);
-        AssetDatabase.CreateAsset(armMesh, armPath);
-        var armAsset = armMesh;
-        Object.DestroyImmediate(baked);
-
-        var pov = new GameObject("PovRealArm");
-        pov.transform.SetParent(player.transform, false);
-        pov.AddComponent<MeshFilter>().sharedMesh = armAsset;
-        var povRenderer = pov.AddComponent<MeshRenderer>();
-        povRenderer.sharedMaterial = skin.sharedMaterial;
-        povRenderer.shadowCastingMode = ShadowCastingMode.Off;
+        // Osobny model dłoni POV — pozycję i skalę stroi DrunkSystem w Player.prefab.
+        var pov = (GameObject)PrefabUtility.InstantiatePrefab(povHandModel, player.transform);
+        pov.name = "PovRealArm";
+        pov.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        foreach (var r in pov.GetComponentsInChildren<Renderer>(true))
+            r.shadowCastingMode = ShadowCastingMode.Off;
         pov.SetActive(false);
         Debug.Log($"[Bootstrap] HandBottle: bounds={BoundsOf(hb).size}");
         hb.SetActive(false); // DrunkSystem włącza, gdy Beers > 0
@@ -1088,11 +1045,19 @@ public static class ProjectBootstrap
             ("tripo_mesh_c78ada05_622f_40d0_8087_08b2b845e972_002", 11, "Buty"), // lewy
             ("tripo_mesh_c78ada05_622f_40d0_8087_08b2b845e972_003", 11, "Buty"), // prawy
         };
+        (string name, string texture)[] faces =
+        {
+            ("u\u015bmiech", "FaceRoundSmile"),
+            ("oczy X", "FaceXSmile"),
+            ("broda", "FaceSquareBeard"),
+        };
         string[] itemNames = { "Zbroja", "Szata", "Cezar", "Sparta", "Laur", "Wieniec oliwny",
             "Asterix", "Koszulka Asterixa", "Spodnie Asterixa", "Czapka Asterixa",
             "Strój niewolnika", "Buty" };
         // sloty: 0=Głowa 1=Strój 2=Spodnie 3=Pas 4=Buty — jedna rzecz na slot (PlayerOutfit.Toggle)
         int[] itemSlots = { 1, 1, 1, 0, 0, 0, 3, 1, 2, 0, 1, 4 };
+        itemNames = itemNames.Concat(faces.Select(f => "Twarz: " + f.name)).ToArray();
+        itemSlots = itemSlots.Concat(Enumerable.Repeat(5, faces.Length)).ToArray();
 
         var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
         var body = player.transform.Find("Body");
@@ -1101,6 +1066,8 @@ public static class ProjectBootstrap
             var t = body.Find(n);
             if (t != null) Object.DestroyImmediate(t.gameObject);
         }
+        foreach (var t in body.Cast<Transform>().Where(t => t.name.StartsWith("Face_")).ToArray())
+            Object.DestroyImmediate(t.gameObject);
 
         var inst = (GameObject)PrefabUtility.InstantiatePrefab(model, body);
         inst.name = "Guy";
@@ -1170,6 +1137,60 @@ public static class ProjectBootstrap
             up.rotation = Quaternion.FromToRotation(cur.normalized, want) * up.rotation;
         }
 
+        // Przezroczysty quad sledzi glowe. FollowBone omija niejednorodna skale
+        // kosci AccuRig, ktora splaszczalaby zwykle dziecko.
+        Transform head = Deep(inst.transform, "CC_Base_Head");
+        int firstFaceItem = itemNames.Length - faces.Length;
+        foreach (var (_, texture) in faces)
+        {
+            string texturePath = $"Assets/3D/Faces/{texture}.png";
+            var importer = (TextureImporter)AssetImporter.GetAtPath(texturePath);
+            if (importer == null) { Debug.LogError("[Bootstrap] Brak tekstury " + texturePath); continue; }
+            importer.alphaIsTransparency = true;
+            importer.wrapMode = TextureWrapMode.Clamp;
+            importer.mipmapEnabled = true;
+            importer.maxTextureSize = 1024;
+            importer.npotScale = TextureImporterNPOTScale.ToNearest;
+            importer.SaveAndReimport();
+
+            string materialPath = $"Assets/3D/Faces/{texture}Mat.mat";
+            var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+            if (material == null)
+            {
+                material = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+                AssetDatabase.CreateAsset(material, materialPath);
+            }
+            material.mainTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
+            material.SetFloat("_Surface", 1);
+            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            material.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+            material.SetFloat("_ZWrite", 0);
+            material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            material.SetOverrideTag("RenderType", "Transparent");
+            material.renderQueue = (int)RenderQueue.Transparent;
+
+            var face = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            face.name = "Face_" + texture;
+            Object.DestroyImmediate(face.GetComponent<Collider>());
+            face.transform.SetParent(body, false);
+            face.transform.localScale = Vector3.one * 0.42f;
+            var faceRenderer = face.GetComponent<MeshRenderer>();
+            faceRenderer.sharedMaterial = material;
+            faceRenderer.shadowCastingMode = ShadowCastingMode.Off;
+            faceRenderer.receiveShadows = false;
+
+            Vector3 normal = face.GetComponent<MeshFilter>().sharedMesh.normals[0];
+            var follow = face.AddComponent<FollowBone>();
+            Vector3 target = head.position + player.transform.forward * 0.135f - player.transform.up * 0.025f;
+            follow.bone = head;
+            follow.posOffset = Quaternion.Inverse(head.rotation) * (target - head.position);
+            follow.rotOffset = Quaternion.Inverse(head.rotation)
+                * Quaternion.FromToRotation(normal, player.transform.forward);
+
+            pieces.Add(face);
+            pieceItem.Add(firstFaceItem++);
+        }
+
         var outfit = player.GetComponent<PlayerOutfit>();
         if (outfit == null) outfit = player.AddComponent<PlayerOutfit>();
         outfit.itemNames = itemNames;
@@ -1177,6 +1198,7 @@ public static class ProjectBootstrap
         outfit.pieces = pieces.ToArray();
         outfit.pieceItem = pieceItem.ToArray();
         foreach (var p in pieces) p.SetActive(false); // domyślnie goły
+        Debug.Assert(faces.Length == 3 && itemNames.Length < 32, "Nieprawidlowa konfiguracja twarzy");
 
         Debug.Log($"[Bootstrap] GuyWardrobe: body={b0.size}, scale={inst.transform.localScale.x:F4}, ciuchów={pieces.Count}");
         PrefabUtility.SaveAsPrefabAsset(player, "Assets/Prefabs/Player.prefab");
