@@ -534,9 +534,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLimbs
   ShowTopMostFoldoutHeaderGroup: 1
-  stepPerMeter: 5
-  swingDeg: 60
-  armSwingScale: 0.8
+  moveThreshold: 0.3
+  groundOffset: 0.074
   headCamDist: 0.45
   armOutDeg: 7
   Emote:
@@ -1329,6 +1328,14 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 6b308917175a16941ba9763cca26fe25, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 36819b991a4695e428335a6b3663dab7, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: baa9e0a95c26fcd418c2b5d721a7bf25, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 36819b991a4695e428335a6b3663dab7, type: 3}
+      propertyPath: m_CullingMode
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
