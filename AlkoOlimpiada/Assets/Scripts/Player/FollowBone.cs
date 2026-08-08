@@ -3,6 +3,9 @@ using UnityEngine;
 // Dokleja obiekt do kości szkieletu (pozycja+rotacja co klatkę, PO animacji).
 // Zamiast parentowania pod kość — kości AccuRig mają nieuniform skalę, która
 // rozpłaszczałaby dziecko. Offsety w przestrzeni kości ustawia bootstrap.
+// Kolejność wykonania: PlayerLimbs poprawia kość dłoni też w LateUpdate, więc
+// bez wymuszonego porządku butelka co drugą klatkę czytałaby starą pozę.
+[DefaultExecutionOrder(100)]
 public class FollowBone : MonoBehaviour
 {
     public Transform bone;
