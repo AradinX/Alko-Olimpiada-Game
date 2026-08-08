@@ -26,15 +26,19 @@ public class DrunkSystem : NetworkBehaviour
     public float spikedCurseSeconds = 40f;   // klątwa z pigułki działa od razu, przez tyle sekund
     public GameObject beerPrefab;            // wyrzucone piwo ląduje na ziemi (bootstrap)
 
+    // Dłoń i butelka to JEDNO sztywne ciało — dosłownie: dłoń jest DZIECKIEM
+    // butelki, więc chwyt trzyma hierarchia Unity i nie ma jak się rozjechać.
+    // Animujemy samą butelkę, dłoń jedzie za nią z definicji.
+    // Strojenie w POV_Beer_Tuning: przestawiasz butelkę (dłoń leci razem z nią),
+    // potem przepisujesz tu jej localPosition/localEulerAngles.
     [Header("POV piwa")]
     public Vector3 povBottleIdlePosition = new(0.3938577f, -0.2383561f, 0.57f);
-    public Vector3 povBottleDrinkPosition = new(0.08f, -0.05f, 0.65f);
+    public Vector3 povBottleDrinkPosition = new(0.09247f, 0.00941f, 0.24294f);
     public Vector3 povBottleIdleRotation = new(286.6091f, 209.3117f, 244.036f);
-    public Vector3 povBottleDrinkRotation = new(-135f, 0f, -5f);
-    public Vector3 povHandIdleGripOffset = new(0.02790773f, -0.08296716f, -0.03053772f);
-    public Vector3 povHandDrinkGripOffset = new(0.04f, 0f, 0.02f);
-    public Vector3 povHandIdleRotation = new(71.85422f, 96.42809f, 282.3045f);
-    public Vector3 povHandDrinkRotation = new(-10f, 0f, 175f);
+    public Vector3 povBottleDrinkRotation = new(56.0392f, 206.565f, 245.0062f);
+    // chwyt: dłoń w LOKALNEJ przestrzeni butelki, jeden raz na starcie
+    public Vector3 povHandGripPosition = new(0.165314f, -0.064865f, -0.08583f);
+    public Vector3 povHandGripRotation = new(10.9443f, 164.3116f, 100.1501f);
     public float povHandScale = 0.24f;
 
     // etapy pijaństwa (progi na pasku); bujanie zaczyna się od pierwszego i pogłębia
@@ -102,7 +106,6 @@ public class DrunkSystem : NetworkBehaviour
     Transform handBottle; // butelka w ręce, widoczna gdy Beers > 0
     Transform povBottle;  // lokalny model pod kamerą, bez problemów z near plane
     Transform povArm;
-    Vector3 povGripLocal;
     Camera cam;
     LensDistortion lens; ChromaticAberration chroma; Vignette vig; // post-process upojenia
     DrunkSystem reviveTarget; // pobliski leżący gracz (tylko u właściciela)
@@ -166,15 +169,16 @@ public class DrunkSystem : NetworkBehaviour
         povBottle = Instantiate(handBottle.gameObject, cam.transform, false).transform;
         povBottle.name = "PovBottle";
         var follow = povBottle.GetComponent<FollowBone>();
-        if (follow != null)
-        {
-            povGripLocal = follow.gripLocal;
-            follow.enabled = false;
-            Destroy(follow);
-        }
+        if (follow != null) { follow.enabled = false; Destroy(follow); } // POV nie chodzi za kością
         povArm = transform.Find("PovRealArm");
         if (povArm != null)
-            povArm.SetParent(cam.transform, false);
+        {
+            // dłoń pod butelkę — od teraz chwytu pilnuje hierarchia, nie kod
+            povArm.SetParent(povBottle, false);
+            povArm.SetLocalPositionAndRotation(povHandGripPosition,
+                Quaternion.Euler(povHandGripRotation));
+            povArm.localScale = Vector3.one * (povHandScale / povBottle.localScale.x);
+        }
         cam.nearClipPlane = 0.03f;
     }
 
@@ -194,20 +198,10 @@ public class DrunkSystem : NetworkBehaviour
     {
         if (povBottle == null) return;
         float k = DrinkPose;
-        povBottle.localPosition = Vector3.Lerp(
-            povBottleIdlePosition, povBottleDrinkPosition, k);
-        povBottle.localRotation = Quaternion.Slerp(
-            Quaternion.Euler(povBottleIdleRotation), Quaternion.Euler(povBottleDrinkRotation), k);
-
-        Vector3 grip = cam.transform.InverseTransformPoint(povBottle.TransformPoint(povGripLocal));
-        if (povArm != null)
-        {
-            povArm.localScale = Vector3.one * povHandScale;
-            povArm.localPosition = grip + Vector3.Lerp(
-                povHandIdleGripOffset, povHandDrinkGripOffset, k);
-            povArm.localRotation = Quaternion.Slerp(
-                Quaternion.Euler(povHandIdleRotation), Quaternion.Euler(povHandDrinkRotation), k);
-        }
+        povBottle.SetLocalPositionAndRotation(
+            Vector3.Lerp(povBottleIdlePosition, povBottleDrinkPosition, k),
+            Quaternion.Slerp(Quaternion.Euler(povBottleIdleRotation),
+                             Quaternion.Euler(povBottleDrinkRotation), k));
     }
 
     // pijacki post-process (GDD 10): profil budowany w kodzie — zero assetów w scenach

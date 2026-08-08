@@ -558,13 +558,11 @@ MonoBehaviour:
   spikedCurseSeconds: 40
   beerPrefab: {fileID: 8961601022173213179, guid: 1bbdbaad81f29ce429912a707aed4765, type: 3}
   povBottleIdlePosition: {x: 0.3938577, y: -0.2383561, z: 0.57}
-  povBottleDrinkPosition: {x: 0.08, y: -0.05, z: 0.65}
+  povBottleDrinkPosition: {x: 0.09247, y: 0.00941, z: 0.24294}
   povBottleIdleRotation: {x: 286.6091, y: 209.3117, z: 244.036}
-  povBottleDrinkRotation: {x: -135, y: 0, z: -5}
-  povHandIdleGripOffset: {x: 0.02790773, y: -0.08296716, z: -0.03053772}
-  povHandDrinkGripOffset: {x: 0.04, y: 0, z: 0.02}
-  povHandIdleRotation: {x: 71.85422, y: 96.42809, z: 282.3045}
-  povHandDrinkRotation: {x: -10, y: 0, z: 175}
+  povBottleDrinkRotation: {x: 56.0392, y: 206.565, z: 245.0062}
+  povHandGripPosition: {x: 0.165314, y: -0.064865, z: -0.08583}
+  povHandGripRotation: {x: 10.9443, y: 164.3116, z: 100.1501}
   povHandScale: 0.24
   keyW: 37
   keyS: 33
