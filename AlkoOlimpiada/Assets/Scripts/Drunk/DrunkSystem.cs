@@ -26,6 +26,17 @@ public class DrunkSystem : NetworkBehaviour
     public float spikedCurseSeconds = 40f;   // klątwa z pigułki działa od razu, przez tyle sekund
     public GameObject beerPrefab;            // wyrzucone piwo ląduje na ziemi (bootstrap)
 
+    [Header("POV piwa")]
+    public Vector3 povBottleIdlePosition = new(0.3938577f, -0.2383561f, 0.57f);
+    public Vector3 povBottleDrinkPosition = new(0.08f, -0.05f, 0.65f);
+    public Vector3 povBottleIdleRotation = new(286.6091f, 209.3117f, 244.036f);
+    public Vector3 povBottleDrinkRotation = new(-135f, 0f, -5f);
+    public Vector3 povHandIdleGripOffset = new(0.02790773f, -0.08296716f, -0.03053772f);
+    public Vector3 povHandDrinkGripOffset = new(0.04f, 0f, 0.02f);
+    public Vector3 povHandIdleRotation = new(71.85422f, 96.42809f, 282.3045f);
+    public Vector3 povHandDrinkRotation = new(-10f, 0f, 175f);
+    public float povHandScale = 0.24f;
+
     // etapy pijaństwa (progi na pasku); bujanie zaczyna się od pierwszego i pogłębia
     public static readonly (float min, string name)[] Stages =
     { (20f, "Szumi"), (45f, "Lekko chycony"), (64f, "Jest ligancko") };
@@ -148,6 +159,10 @@ public class DrunkSystem : NetworkBehaviour
     void SetupPovBottle()
     {
         if (handBottle == null) return;
+        // W pierwszej osobie renderujemy tylko osobną dłoń i butelkę POV.
+        // forceRenderingOff nie koliduje z garderobą, która nadal przełącza GameObjecty.
+        foreach (var r in body.GetComponentsInChildren<Renderer>(true))
+            r.forceRenderingOff = true;
         povBottle = Instantiate(handBottle.gameObject, cam.transform, false).transform;
         povBottle.name = "PovBottle";
         var follow = povBottle.GetComponent<FollowBone>();
@@ -158,7 +173,8 @@ public class DrunkSystem : NetworkBehaviour
             Destroy(follow);
         }
         povArm = transform.Find("PovRealArm");
-        if (povArm != null) povArm.SetParent(cam.transform, false);
+        if (povArm != null)
+            povArm.SetParent(cam.transform, false);
         cam.nearClipPlane = 0.03f;
     }
 
@@ -179,16 +195,18 @@ public class DrunkSystem : NetworkBehaviour
         if (povBottle == null) return;
         float k = DrinkPose;
         povBottle.localPosition = Vector3.Lerp(
-            new Vector3(0.22f, -0.27f, 0.55f), new Vector3(0.08f, -0.05f, 0.65f), k);
+            povBottleIdlePosition, povBottleDrinkPosition, k);
         povBottle.localRotation = Quaternion.Slerp(
-            Quaternion.Euler(-90f, 0f, 8f), Quaternion.Euler(-135f, 0f, -5f), k);
+            Quaternion.Euler(povBottleIdleRotation), Quaternion.Euler(povBottleDrinkRotation), k);
 
         Vector3 grip = cam.transform.InverseTransformPoint(povBottle.TransformPoint(povGripLocal));
         if (povArm != null)
         {
-            povArm.localPosition = grip + new Vector3(0.04f, 0f, 0.02f);
+            povArm.localScale = Vector3.one * povHandScale;
+            povArm.localPosition = grip + Vector3.Lerp(
+                povHandIdleGripOffset, povHandDrinkGripOffset, k);
             povArm.localRotation = Quaternion.Slerp(
-                Quaternion.Euler(0f, 0f, 180f), Quaternion.Euler(-10f, 0f, 175f), k);
+                Quaternion.Euler(povHandIdleRotation), Quaternion.Euler(povHandDrinkRotation), k);
         }
     }
 
