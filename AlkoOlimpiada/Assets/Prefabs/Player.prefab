@@ -132,7 +132,7 @@ Transform:
   m_GameObject: {fileID: 3383957726186300179}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.014, y: 1.145, z: 0}
+  m_LocalPosition: {x: 0.014, y: 1.375, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -170,7 +170,7 @@ Transform:
   m_GameObject: {fileID: 3741993087669320160}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.06, y: 0.935, z: 0.3}
+  m_LocalPosition: {x: 0.044, y: 1.139, z: 0.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -361,7 +361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2045905520
+  GlobalObjectIdHash: 1951942965
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1215,47 +1215,47 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.3005871
+      value: 0.31919342
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.3005871
+      value: 0.31919342
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.3005871
+      value: 0.31919342
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.41700995
+      value: 0.4016
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.19198212
+      value: 0.42949983
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.044533506
+      value: 0.03699996
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.7071067
+      value: 0.99746025
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.7071068
+      value: -0.07122511
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -8.0393564e-10
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: -0.0000000052178373
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -8.169
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -1303,9 +1303,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FollowBone
   bone: {fileID: 70584389600605938}
-  posOffset: {x: -0.000000069881175, y: 0.06622616, z: 0.10761722}
+  posOffset: {x: 0.023698092, y: 0.0813352, z: 0.1595335}
   gripLocal: {x: 0, y: -0.000000024786761, z: 0.16634126}
-  rotOffset: {x: -0.07767771, y: -0.79860467, z: 0.58787435, w: 0.10296126}
+  rotOffset: {x: 0.0087351175, y: -0.21845861, z: 0.9672857, w: 0.12868002}
 --- !u!4 &1954821914670266604 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 27459a5ec80da9a409156b75c5134f16, type: 3}
