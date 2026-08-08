@@ -13,7 +13,10 @@ class CharacterClipImporter : AssetPostprocessor
 {
     const string Model = "Assets/3D/GuyWardrobe.fbx";
     const string ClipPrefix = "Assets/3D/GuyWardrobe@";
-    static readonly string[] Looping = { "Idle", "Jog", "Sprint", "Dance", "BeerIdle" };
+    // BeerIdle celowo poza lista: to klip od-do (stanie -> picie) probkowany po czasie
+    // przez PlayerLimbs, a zapetlony zawijalby sie przy t == length z powrotem do
+    // klatki 0 i poza picia mrugalaby na szczycie animacji.
+    static readonly string[] Looping = { "Idle", "Jog", "Sprint", "Dance" };
     static readonly string[] BeerBones =
     {
         "CC_Base_R_Clavicle", "CC_Base_R_Upperarm", "CC_Base_R_Forearm", "CC_Base_R_Hand",
@@ -43,9 +46,17 @@ class CharacterClipImporter : AssetPostprocessor
                 AnimationUtility.SetEditorCurve(clip, b, null);
                 cut++;
             }
-        if (beer) Debug.Assert(AnimationUtility.GetCurveBindings(clip)
-                .All(b => BeerBones.Contains(b.path.Split('/').Last())),
-            "[Klipy] BeerIdle nadpisuje kości poza prawą ręką");
+        if (beer)
+        {
+            Debug.Assert(AnimationUtility.GetCurveBindings(clip)
+                    .All(b => BeerBones.Contains(b.path.Split('/').Last())),
+                "[Klipy] BeerIdle nadpisuje kości poza prawą ręką");
+            // BeerIdle nie leci przez Animator — PlayerLimbs próbkuje go ręcznie po czasie.
+            // Klip nie-Legacy da się próbkować tylko w edytorze albo gdy na obiekcie wisi
+            // Animator, a ścieżki krzywych ("root/...") celują w Body/Guy/Armature, gdzie
+            // Animatora nie ma. W buildzie kończyło się to błędem co klatkę i brakiem pozy.
+            clip.legacy = true;
+        }
         if (cut > 0) Debug.Log($"[Klipy] {clip.name}: usunięto {cut} zbędnych krzywych");
     }
 

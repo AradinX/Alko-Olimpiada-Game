@@ -12,7 +12,11 @@ using UnityEngine.InputSystem;
 // przez NetworkTransform) też chodzą, bez dodatkowej replikacji.
 public class PlayerLimbs : NetworkBehaviour
 {
-    public AnimationClip beerIdleClip; // prawa ręka i palce, edytowalne w Guy-final5.blend
+    // Prawa ręka i palce (19 kości), edytowalne w Blenderze.
+    // Klip jest OD-DO: klatka 0 = stanie z piwem, ostatnia = poza picia. Animację
+    // robi samo próbkowanie po czasie — Unity interpoluje wszystkie kości, łącznie
+    // z palcami, czego proceduralny obrót jednej kości nie umiał.
+    public AnimationClip beerIdleClip;
     public float moveThreshold = 0.3f; // od jakiej prędkości (m/s) Animator wchodzi w chód
     public float groundOffset = 0.074f; // poza AccuRig stawia stopy niżej niż poza bind
                                         // z prefabu — o tyle podnosimy model, żeby nie
@@ -45,12 +49,6 @@ public class PlayerLimbs : NetworkBehaviour
             Quaternion m = Quaternion.Inverse(t.parent.rotation) * body.rotation;
             t.localRotation = m * q * Quaternion.Inverse(m) * bind;
         }
-        public void Blend(Quaternion q, float k)
-        {
-            Quaternion m = Quaternion.Inverse(t.parent.rotation) * body.rotation;
-            Quaternion target = m * q * Quaternion.Inverse(m) * bind;
-            t.localRotation = Quaternion.Slerp(t.localRotation, target, k);
-        }
     }
 
     // 0 = brak; 1 machanie, 2 leżenie, 3 fikołek, 4 salut, 5 taniec (klip), 6 wskazanie
@@ -65,10 +63,10 @@ public class PlayerLimbs : NetworkBehaviour
     static readonly int SpeedId = Animator.StringToHash("Speed");
 
     Transform body, head, cam, handR;
+    Transform clipRoot; // Guy/Armature — względem niej liczone są ścieżki krzywych w klipach
     Animator anim;
-    FollowBone bottleFollow;
     Limb armL, armR, legL, legR;
-    Quaternion handRHome, bottleRotHome;
+    Quaternion handRHome;
     Vector3 camHome;  // domyślna pozycja kamery (przy oku)
     Vector3 bodyHome; // poza spoczynkowa Body Z PREFABU — nie wpisywać na sztywno,
                       // bo to od niej zależy, czy stopy modelu stoją na ziemi
@@ -101,9 +99,7 @@ public class PlayerLimbs : NetworkBehaviour
         legL = new Limb(bThL, body); legR = new Limb(bThR, body);
         handR = Deep(body, "CC_Base_R_Hand");
         if (handR != null) handRHome = handR.localRotation;
-        var bottle = Deep(transform, "HandBottle");
-        if (bottle != null) bottleFollow = bottle.GetComponent<FollowBone>();
-        if (bottleFollow != null) bottleRotHome = bottleFollow.rotOffset;
+        if (anim != null) clipRoot = ClipRoot(anim.transform);
         drunk = GetComponent<DrunkSystem>();
         lastPos = transform.position;
         if (IsOwner)
@@ -153,6 +149,22 @@ public class PlayerLimbs : NetworkBehaviour
         foreach (var t in root.GetComponentsInChildren<Transform>(true))
             if (t.name == name) return t;
         return null;
+    }
+
+    // Obiekt, względem którego SampleAnimation rozwiązuje ścieżki krzywych z klipu.
+    // Ścieżki zaczynają się od kości "root", więc szukamy tego, kto ma ją jako
+    // BEZPOŚREDNIE dziecko: zwykle sam Animator, ale model wyeksportowany razem
+    // z obiektem armatury wsuwa jeszcze jeden węzeł i wtedy trzeba zejść niżej.
+    // SampleAnimation przy niezgodnej ścieżce NIC nie zgłasza i po prostu nic nie
+    // robi — dlatego ustalamy to raz i głośno, zamiast animować w próżnię.
+    static Transform ClipRoot(Transform animRoot)
+    {
+        if (animRoot.Find("root") != null) return animRoot;
+        foreach (Transform c in animRoot)
+            if (c.Find("root") != null) return c;
+        Debug.LogError("[PlayerLimbs] Nie znalazłem kości root pod Animatorem — poza "
+                       + "piwa się nie nałoży. Zmieniła się hierarchia w GuyWardrobe.fbx?");
+        return animRoot;
     }
 
     void Update()
@@ -212,12 +224,12 @@ public class PlayerLimbs : NetworkBehaviour
             return;
         }
         // Klip zawiera tylko prawą rękę i palce, więc nogi nadal rysuje locomotion.
-        if (holdingBeer)
-        {
-            if (beerIdleClip != null && anim != null)
-                beerIdleClip.SampleAnimation(anim.gameObject, 0f);
-            ApplyBeerPose(drunk.DrinkPose);
-        }
+        // DrinkPose to sin(k*pi), czyli 0->1->0 — podniesienie i opuszczenie butelki
+        // wychodzi z samego przesuwania czasu klipu. Butelka jedzie za kością dłoni
+        // przez FollowBone, więc nie ma jej tu po co dotykać.
+        if (holdingBeer && beerIdleClip != null && clipRoot != null)
+            beerIdleClip.SampleAnimation(clipRoot.gameObject,
+                drunk.DrinkPose * beerIdleClip.length);
     }
 
     // kamera przypięta do głowy przy pozach ruszających Body (leżenie/fikołek/taniec)
@@ -231,21 +243,6 @@ public class PlayerLimbs : NetworkBehaviour
         if (!IsOwner || cam == null || DrunkPose || !attachToHead) return;
         cam.position = head.position + body.up * headCamDist;
         cam.localRotation = body.localRotation;
-    }
-
-    void ApplyBeerPose(float drink)
-    {
-        // Stanie bierze pozę BeerIdle z Blendera; ten blend podnosi ją tylko do ust.
-        armR.Blend(Quaternion.Euler(-110f, 0f, -75f), drink);
-        if (bottleFollow == null || handR == null) return;
-
-        Vector3 grip = handR.position + handR.rotation * bottleFollow.posOffset;
-        Vector3 mouth = head.position + transform.forward * 0.12f - transform.up * 0.06f;
-        Vector3 bottleUp = Vector3.Slerp(transform.up, (mouth - grip).normalized, drink);
-        Quaternion upright = transform.rotation * Quaternion.Euler(-90f, 0f, 0f);
-        Quaternion wanted = Quaternion.FromToRotation(transform.up, bottleUp) * upright;
-        bottleFollow.rotOffset = Quaternion.Slerp(bottleRotHome,
-            Quaternion.Inverse(handR.rotation) * wanted, drink);
     }
 
     static float EmoteDur(byte e) => e switch
