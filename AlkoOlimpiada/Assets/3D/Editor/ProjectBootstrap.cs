@@ -1250,6 +1250,28 @@ public static class ProjectBootstrap
     // dzięki czemu linia brzegowa i plaża zostają dokładnie tam, gdzie je wypiekliśmy.
     const float TaperFrom = 0.95f, TaperTo = 1.70f;
 
+    // Strefy płaskie: (środek x, środek z, półbok x, półbok z) w metrach ŚWIATA. Wewnątrz
+    // prostokąta amplituda = 0 (teren prosto z Blendera), na dystansie FlatFeather wraca
+    // do pełnej. Baza z Blendera jest tam i tak płaska (~20 cm rozrzutu), więc samo
+    // wygaszenie szumu wystarcza za plac — nie ma potrzeby poziomowania do wysokości.
+    const float FlatFeather = 6f;
+    static readonly Vector4[] FlatZones = {
+        // podłoga panteonu (okno-podloga, 23.6 x 37.0 m) + ~2 m zapasu na wejście
+        new Vector4(10.3f, -34.2f, 13.5f, 20.5f),
+    };
+
+    // 1 = pełne falowanie, 0 = płasko. Mesh jest Z-up: world X = lx, world Z = -ly.
+    static float FlatMask(float lx, float ly)
+    {
+        float m = 1f;
+        foreach (var z in FlatZones)
+        {
+            float d = Mathf.Max(Mathf.Abs(lx - z.x) - z.z, Mathf.Abs(-ly - z.y) - z.w);
+            m = Mathf.Min(m, Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0f, FlatFeather, d)));
+        }
+        return m;
+    }
+
     // Dokłada pofalowanie do płaskiego terenu z Blendera i zapisuje wynik jako osobny
     // mesh (meshu z FBX nie da się nadpisać). Deterministyczne — ten sam wynik za każdym
     // razem, więc SetupIslandHub zostaje idempotentne.
@@ -1259,7 +1281,8 @@ public static class ProjectBootstrap
         for (int i = 0; i < verts.Length; i++)
         {
             var v = verts[i];
-            float taper = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(TaperFrom, TaperTo, v.z));
+            float taper = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(TaperFrom, TaperTo, v.z))
+                          * FlatMask(v.x, v.y);
             if (taper <= 0f) continue;
             float n1 = Mathf.PerlinNoise(v.x / WaveLen1 + 131.7f, v.y / WaveLen1 + 57.3f) - 0.5f;
             float n2 = Mathf.PerlinNoise(v.x / WaveLen2 + 911.1f, v.y / WaveLen2 + 407.9f) - 0.5f;
