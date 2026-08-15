@@ -49,3 +49,6 @@ desktop.ini
 # Backupy Blendera i archiwa zrodlowe tekstur
 *.blend1
 *.blend.zip
+
+# Instalatory dodatków Blendera (nie assety projektu)
+*.zip

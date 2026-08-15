@@ -34,8 +34,11 @@ public class CompetitionStation : NetworkBehaviour
     bool Near()
     {
         var po = NetworkManager.LocalClient?.PlayerObject;
-        return po != null &&
-            Vector3.Distance(po.transform.position, transform.position) <= radius;
+        if (po == null) return false;
+        var area = GetComponent<BoxCollider>();
+        return area != null && area.isTrigger
+            ? area.bounds.Contains(po.transform.position)
+            : Vector3.Distance(po.transform.position, transform.position) <= radius;
     }
 
     void OnGUI()
