@@ -5,13 +5,13 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// OCZKO (21) — hazard lite zamiast pokera (GDD 8.8 przyjdzie później).
+// BLACKJACK (21) — hazard lite zamiast pokera (GDD 8.8 przyjdzie później).
 // 3 rozdania przeciw bankowi. Przed rozdaniem obstawiasz W CIEMNO 1-3 szoty [1][2][3]
 // i pijesz je od razu (upojenie na stałe!). Wygrana z bankiem płaci tyle żetonów,
 // ile postawiłeś; przegrana tyle zabiera. Bank dobiera do 17. Ranking po żetonach.
 // Pijacki twist: karty "mieszają się w oczach" — im bardziej pijany, tym częściej
 // widzisz nie tę kartę, którą masz (prawdziwe wartości są stałe, jak w GDD pokerze).
-public class Oczko : Competition
+public class Blackjack : Competition
 {
     public int rounds = 3;
     public float stakeSeconds = 8f;
@@ -19,7 +19,7 @@ public class Oczko : Competition
     public float settleSeconds = 6f;
     public float shotDrunk = 5f; // upojenie za 1 zadeklarowany szot (na stałe)
 
-    protected override string AutoFlag => "-autooczko";
+    protected override string AutoFlag => "-autoblackjack";
 
     public enum Sub : byte { Stake, Play, Settle }
 
@@ -100,7 +100,7 @@ public class Oczko : Competition
         SubPhase.Value = (byte)Sub.Stake;
         SubEndsAt.Value = Now + stakeSeconds;
         RoundResetRpc();
-        Debug.Log($"[Oczko] rozdanie {r}");
+        Debug.Log($"[Blackjack] rozdanie {r}");
     }
 
     [Rpc(SendTo.ClientsAndHost)]
@@ -118,7 +118,7 @@ public class Oczko : Competition
         ulong id = p.Receive.SenderClientId;
         if (!racers.Contains(id) || stake.ContainsKey(id)) return;
         stake[id] = Mathf.Clamp(s, 1, 3);
-        Debug.Log($"[Oczko] {Olympics.Nick(id)} stawia {stake[id]}");
+        Debug.Log($"[Blackjack] {Olympics.Nick(id)} stawia {stake[id]}");
         if (racers.All(x => stake.ContainsKey(x))) StartPlay();
     }
 
@@ -190,7 +190,7 @@ public class Oczko : Competition
             int t = Total(h);
             int win = t > 21 ? -1 : dt > 21 || t > dt ? 1 : t == dt ? 0 : -1;
             chips[r] = chips.GetValueOrDefault(r) + win * stake[r];
-            Debug.Log($"[Oczko] {Olympics.Nick(r)}: {t} vs bank {dt} -> {win * stake[r]:+0;-0;0}");
+            Debug.Log($"[Blackjack] {Olympics.Nick(r)}: {t} vs bank {dt} -> {win * stake[r]:+0;-0;0}");
         }
         UpdateChipsLine();
         SubPhase.Value = (byte)Sub.Settle;

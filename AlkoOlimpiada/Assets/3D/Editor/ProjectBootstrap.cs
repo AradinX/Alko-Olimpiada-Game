@@ -351,7 +351,7 @@ public static class ProjectBootstrap
         Debug.Log("[Bootstrap] Prototype4 OK");
     }
 
-    // Prototyp 7: papierosy na hubie + konkurencja OCZKO (hazard lite). Idempotentny.
+    // Prototyp 7: papierosy na hubie + konkurencja BLACKJACK (hazard lite). Idempotentny.
     public static void SetupPrototype7()
     {
         var cig = BuildCigarettePrefab();
@@ -402,14 +402,14 @@ public static class ProjectBootstrap
             lbl.AddComponent<Billboard>();
         }
 
-        if (GameObject.Find("Station_Arena_Oczko") == null)
-            BuildStation("OCZKO", "Arena_Oczko", "-autooczko",
-                new Vector3(0f, 0.25f, -18f), new Color(0.05f, 0.4f, 0.2f)); // kasynowa zieleń
+        if (GameObject.Find("Station_Arena_Blackjack") == null)
+            BuildStation("BLACKJACK", "Arena_Blackjack", "-autoblackjack",
+                new Vector3(9.947f, 5.53f, -45.013f), new Color(0.05f, 0.4f, 0.2f)); // stoły w akropolu
         var vm = Object.FindFirstObjectByType<VoteManager>();
-        if (!vm.scenes.Contains("Arena_Oczko"))
+        if (!vm.scenes.Contains("Arena_Blackjack"))
         {
-            vm.scenes = vm.scenes.Append("Arena_Oczko").ToArray();
-            vm.titles = vm.titles.Append("OCZKO").ToArray();
+            vm.scenes = vm.scenes.Append("Arena_Blackjack").ToArray();
+            vm.titles = vm.titles.Append("BLACKJACK").ToArray();
             EditorUtility.SetDirty(vm);
         }
         EditorSceneManager.MarkSceneDirty(scene);
@@ -417,9 +417,9 @@ public static class ProjectBootstrap
 
         // arena: zielony stół, gracze w kręgu wokół (domyślne GetPose)
         var s = NewArena();
-        var c = new GameObject("Oczko");
+        var c = new GameObject("Blackjack");
         c.AddComponent<NetworkObject>();
-        var oc = c.AddComponent<Oczko>();
+        var oc = c.AddComponent<Blackjack>();
         oc.timeoutSeconds = 150f; // 3 rozdania × (stawka 8 + gra 20 + rozliczenie 6) z zapasem
         var table = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         table.name = "CardTable";
@@ -429,11 +429,11 @@ public static class ProjectBootstrap
         { color = new Color(0.05f, 0.35f, 0.15f) };
         AssetDatabase.CreateAsset(felt, "Assets/Prefabs/FeltMat.mat");
         table.GetComponent<Renderer>().sharedMaterial = felt;
-        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_Oczko.unity");
+        EditorSceneManager.SaveScene(s, "Assets/Scenes/Arena_Blackjack.unity");
 
-        if (!EditorBuildSettings.scenes.Any(x => x.path.Contains("Arena_Oczko")))
+        if (!EditorBuildSettings.scenes.Any(x => x.path.Contains("Arena_Blackjack")))
             EditorBuildSettings.scenes = EditorBuildSettings.scenes
-                .Append(new EditorBuildSettingsScene("Assets/Scenes/Arena_Oczko.unity", true))
+                .Append(new EditorBuildSettingsScene("Assets/Scenes/Arena_Blackjack.unity", true))
                 .ToArray();
         AssetDatabase.SaveAssets();
         Debug.Log("[Bootstrap] Prototype7 OK");
