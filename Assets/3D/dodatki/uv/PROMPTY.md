@@ -115,3 +115,48 @@ Dźwignia, zawleczka i kółko. Nie generuj — goła stal, płaski kolor plus n
 Wrzuć PNG-i do `Tekstury/` pod właściwymi nazwami i daj znać — podmienię i zrobię render
 kontrolny. Materiały i prefaby (`Assets/Prefabs/Rzutka.prefab`, `Granat.prefab`) już istnieją,
 więc podmiana samego pliku wystarczy.
+
+---
+
+## 5. Drewno szafy i kufra pod styl stołu — `Szafa_BaseColor.png`, `Kufer_BaseColor.png`
+
+Cel: szafa i kufer mają wyglądać na zrobione z tego samego drewna co `stol.glb`.
+
+**Do promptu dołącz dwa pliki:**
+1. `Stol_ref_2048.jpg` — referencja stylu (tekstura stołu z Tripo, zjechana z 8192 do 2048)
+2. `Szafa_UV.png` albo `Kufer_UV.png` — podkładka UV, tylko po to, żeby model widział skalę wysp
+
+Kolory zmierzone na teksturze stołu: cień `#482C0F`, baza `#70481C`, słoje jasne `#946633`.
+
+Atlas szafy i kufra to rzut prostopadłościenny — prostokątne wyspy w losowych obrotach.
+Nie da się na nim malować per-wyspa, więc **generujemy jednolity materiał drewna**, który
+wygląda poprawnie niezależnie od tego, gdzie wyspa wyląduje. Niebieski pas grecki i mosiądz
+zostają na osobnych slotach materiału, nie w tej teksturze.
+
+> Create a 1024×1024 seamless tileable wood texture map. Match the attached reference image
+> as closely as possible — same species, same tone, same grain character.
+>
+> CRITICAL TECHNICAL REQUIREMENTS:
+> - Completely flat 2D albedo map. No lighting, no shadows, no highlights, no ambient
+>   occlusion, no perspective, no rendered object, no background, no mockup.
+> - Must tile SEAMLESSLY on all four edges — top continues into bottom, left into right.
+> - Full bleed, artwork fills the entire square edge to edge.
+> - Uniform overall brightness across the whole image. No vignette, no darker corners,
+>   no single hero area — every region must be usable on its own.
+>
+> DESIGN — match the reference:
+> Warm golden-oak planks running VERTICALLY, 5 to 7 planks across the width. Base tone
+> #70481C, lighter grain streaks up to #946633, seams and shadow gaps #482C0F. Straight
+> longitudinal grain with fine parallel lines, a few soft knots, gentle tonal variation
+> from plank to plank so no two neighbouring boards are identical. Thin dark seam line
+> between planks, about 2 px wide. Scattered dark iron nail heads, small circles about
+> 10 px across, sitting near the plank ends in an irregular pattern — same style as the
+> bolt heads in the reference.
+>
+> STRICTLY AVOID: checkerboards, pixel grids, mosaic or tile patterns, random coloured
+> squares, glitch or noise effects, visible repetition seams, text, logos, watermarks,
+> heavy grunge, dirt splatter, moss, cracks or damage. Clean, even, semi-realistic
+> game-asset wood — the kind that reads well when a 20 cm patch of it is stretched
+> across a cabinet door.
+
+Ta sama tekstura na oba modele jest OK — wtedy generuj raz i zapisz pod obiema nazwami.
