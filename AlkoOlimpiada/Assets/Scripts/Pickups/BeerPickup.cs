@@ -21,6 +21,7 @@ public class BeerPickup : NetworkBehaviour
     public float respawnSeconds = 20f;
     public int specialsPerBreak = 2;
     public bool respawns = true;
+    public int sipsLeft;   // >0 tylko dla wyrzuconej, napoczętej butelki
 
     public NetworkVariable<bool> Available = new(true);
     public NetworkVariable<SpecialBeer> Special = new();
@@ -152,7 +153,7 @@ public class BeerPickup : NetworkBehaviour
             return;
         }
 
-        drunk.PickUpBeer(spiked, Special.Value);
+        drunk.PickUpBeer(spiked, Special.Value, sipsLeft);
         Debug.Log($"[Beer] {Olympics.Nick(id)} podniósł {SpecialName(Special.Value)}"
             + (spiked ? " z pigułką" : ""));
 

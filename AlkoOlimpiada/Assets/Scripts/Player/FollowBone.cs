@@ -13,7 +13,10 @@ public class FollowBone : MonoBehaviour
     public Vector3 gripLocal; // punkt chwytu w modelu butelki
     public Quaternion rotOffset = Quaternion.identity;
 
-    void LateUpdate()
+    void LateUpdate() => Snap();
+
+    // publiczne, bo edytorska scena strojenia musi ustawić chwyt bez wchodzenia w grę
+    public void Snap()
     {
         if (bone == null) return;
         transform.SetPositionAndRotation(Vector3.zero, bone.rotation * rotOffset);

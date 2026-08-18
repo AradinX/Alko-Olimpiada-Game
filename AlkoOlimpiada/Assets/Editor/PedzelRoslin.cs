@@ -17,6 +17,13 @@ public class PedzelRoslin : EditorWindow
     [SerializeField] bool statyczne = true;
     [SerializeField] bool maluje;
 
+    static readonly string[] domyslneTrawy =
+    {
+        "Assets/3D/MapKit/trawa/trawa-krzakowa.glb",
+        "Assets/3D/MapKit/trawa/trawa-krzakowa-b.glb",
+        "Assets/3D/MapKit/trawa/trawa-krzakowa-c.glb",
+    };
+
     SerializedObject so;
     Transform kontener;
     Dictionary<Vector2Int, List<Vector3>> siatka;
@@ -26,7 +33,23 @@ public class PedzelRoslin : EditorWindow
     [MenuItem("Tools/Pędzel roślin")]
     static void Otworz() => GetWindow<PedzelRoslin>("Pędzel roślin");
 
-    void OnEnable() { so = new SerializedObject(this); SceneView.duringSceneGui += NaScenie; }
+    void OnEnable()
+    {
+        so = new SerializedObject(this);
+        if (!Gotowy) WczytajDomyslne();
+        SceneView.duringSceneGui += NaScenie;
+    }
+
+    void WczytajDomyslne()
+    {
+        prefaby.Clear();
+        foreach (var sciezka in domyslneTrawy)
+        {
+            var go = AssetDatabase.LoadAssetAtPath<GameObject>(sciezka);
+            if (go != null) prefaby.Add(go);
+            else Debug.LogWarning($"Pędzel roślin: brak {sciezka}");
+        }
+    }
     void OnDisable() { SceneView.duringSceneGui -= NaScenie; }
 
     void OnGUI()
@@ -48,10 +71,11 @@ public class PedzelRoslin : EditorWindow
         so.ApplyModifiedProperties();
 
         GUILayout.Space(8);
+        if (GUILayout.Button("Wstaw domyślne kępki trawy")) { WczytajDomyslne(); so.Update(); }
         if (!Gotowy)
         {
-            EditorGUILayout.HelpBox("Lista prefabów jest pusta albo same sloty NULL – przeciągnij tu np. "
-                                    + "Assets/3D/MapKit/trawa/trawa-kepka.glb. Bez tego pędzel nic nie postawi.",
+            EditorGUILayout.HelpBox("Lista prefabów jest pusta albo same sloty NULL – kliknij przycisk wyżej "
+                                    + "albo przeciągnij tu własne prefaby. Bez tego pędzel nic nie postawi.",
                                     MessageType.Warning);
             maluje = false;
         }

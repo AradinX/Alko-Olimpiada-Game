@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TMPro;
@@ -850,13 +851,64 @@ public static class ProjectBootstrap
         Debug.Log("[Bootstrap] SetupLuckyShotArena OK");
     }
 
+    static Bounds BoundsOf(GameObject go)
+    {
+        var rs = go.GetComponentsInChildren<Renderer>();
+        var b = rs[0].bounds;
+        foreach (var r in rs) b.Encapsulate(r.bounds);
+        return b;
+    }
+
+    // Naczynie alternatywne w dłoni: modele (kufel to szkło + piwo) skalowane do
+    // zadanej wysokości i przesunięte tak, żeby ich środek trafił w punkt chwytu
+    // butelki — jeden chwyt obsługuje wszystkie trzy. Startuje wyłączone.
+    static void AddVessel(Transform holder, Vector3 grip, string name, float height,
+                          params string[] assetPaths)
+    {
+        var v = new GameObject(name);
+        v.transform.SetParent(holder, false);
+        v.transform.rotation = Quaternion.identity; // modele naczyń są Y-do-góry
+        foreach (var path in assetPaths)
+        {
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (model == null) { Debug.LogWarning($"[Bootstrap] Brak {path}"); continue; }
+            var inst = (GameObject)PrefabUtility.InstantiatePrefab(model, v.transform);
+            inst.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        }
+        if (v.GetComponentsInChildren<Renderer>().Length == 0)
+        {
+            Debug.LogWarning($"[Bootstrap] Naczynie {name} bez modeli — pomijam");
+            Object.DestroyImmediate(v);
+            return;
+        }
+        v.transform.localScale *= height / BoundsOf(v).size.y;
+        v.transform.position += grip - BoundsOf(v).center;
+        SavePose(v); // punkt wyjścia do ręcznego strojenia (Alko/Naczynie: zapisz pozę)
+        v.SetActive(false); // DrunkSystem włącza to wylosowane przy podniesieniu
+    }
+
+    // obie pozy (stanie i picie) startują tam, gdzie naczynie wylądowało z automatu
+    static void SavePose(GameObject vessel)
+    {
+        var pose = vessel.GetComponent<VesselPose>() ?? vessel.AddComponent<VesselPose>();
+        pose.idlePosition = pose.drinkPosition = vessel.transform.localPosition;
+        pose.idleRotation = pose.drinkRotation = vessel.transform.localEulerAngles;
+    }
+
     // Butelka.fbx jako wizual piwa: podmienia walec w Beer.prefab oraz butelkę
     // w ręce gracza (HandBottle) — podpiętą pod kość dłoni CC_Base_R_Hand,
     // więc rusza się razem z ręką (chód, emotki). Idempotentne.
+    [MenuItem("Alko/Butelka, kufel i puszka w dłoni")]
     public static void SetupBottleAssets()
     {
         var model = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/Butelka.fbx");
-        if (model == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/Butelka.fbx"); EditorApplication.Exit(1); return; }
+        // z menu nie ubijamy edytora — Exit tylko w trybie wsadowym
+        if (model == null)
+        {
+            Debug.LogError("[Bootstrap] Brak Assets/3D/Butelka.fbx");
+            if (Application.isBatchMode) EditorApplication.Exit(1);
+            return;
+        }
         var povHandModel = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/3D/POV/PovHand.glb");
         if (povHandModel == null) { Debug.LogError("[Bootstrap] Brak Assets/3D/POV/PovHand.glb"); return; }
 
@@ -868,13 +920,6 @@ public static class ProjectBootstrap
             AssetDatabase.CreateAsset(mat, "Assets/3D/ButelkaMat.mat");
         }
 
-        Bounds BoundsOf(GameObject go)
-        {
-            var rs = go.GetComponentsInChildren<Renderer>();
-            var b = rs[0].bounds;
-            foreach (var r in rs) b.Encapsulate(r.bounds);
-            return b;
-        }
         // model butelki leży w pliku wzdłuż Z — obróć najdłuższą oś do pionu,
         // potem skaluj do zadanej wysokości
         GameObject Spawn(Transform parent, float height)
@@ -908,30 +953,49 @@ public static class ProjectBootstrap
         // --- Player.prefab: butelka w dłoni (kość CC_Base_R_Hand) ---
         var player = PrefabUtility.LoadPrefabContents("Assets/Prefabs/Player.prefab");
         Transform oldHb = null, oldPov = null, hand = null;
+        var strays = new List<Transform>(); // naczynia wstawione pod root ręcznie
         foreach (var t in player.GetComponentsInChildren<Transform>(true))
         {
             if (t.name == "HandBottle") oldHb = t;
             if (t.name == "PovRealArm") oldPov = t;
             if (t.name == "CC_Base_R_Hand") hand = t;
+            if (t.parent == player.transform && System.Enum.GetNames(typeof(Vessel)).Contains(t.name))
+                strays.Add(t);
         }
         if (oldHb != null) Object.DestroyImmediate(oldHb.gameObject);
         if (oldPov != null) Object.DestroyImmediate(oldPov.gameObject);
+        foreach (var s in strays) Object.DestroyImmediate(s.gameObject);
         if (hand == null)
         {
             Debug.LogError("[Bootstrap] Brak kości CC_Base_R_Hand w prefabie gracza");
             PrefabUtility.UnloadPrefabContents(player);
-            EditorApplication.Exit(1);
+            if (Application.isBatchMode) EditorApplication.Exit(1);
             return;
         }
         // pod rootem gracza (uniform skala!), FollowBone dokleja do kości w LateUpdate
-        var hb = Spawn(player.transform, 0.3f); // 30 cm butelka w garści
-        hb.name = "HandBottle";
-        var hbB = BoundsOf(hb);
+        var bottle = Spawn(player.transform, 0.3f); // 30 cm butelka w garści
+        var hbB = BoundsOf(bottle);
         // dłoń trzyma za szyjkę (punkt 1/3 od góry), między kciukiem i palcem wskazującym
         Vector3 grip = hbB.center + Vector3.up * (hbB.size.y / 6f);
-        Vector3 gripLocal = hb.transform.InverseTransformPoint(grip);
+        Vector3 gripLocal = bottle.transform.InverseTransformPoint(grip);
         Vector3 wantPos = hand.TransformPoint(new Vector3(0f, 0.04f, 0.065f));
-        hb.transform.position += wantPos - grip;
+        bottle.transform.position += wantPos - grip;
+
+        // HandBottle to uchwyt z transformem dawnej butelki — dzięki temu chwyt
+        // i strojenie POV w DrunkSystem zostają ważne, a naczynia (butelka, kufel,
+        // puszka) wiszą pod nim jako dzieci. DrunkSystem włącza jedno z nich.
+        var hb = new GameObject("HandBottle");
+        hb.transform.SetParent(player.transform, false);
+        hb.transform.SetPositionAndRotation(bottle.transform.position, bottle.transform.rotation);
+        hb.transform.localScale = bottle.transform.localScale;
+        bottle.transform.SetParent(hb.transform, true);
+        bottle.name = "Butelka";
+        SavePose(bottle); // zerowa poza = butelka dokładnie tam, gdzie była do tej pory
+        AddVessel(hb.transform, wantPos, "Kufel", 0.16f,
+            "Assets/Prefabs/Kufel_szklo.prefab", "Assets/Prefabs/Piwo_Kufel.prefab");
+        AddVessel(hb.transform, wantPos, "Puszka", 0.13f,
+            "Assets/3D/MapKit/dodatki/puszka.glb");
+
         var fb = hb.AddComponent<FollowBone>();
         fb.bone = hand;
         fb.posOffset = Quaternion.Inverse(hand.rotation) * (wantPos - hand.position);

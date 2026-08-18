@@ -5,6 +5,10 @@ using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
+// Naczynie w dłoni — czysta kosmetyka, losowane przy podnoszeniu piwa.
+// Nazwy muszą się zgadzać z dziećmi HandBottle z ProjectBootstrap.AddVessel.
+public enum Vessel : byte { Butelka, Kufel, Puszka }
+
 // System upojenia: poziom 0-100 replikowany z serwera, bujanie kamery u właściciela,
 // Zgon przy 100 (cucenie [E]), etapy psujące sterowanie, ekwipunek piw [E]/[F],
 // pigułki [Q], dobrowolne rzyganie [V] (kara za przyłapanie), klątwy z piw specjalnych.
@@ -20,6 +24,7 @@ public class DrunkSystem : NetworkBehaviour
     public float catchFov = 40f;             // musi mieć cię w kadrze (stopnie od osi patrzenia)
     public int catchPenalty = 2;
     public int maxBeers = 1;                 // jedno piwo w ręce
+    public int sipsPerBeer = 3;              // tyle wciśnięć [F] opróżnia butelkę
     public float lieSeconds = 1.2f;          // faza leżenia po powaleniu (zanim zaczniesz wstawać)
     public float floorFraction = 0.5f;       // ile alkoholu z konkurencji zostaje na stałe (podłoga)
     public float spikedExtra = 35f;          // pigułka w piwie
@@ -30,7 +35,10 @@ public class DrunkSystem : NetworkBehaviour
     // butelki, więc chwyt trzyma hierarchia Unity i nie ma jak się rozjechać.
     // Animujemy samą butelkę, dłoń jedzie za nią z definicji.
     // Strojenie w POV_Beer_Tuning: przestawiasz butelkę (dłoń leci razem z nią),
-    // potem przepisujesz tu jej localPosition/localEulerAngles.
+    // potem przepisujesz tu jej localPosition/localEulerAngles. To jest ruch
+    // UCHWYTU, wspólny dla wszystkich naczyń — poza samego kufla czy puszki
+    // (osobno stanie i picie) siedzi na VesselPose w dzieciach HandBottle
+    // i stroi się w scenie Naczynia_Tuning.
     [Header("POV piwa")]
     public Vector3 povBottleIdlePosition = new(0.3938577f, -0.2383561f, 0.57f);
     public Vector3 povBottleDrinkPosition = new(0.09247f, 0.00941f, 0.24294f);
@@ -58,8 +66,10 @@ public class DrunkSystem : NetworkBehaviour
     public NetworkVariable<bool> Vomiting = new();
     public NetworkVariable<bool> Down = new();       // powalony pchnięciem; wstawanie automatyczne
     public NetworkVariable<int> Beers = new();       // piwo w ręce (max 1)
+    public NetworkVariable<int> Sips = new();        // łyki do końca butelki w ręce
     public NetworkVariable<double> DrinkUntil = new(); // serwerowy koniec animacji picia
     public NetworkVariable<SpecialBeer> HeldSpecial = new(); // typ piwa w ręce
+    public NetworkVariable<Vessel> HeldVessel = new();       // butelka / kufel / puszka
     public NetworkVariable<bool> Shield = new();             // Tarcza Ateny na następną grę
     public NetworkVariable<int> Pills = new();       // ekwipunek pigułek
     // klątwy jako maska bitowa — efekty się kumulują:
@@ -143,6 +153,8 @@ public class DrunkSystem : NetworkBehaviour
         if (IsOwner) SetupPovBottle();
         Beers.OnValueChanged += (_, v) => SetBottleVisible(v > 0);
         SetBottleVisible(Beers.Value > 0);
+        HeldVessel.OnValueChanged += (_, v) => ApplyVessel(v);
+        ApplyVessel(HeldVessel.Value);
         if (IsOwner) SetupPost();
 
         // ponytail: headless smoke test pętli Zgon->cucenie->wyrzucenie piwa (-autodrink)
@@ -152,6 +164,7 @@ public class DrunkSystem : NetworkBehaviour
             Invoke(nameof(AutoDrink), 3f);
             Invoke(nameof(ReviveRpc), 6f);
             Invoke(nameof(AutoDrop), 8f);
+            Invoke(nameof(AutoSips), 10f);
         }
         // smoke test powalenia: pełny cykl leżenie -> automatyczne wstawanie (-autoknock)
         if (IsServer && System.Array.IndexOf(
@@ -194,6 +207,35 @@ public class DrunkSystem : NetworkBehaviour
         if (povArm != null) povArm.gameObject.SetActive(visible);
     }
 
+    // pod HandBottle (i w jego kopii POV) wiszą wszystkie naczynia — widać to wylosowane.
+    // ponytail: gdy prefab jest jeszcze sprzed AddVessel, Find nic nie znajdzie i zostaje butelka
+    void ApplyVessel(Vessel vessel)
+    {
+        foreach (var holder in new[] { handBottle, povBottle })
+        {
+            if (holder == null) continue;
+            foreach (Vessel v in System.Enum.GetValues(typeof(Vessel)))
+            {
+                var t = holder.Find(v.ToString());
+                if (t != null) t.gameObject.SetActive(v == vessel);
+            }
+        }
+    }
+
+    // poza naczynia w garści: w trzeciej osobie jedzie stanie→picie razem z animacją
+    // (tu pilnujesz, żeby kufel nie wszedł w twarz), w POV zostaje sama poza stania —
+    // ruch pod kamerą robi już holder (povBottleIdle/Drink). Liczą wszyscy klienci,
+    // bo naczynie w cudzej dłoni widać tak samo.
+    void ApplyVesselPose()
+    {
+        if (!IsSpawned || Beers.Value <= 0) return;
+        string name = HeldVessel.Value.ToString();
+        if (handBottle != null && handBottle.Find(name) is Transform h
+            && h.TryGetComponent<VesselPose>(out var hp)) hp.Apply(DrinkPose);
+        if (povBottle != null && povBottle.Find(name) is Transform p
+            && p.TryGetComponent<VesselPose>(out var pp)) pp.Apply(0f);
+    }
+
     void UpdatePovBottle()
     {
         if (povBottle == null) return;
@@ -222,6 +264,22 @@ public class DrunkSystem : NetworkBehaviour
 
     void AutoDrink() => AddDrink(120f);
     void AutoDrop() { Beers.Value = 1; DiscardBeerRpc(); } // test spawnu butelki na ziemi
+
+    // ponytail: smoke test łyków — butelka ma zniknąć dopiero po sipsPerBeer wciśnięciach
+    void AutoSips() => StartCoroutine(SipTest());
+
+    IEnumerator SipTest()
+    {
+        PickUpBeer(false, SpecialBeer.None);
+        for (int i = 1; i <= sipsPerBeer; i++)
+        {
+            DrinkBeerRpc();
+            yield return new WaitForSeconds(DrinkSeconds + 0.2f);
+            Debug.Log($"[Drunk] test: łyk {i}/{sipsPerBeer}, piwo w ręce={Beers.Value},"
+                + $" łyków zostało={Sips.Value}, upojenie={Drunk.Value:0.0}");
+            Debug.Assert(Beers.Value == (i < sipsPerBeer ? 1 : 0), "Zła liczba łyków na butelkę");
+        }
+    }
 
     // leżący pijak (Zgon) albo pochylony rzygacz — widoczne u wszystkich
     void UpdateBodyPose()
@@ -296,14 +354,23 @@ public class DrunkSystem : NetworkBehaviour
         _ => ""
     };
 
-    public void PickUpBeer(bool spiked, SpecialBeer special)
+    // sips <= 0 → pełna butelka; napoczęta wraca z ziemi z resztą łyków
+    public void PickUpBeer(bool spiked, SpecialBeer special, int sips = 0)
     {
         Beers.Value++;
+        Sips.Value = sips > 0 ? sips : sipsPerBeer;
         HeldSpecial.Value = special;
+        // naczynie losuje się przy każdym podniesieniu — na ziemi zawsze leży butelka
+        HeldVessel.Value = (Vessel)Random.Range(0, System.Enum.GetValues(typeof(Vessel)).Length);
         if (spiked) spikedBeers++;
         if (special != SpecialBeer.None)
-            MsgOwner($"PIWO {BeerPickup.SpecialName(special)}: {SpecialEffect(special)}. [F] wypij, [G] wyrzuć");
+            MsgOwner($"PIWO {BeerPickup.SpecialName(special)}: {SpecialEffect(special)}."
+                + $" [F] wypij ({Lyki(Sips.Value)}), [G] wyrzuć");
     }
+
+    // 1 łyk / 2-4 łyki / 5 łyków
+    static string Lyki(int n) => n == 1 ? "1 łyk"
+        : n % 10 >= 2 && n % 10 <= 4 && n / 10 % 10 != 1 ? $"{n} łyki" : $"{n} łyków";
 
     static byte RandomCurseBit() => (byte)(1 << Random.Range(0, 8));
 
@@ -354,8 +421,14 @@ public class DrunkSystem : NetworkBehaviour
     IEnumerator FinishDrink()
     {
         yield return new WaitForSeconds(DrinkSeconds);
-        if (PassedOut.Value || Beers.Value <= 0)
-        { DrinkUntil.Value = 0; yield break; }
+        DrinkUntil.Value = 0;
+        if (PassedOut.Value || Beers.Value <= 0) yield break;
+
+        // każde [F] to jeden łyk; alkohol schodzi po równo, efekty piwa dopiero na dnie
+        float sip = beerStrength / Mathf.Max(1, sipsPerBeer);
+        Sips.Value--;
+        if (Sips.Value > 0) { AddDrink(sip); yield break; }
+
         Beers.Value--;
         SpecialBeer special = HeldSpecial.Value;
         HeldSpecial.Value = SpecialBeer.None;
@@ -387,7 +460,7 @@ public class DrunkSystem : NetworkBehaviour
                 MsgOwner($"Wypito {BeerPickup.SpecialName(special)}: {SpecialEffect(special)} + klątwa");
             }
         }
-        float amount = beerStrength;
+        float amount = sip;
         if (spiked && Shield.Value)
         {
             Shield.Value = false;
@@ -406,7 +479,6 @@ public class DrunkSystem : NetworkBehaviour
             Debug.Log($"[Drunk] {Olympics.Nick(OwnerClientId)} wypił piwo z pigułką (efekt {effect})");
         }
         AddDrink(amount);
-        DrinkUntil.Value = 0;
     }
 
     [Rpc(SendTo.Server)]
@@ -423,6 +495,7 @@ public class DrunkSystem : NetworkBehaviour
             bp.respawns = false; // to nie spawner — podniesiona znika na dobre
             go.GetComponent<NetworkObject>().Spawn();
             bp.Special.Value = HeldSpecial.Value; // nadpisz losowanie z OnNetworkSpawn
+            bp.sipsLeft = Sips.Value;             // napoczęta butelka nie odrasta
             bp.SetSpiked(spikedBeers > 0);
         }
         HeldSpecial.Value = SpecialBeer.None;
@@ -609,6 +682,7 @@ public class DrunkSystem : NetworkBehaviour
 
     void LateUpdate()
     {
+        ApplyVesselPose(); // też u nie-właścicieli: kufel w cudzej garści
         if (!IsOwner) return;
         UpdatePovBottle();
 
@@ -699,7 +773,8 @@ public class DrunkSystem : NetworkBehaviour
 
         // ekwipunek pod paskiem
         string beerLine = Beers.Value <= 0 ? "Piwo: brak"
-            : (HeldSpecial.Value != SpecialBeer.None ? $"Piwo: {BeerPickup.SpecialName(HeldSpecial.Value)}" : "Piwo: zwykłe") + "  [F] pij  [G] wyrzuć";
+            : (HeldSpecial.Value != SpecialBeer.None ? $"Piwo: {BeerPickup.SpecialName(HeldSpecial.Value)}" : "Piwo: zwykłe")
+              + $" ({Lyki(Sips.Value)})  [F] pij  [G] wyrzuć";
         GUI.Label(new Rect(Screen.width - 250f, back.yMax + 6f, 240f, 56f),
             beerLine + $"\nPigułki: {Pills.Value}" + (Pills.Value > 0 ? "  [Q] dosyp" : "")
             + (Steady.Value ? "\nSzlug: pewna ręka w nast. konkurencji" : ""),

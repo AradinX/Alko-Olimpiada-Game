@@ -52,3 +52,6 @@ desktop.ini
 
 # Instalatory dodatków Blendera (nie assety projektu)
 *.zip
+
+# Unity — schematy UXML generowane przez edytor
+UIElementsSchema/

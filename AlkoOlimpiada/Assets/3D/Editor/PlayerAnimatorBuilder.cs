@@ -56,7 +56,8 @@ public static class PlayerAnimatorBuilder
         return s;
     }
 
-    static AnimationClip Clip(string name)
+    // publiczne, bo scena strojenia naczyń próbkuje te same klipy co Animator
+    public static AnimationClip Clip(string name)
     {
         string path = $"Assets/3D/GuyWardrobe@{name}.fbx";
         var clip = AssetDatabase.LoadAllAssetsAtPath(path)

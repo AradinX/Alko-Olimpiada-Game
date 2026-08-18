@@ -157,7 +157,7 @@ public class PlayerLimbs : NetworkBehaviour
     // z obiektem armatury wsuwa jeszcze jeden węzeł i wtedy trzeba zejść niżej.
     // SampleAnimation przy niezgodnej ścieżce NIC nie zgłasza i po prostu nic nie
     // robi — dlatego ustalamy to raz i głośno, zamiast animować w próżnię.
-    static Transform ClipRoot(Transform animRoot)
+    public static Transform ClipRoot(Transform animRoot)
     {
         if (animRoot.Find("root") != null) return animRoot;
         foreach (Transform c in animRoot)
